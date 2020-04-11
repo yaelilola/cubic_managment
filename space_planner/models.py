@@ -6,7 +6,10 @@ from facilities.models import Cubic
 
 
 class AssignGroupCubic(models.Model):
-    assigner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # TODO: type should be space planner or higher?
+    assigner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='+')  # TODO: type should be space planner or higher?
     time = models.DateField(null=True, blank=True, auto_now_add=True)
-    assigned_group = models.ForeignKey(Group, on_delete=models.CASCADE, primary_key=True)
-    cubic = models.ForeignKey(Cubic, on_delete=models.CASCADE, primary_key=True)
+    assigned_group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='+')
+    cubic = models.ForeignKey(Cubic, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (("cubic", "assigned_group"),)

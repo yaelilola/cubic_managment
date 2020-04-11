@@ -5,32 +5,41 @@ from django.db import IntegrityError
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 from .models import CustomUser
+from .forms import CustomUserSignUpForm
 
 # Create your views here.
 #Todo: change forms, check id doesnot exist, check space planner or focal point does this?
 def signupuser(request):
     if request.method == 'GET':
-        return render(request, 'custom_user/signupuser.html', {'form': UserCreationForm()})
+        return render(request, 'custom_user/signupuser.html', {'form': CustomUserSignUpForm()})
     else:
         # create a new user
-        if request.POST['password1'] == request.POST['password2']:
-            try:
-                user = CustomUser(User.objects.create_user(request.POST['username'], password=request.POST['password1']))
-                user.type = request.POST['type']
-                user.id = request.POST['id']
-                if request.POST['end_date']:
-                    user.end_date = request.POST['end_date']
-                if request.POST['start_date']:
-                    user.end_date = request.POST['start_date']
-                user.save()
-                login(request, user)
-                return redirect('homepage')
-            except IntegrityError:
-                return render(request, 'custom_user/signupuser.html',
-                              {'form': UserCreationForm(), 'error': 'That username/id is already taken. Please choose a new one'})
-        else:
+        # if request.POST['password1'] == request.POST['password2']:
+        try:
+            #user = CustomUser(User.objects.create_user(request.POST['username'], password=request.POST['password']))
+            form = CustomUserSignUpForm(request.POST)
+            user = form.save(commit=False)
+            user.username = ""
+            user.firstname = ""
+            user.lastname = ""
+            user.email = ""
+            user.is_active = True
+            user.is_superuser = False
+            # user.type = request.POST['type']
+            # user.id = request.POST['id']
+            # if request.POST['end_date']:
+            #     user.end_date = request.POST['end_date']
+            # if request.POST['start_date']:
+            #     user.end_date = request.POST['start_date']
+            user.save()
+            login(request, user)
+            return redirect('homepage')
+        except IntegrityError:
             return render(request, 'custom_user/signupuser.html',
-                          {'form': UserCreationForm(), 'error': 'Password did not match'})
+                          {'form': CustomUserSignUpForm(), 'error': 'That username/employee number is already taken. Please choose a new one'})
+    # else:
+    #     return render(request, 'custom_user/signupuser.html',
+    #                   {'form': CustomUserSignUpForm(), 'error': 'Password did not match'})
 
 
 @login_required

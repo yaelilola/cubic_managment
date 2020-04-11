@@ -1,15 +1,15 @@
 from django.db import models
-
+MAX_LENGTH = 100
 
 class Site(models.Model):
-    id = models.CharField(primary_key=True)
+    id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
 
     def __str__(self):
         return self.id
 
 
 class Campus(models.Model):
-    id = models.CharField(primary_key=True)
+    id = models.CharField(primary_key=True,max_length=MAX_LENGTH)
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -26,7 +26,7 @@ class Floor(models.Model):
 
 class Space(models.Model):
     id = models.UUIDField(primary_key=True)
-    type = models.CharField(choices=(('lab', 'lab'), ('conference_room', 'conference_room')))
+    type = models.CharField(choices=(('lab', 'lab'), ('conference_room', 'conference_room')),max_length=MAX_LENGTH)
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -35,7 +35,7 @@ class Space(models.Model):
 
 class Cubic(models.Model):
     id = models.UUIDField(primary_key=True)
-    type = models.CharField(choices=(('shared', 'shared'), ('private', 'private')))
+    type = models.CharField(choices=(('shared', 'shared'), ('private', 'private')),max_length=MAX_LENGTH)
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     # group = models.ForeignKey(Group, on_delete=models.CASCADE)
 
