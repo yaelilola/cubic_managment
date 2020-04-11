@@ -4,6 +4,11 @@ from django.db import IntegrityError
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 from custom_user.forms import CustomUserSignUpForm
+from custom_user.models import CustomUser
+
+
+def homepage(request):
+    return render(request, 'custom_user/homepage.html')
 
 # Create your views here.
 #Todo: change forms, check id doesnot exist, check space planner or focal point does this?
@@ -14,21 +19,7 @@ def signupuser(request):
         # create a new user
         # if request.POST['password1'] == request.POST['password2']:
         try:
-            #user = CustomUser(User.objects.create_user(request.POST['username'], password=request.POST['password']))
-            form = CustomUserSignUpForm(request.POST)
-            user = form.save(commit=False)
-            user.username = ""
-            user.firstname = ""
-            user.lastname = ""
-            user.email = ""
-            user.is_active = True
-            user.is_superuser = False
-            # user.type = request.POST['type']
-            # user.id = request.POST['id']
-            # if request.POST['end_date']:
-            #     user.end_date = request.POST['end_date']
-            # if request.POST['start_date']:
-            #     user.end_date = request.POST['start_date']
+            user = CustomUser.objects.create_user(request.POST['email'], password=request.POST['password'])
             user.save()
             login(request, user)
             return redirect('homepage')

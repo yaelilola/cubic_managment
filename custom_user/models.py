@@ -4,7 +4,7 @@ from facilities.models import Cubic
 MAX_LENGTH = 100
 
 
-class Group(models.Model):
+class Unit(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
 
     def __str__(self):

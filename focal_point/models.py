@@ -1,5 +1,5 @@
 from django.db import models
-from custom_user.models import CustomUser, Group
+from custom_user.models import CustomUser,Unit
 from facilities.models import Cubic
 # Create your models here.
 
@@ -15,9 +15,9 @@ class AssignUserCubic(models.Model):
 
 
 class Request(models.Model):
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='+')
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='+')
     size = models.PositiveIntegerField()
-    group_near_by = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='+')
+    unit_near_by = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='+')
     near_lab = models.BooleanField()
     date = models.DateField(auto_now_add=True)
     destination_date = models.DateField(null=True, blank=True)
