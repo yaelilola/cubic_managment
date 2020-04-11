@@ -114,6 +114,7 @@ class CustomUser(AbstractBaseUser):
         verbose_name='email address',
         max_length=255,
         unique=True,
+        default='default@gmail.com'
     )
     active = models.BooleanField(default=True)
     staff = models.BooleanField(default=False) # a admin user; non super-user
