@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'custom_user',
     'facilities',
-    'recruit'
+    'recruit',
+    'focal_point',
+    'space_planner'
 ]
 
 MIDDLEWARE = [

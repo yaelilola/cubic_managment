@@ -24,17 +24,3 @@ class CustomUser(User):
     def __str__(self):
         return self.username
 
-
-class AssignUserCubic(models.Model):
-    assigner = models.ForeignKey(CustomUser, on_delete=models.CASCADE) #TODO: type should be focal point or higher?
-    time = models.DateField(null=True, blank=True, auto_now_add=True)
-    assigned_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, primary_key=True)
-    cubic = models.ForeignKey(Cubic,  on_delete=models.CASCADE, primary_key=True)
-
-
-class AssignGroupCubic(models.Model):
-    assigner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # TODO: type should be space planner or higher?
-    time = models.DateField(null=True, blank=True, auto_now_add=True)
-    assigned_group = models.ForeignKey(Group, on_delete=models.CASCADE, primary_key=True)
-    cubic = models.ForeignKey(Cubic, on_delete=models.CASCADE, primary_key=True)
-
