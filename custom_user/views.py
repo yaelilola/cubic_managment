@@ -1,11 +1,9 @@
-from django.shortcuts import render,redirect,get_object_or_404
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
+from django.shortcuts import render,redirect
+from django.contrib.auth.forms import AuthenticationForm
 from django.db import IntegrityError
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
-from .models import CustomUser
-from .forms import CustomUserSignUpForm
+from custom_user.forms import CustomUserSignUpForm
 
 # Create your views here.
 #Todo: change forms, check id doesnot exist, check space planner or focal point does this?
