@@ -8,13 +8,15 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 #         model = CustomUser
 #         fields = ('employee_number', 'password', 'type', 'start_date', 'end_date', 'percentage', 'group')
 #
+
+
 class CustomUserSignUpForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm password', widget=forms.PasswordInput)
 
     class Meta:
         model = CustomUser
-        fields = ('email',)
+        fields = ('email','employee_number','type','percentage','unit','start_date','end_date')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -42,7 +44,7 @@ class UserAdminCreationForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ('email',)
+        fields = ('email','employee_number')
 
     def clean_password2(self):
         # Check that the two password entries match

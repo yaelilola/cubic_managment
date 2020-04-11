@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 from custom_user.forms import CustomUserSignUpForm
-from custom_user.models import CustomUser
+from custom_user.models import CustomUser, Unit
 
 
 def homepage(request):
@@ -19,7 +19,11 @@ def signupuser(request):
         # create a new user
         # if request.POST['password1'] == request.POST['password2']:
         try:
-            user = CustomUser.objects.create_user(request.POST['email'], password=request.POST['password'])
+            user = CustomUser.objects.create_user(request.POST['email'],employee_number=request.POST['employee_number'],
+                                                  type=request.POST['type'],
+                                                  percentage=request.POST['percentage'],
+                                                  unit=Unit(request.POST['unit']),
+                                                  password=request.POST['password'])
             user.save()
             login(request, user)
             return redirect('homepage')

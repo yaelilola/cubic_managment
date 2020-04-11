@@ -67,7 +67,7 @@ class Unit(models.Model):
 #         return self.username
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None):
+    def create_user(self, email, employee_number, type, percentage , unit, start_date=None, end_date=None, password=None):
         """
         Creates and saves a User with the given email and password.
         """
@@ -76,19 +76,26 @@ class UserManager(BaseUserManager):
 
         user = self.model(
             email=self.normalize_email(email),
+            employee_number=employee_number,
+            type=type,
+            start_date=start_date,
+            end_date=end_date,
+            percentage=percentage,
+            unit=unit,
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_staffuser(self, email, password):
+    def create_staffuser(self, email, employee_number, password):
         """
         Creates and saves a staff user with the given email and password.
         """
         user = self.create_user(
             email,
             password=password,
+            employee_number=employee_number,
         )
         user.staff = True
         user.save(using=self._db)
@@ -98,9 +105,15 @@ class UserManager(BaseUserManager):
         """
         Creates and saves a superuser with the given email and password.
         """
+        unit = Unit(email)#TODO: for trial
+        unit.save()
         user = self.create_user(
             email,
             password=password,
+            employee_number="0",
+            type='regular',
+            percentage='full_time',
+            unit=unit,
         )
         user.staff = True
         user.admin = True
@@ -108,13 +121,11 @@ class UserManager(BaseUserManager):
         return user
 
 
-
 class CustomUser(AbstractBaseUser):
     email = models.EmailField(
         verbose_name='email address',
         max_length=255,
         unique=True,
-        default='default@gmail.com'
     )
     active = models.BooleanField(default=True)
     staff = models.BooleanField(default=False) # a admin user; non super-user
@@ -123,6 +134,18 @@ class CustomUser(AbstractBaseUser):
     objects = UserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = [] # Email & Password are required by default.
+
+    employee_number = models.CharField(max_length=MAX_LENGTH,default="1") #TODO: unique? think about admins( now they are always 0)
+    type = models.CharField(
+        choices=(('regular', 'regular'), ('space_planner', 'space_planner'), ('focal_point', 'focal_point')),
+        max_length=MAX_LENGTH, default='regular')
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    percentage = models.CharField(choices=(('full_time','full_time'),('part_time','part_time')),max_length=MAX_LENGTH,
+                                  default="full_time")
+    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+
+
     def get_full_name(self):
         # The user is identified by their email address
         return self.email
