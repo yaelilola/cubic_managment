@@ -94,7 +94,7 @@ class CustomUser(AbstractBaseUser):
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
     is_focal_point = models.BooleanField(default=False)
     is_space_planner = models.BooleanField(default=False)
-
+    #TODO: does user have name?
 
     def get_full_name(self):
         # The user is identified by their email address
