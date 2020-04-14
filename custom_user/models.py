@@ -1,73 +1,21 @@
 from django.db import models
-from django.contrib.auth.models import User,AbstractBaseUser,BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser,BaseUserManager
 from facilities.models import Cubic
 MAX_LENGTH = 100
 
 
-class Unit(models.Model):
+class BusinessGroup(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
 
     def __str__(self):
         return self.id
 
-#
-# class UserManager(BaseUserManager):
-#     def create_user(self, email, password=None):
-#         """
-#         Creates and saves a User with the given email and password.
-#         """
-#         if not email:
-#             raise ValueError('Users must have an email address')
-#
-#         user = self.model(
-#             email=self.normalize_email(email),
-#         )
-#
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
-#
-#     def create_staffuser(self, email, password):
-#         """
-#         Creates and saves a staff user with the given email and password.
-#         """
-#         user = self.create_user(
-#             email,
-#             password=password,
-#         )
-#         user.staff = True
-#         user.save(using=self._db)
-#         return user
-#
-#     def create_superuser(self, email, password):
-#         """
-#         Creates and saves a superuser with the given email and password.
-#         """
-#         user = self.create_user(
-#             email,
-#             password=password,
-#         )
-#         user.staff = True
-#         user.admin = True
-#         user.save(using=self._db)
-#         return user
-#
-#
-# class CustomUser(AbstractBaseUser):
-#     employee_number = models.CharField(primary_key=True,max_length=MAX_LENGTH)
-#     type = models.CharField(choices=(('regular','regular'),('space_planner','space_planner'),('focal_point','focal_point')), max_length=MAX_LENGTH)
-#     start_date = models.DateField(null=True, blank=True)
-#     end_date = models.DateField(null=True, blank=True)
-#     percentage = models.CharField(choices=(('full_time','full_time'),('part_time','part_time')),max_length=MAX_LENGTH)
-#     group = models.ForeignKey(Group, on_delete=models.CASCADE)
-#     USERNAME_FIELD = 'employee_number'
-#     objects = UserManager()
-#
-#     def __str__(self):
-#         return self.username
+    def get_users(self):
+        pass
+
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, employee_number, type, percentage , unit, start_date=None, end_date=None, password=None):
+    def create_user(self, email, employee_number, type, percentage , business_group, start_date=None, end_date=None, password=None):
         """
         Creates and saves a User with the given email and password.
         """
@@ -81,7 +29,7 @@ class UserManager(BaseUserManager):
             start_date=start_date,
             end_date=end_date,
             percentage=percentage,
-            unit=unit,
+            business_group=business_group,
         )
 
         user.set_password(password)
@@ -105,15 +53,15 @@ class UserManager(BaseUserManager):
         """
         Creates and saves a superuser with the given email and password.
         """
-        unit = Unit(email)#TODO: for trial
-        unit.save()
+        business_group = BusinessGroup(email)#TODO: for trial
+        business_group.save()
         user = self.create_user(
             email,
             password=password,
             employee_number="0",
             type='regular',
             percentage='full_time',
-            unit=unit,
+            business_group=business_group,
         )
         user.staff = True
         user.admin = True
@@ -143,7 +91,9 @@ class CustomUser(AbstractBaseUser):
     end_date = models.DateField(null=True, blank=True)
     percentage = models.CharField(choices=(('full_time','full_time'),('part_time','part_time')),max_length=MAX_LENGTH,
                                   default="full_time")
-    unit = models.ForeignKey(Unit, on_delete=models.CASCADE)
+    business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
+    is_focal_point = models.BooleanField(default=False)
+    is_space_planner = models.BooleanField(default=False)
 
 
     def get_full_name(self):
@@ -181,3 +131,47 @@ class CustomUser(AbstractBaseUser):
     def is_active(self):
         "Is the user active?"
         return self.active
+
+    def get_employee_number(self):
+        return self.employee_number
+
+    def get_email(self):
+        return self.email
+
+    def get_type(self):
+        return self.type
+
+    def get_start_date(self):
+        return self.start_date
+
+    def get_end_date(self):
+        return self.end_date
+
+    def get_percentage(self):
+        return self.percentage
+
+    def get_business_group(self):
+        return self.business_group
+
+    def is_focal_point(self):
+        return self.is_focal_point
+
+    def is_space_planner(self):
+        return self.is_space_planner
+
+    def set_start_date(self, start_date):
+        self.start_date = start_date
+
+    def set_end_date(self, end_date):
+        self.end_date = end_date
+
+    def set_focal_point_status(self, status):
+        self.is_focal_point = status
+
+    def set_space_planner_status(self, status):
+        self.is_space_planner = status
+
+    def set_business_group(self, business_group):
+        self.business_group = business_group
+
+

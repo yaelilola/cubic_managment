@@ -11,14 +11,11 @@
 #     model = CustomUser
 #     #exclude = ('last_login', 'is_superuser', 'groups', 'user_permission', 'is_staff', 'is_active', 'date_joined')
 #     list_display = ['password','username','first_name','last_name','email','employee_number','type','start_date','end_date', 'percentage','group']
-#
-#
-# admin.site.register(Group)
-# admin.site.register(CustomUser)
+
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import Unit
+from .models import BusinessGroup
 
 from .forms import UserAdminCreationForm, UserAdminChangeForm
 from .models import CustomUser
@@ -31,7 +28,7 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'admin', 'employee_number', 'type', 'percentage', 'unit', 'start_date', 'end_date')
+    list_display = ('email', 'admin', 'employee_number', 'type', 'percentage', 'business_group', 'start_date', 'end_date')
     list_filter = ('admin',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -52,7 +49,7 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(CustomUser, UserAdmin)
-admin.site.register(Unit)
+admin.site.register(BusinessGroup)
 
 # Remove Group Model from admin. We're not using it.
 admin.site.unregister(Group)

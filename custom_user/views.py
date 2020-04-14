@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 from custom_user.forms import CustomUserSignUpForm
-from custom_user.models import CustomUser, Unit
+from custom_user.models import CustomUser, BusinessGroup
 
 
 def homepage(request):
@@ -22,7 +22,7 @@ def signupuser(request):
             user = CustomUser.objects.create_user(request.POST['email'],employee_number=request.POST['employee_number'],
                                                   type=request.POST['type'],
                                                   percentage=request.POST['percentage'],
-                                                  unit=Unit(request.POST['unit']),
+                                                  business_group=BusinessGroup(request.POST['business_group']),
                                                   password=request.POST['password'])
             user.save()
             login(request, user)
@@ -37,22 +37,24 @@ def signupuser(request):
 
 @login_required
 def logoutuser(request):
-    if request.method == 'POST':
-        logout(request)
-        return redirect('home')
+    # if request.method == 'POST':
+    #     logout(request)
+    #     return redirect('home')
+    pass
 
 
 def loginuser(request):
-    if request.method == 'GET':
-        return render(request, 'todo/loginuser.html', {'form': AuthenticationForm()})
-    else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, 'todo/loginuser.html',
-                          {'form': AuthenticationForm(), 'error': 'Username and password did not match'})
-        else:
-            login(request, user)
-            return redirect('currenttodos')
+    # if request.method == 'GET':
+    #     return render(request, 'todo/loginuser.html', {'form': AuthenticationForm()})
+    # else:
+    #     user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+    #     if user is None:
+    #         return render(request, 'todo/loginuser.html',
+    #                       {'form': AuthenticationForm(), 'error': 'Username and password did not match'})
+    #     else:
+    #         login(request, user)
+    #         return redirect('currenttodos')
+    pass
 
 
 def get_my_cubic(request):
@@ -66,6 +68,9 @@ def ask_to_change_cubic(request):
 def search_user_cubic(request):
     pass
 
+
+def get_business_group(request):
+    pass
 
 
 

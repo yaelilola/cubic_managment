@@ -1,10 +1,27 @@
 from django.db import models
+from custom_user.models import CustomUser
 MAX_LENGTH = 100
+
 
 class Site(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
 
     def __str__(self):
+        return self.id
+
+    def get_campuses(self):
+        pass
+
+    def get_capacity(self):
+        pass
+
+    def get_available_campuses(self):
+        pass
+
+    def get_amount_of_free_cubics(self):
+        pass
+
+    def get_id(self):
         return self.id
 
 
@@ -15,6 +32,23 @@ class Campus(models.Model):
     def __str__(self):
         return self.id
 
+    def get_floors(self):
+        pass
+
+    def get_capacity(self):
+        pass
+
+    def get_available_floors(self):
+        pass
+
+    def get_amount_of_free_cubics(self):
+        pass
+
+    def get_site(self):
+        return self.site
+
+    def get_id(self):
+        return self.id
 
 class Floor(models.Model):
     floor_num = models.PositiveIntegerField(primary_key=True)
@@ -23,21 +57,73 @@ class Floor(models.Model):
     def __str__(self):
         return self.floor_num
 
+    def get_amount_of_free_cubics_of_space(self, space):
+        pass
+
+    def get_available_spaces(self):
+        pass
+
+    def get_capacity(self):
+        pass
+
+    def get_spaces(self):
+        pass
+
+    def get_campus(self):
+        return self.campus
+
+    def get_floor_num(self):
+        return self.floor_num
+
 
 class Space(models.Model):
-    id = models.UUIDField(primary_key=True)
+    id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
     type = models.CharField(choices=(('lab', 'lab'), ('conference_room', 'conference_room')),max_length=MAX_LENGTH)
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.id
 
+    def get_capacity(self):
+        pass
+
+    def get_free_cubics(self):
+        pass
+
+    def get_cubics(self):
+        pass
+
+    def get_floor(self):
+        return self.floor
+
+    def get_type(self):
+        return self.type
+
+    def get_id(self):
+        return self.id
+
 
 class Cubic(models.Model):
-    id = models.UUIDField(primary_key=True)
-    type = models.CharField(choices=(('shared', 'shared'), ('private', 'private')),max_length=MAX_LENGTH)
+    id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
+    type = models.CharField(choices=(('shared', 'shared'), ('private', 'private')), max_length=MAX_LENGTH)
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     # group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    focal_point = models.ForeignKey(CustomUser, on_delete=models.CASCADE)#Todo: think how to enforce only focal point users
 
     def __str__(self):
         return self.id
+
+    def get_availability(self):
+        pass
+
+    def get_employees_assigned_to_cubic(self):
+        pass
+
+    def get_id(self):
+        return self.id
+
+    def get_type(self):
+        return self.type
+
+    def get_focal_point(self):
+        return self.focal_point

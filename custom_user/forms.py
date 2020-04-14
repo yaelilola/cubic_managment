@@ -16,7 +16,7 @@ class CustomUserSignUpForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ('email','employee_number','type','percentage','unit','start_date','end_date')
+        fields = ('email','employee_number','type','percentage','business_group','start_date','end_date')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
