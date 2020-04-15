@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'recruit',
     'focal_point',
     'space_planner',
-    'assign'
+    'assign',
+    'CustomRequests'
 ]
 
 MIDDLEWARE = [

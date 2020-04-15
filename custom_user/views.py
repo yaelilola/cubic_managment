@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from custom_user.forms import CustomUserSignUpForm
 from custom_user.models import CustomUser, BusinessGroup
 from assign.models import AssignUserCubic
+from CustomRequests.forms import RequestToChangeCubicForm
 
 
 def homepage(request):
@@ -69,7 +70,18 @@ def get_my_cubic(request):
 
 @login_required()
 def ask_to_change_cubic(request):
-    pass
+    if request.method == 'GET':
+        return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm()})
+    else:
+        try:
+            form = RequestToChangeCubicForm(request.POST)
+            newRequest = form.save(commit=False)
+            newRequest.user = request.user
+            newRequest.save()
+            return redirect('homepage')
+        except ValueError:
+            return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(),
+                                                                    'error': 'Bad data passed in'})
 
 
 @login_required()

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+
 MAX_LENGTH = 100
 
 
@@ -172,5 +173,8 @@ class CustomUser(AbstractBaseUser):
 
     def set_business_group(self, business_group):
         self.business_group = business_group
+
+
+
 
 
