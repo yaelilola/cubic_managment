@@ -10,11 +10,35 @@
 
     <ul>
         {% for item in items%}
-        <li>
-            <a href="{% url facilities:{{function_name}} item.id %}">
-            ID: {{ item.user }}
-            </a>
-        </li>
+            {% if function_name == 'viewcampus'%}
+                <li>
+                    <a href="{% url 'facilities:viewcampus' item.id %}">
+                    ID: {{ item.id }}
+                    </a>
+                </li>
+            {% endif %}
+            {% if function_name == 'viewbuilding'%}
+                <li>
+                    <a href="{% url 'facilities:viewbuilding' item.id %}">
+                    ID: {{ item.floor_num }}
+                    </a>
+                </li>
+            {% endif %}
+            {% if function_name == 'viewfloor'%}
+                <li>
+                    <a href="{% url 'facilities:viewfloor' item.id %}">
+                    ID: {{ item.id }}
+                    </a>
+                </li>
+            {% endif %}
+            {% if function_name == 'viewspace'%}
+                <li>
+                    <a href="{% url 'facilities:viewspace' item.id %}">
+                    ID: {{ item.id }}
+                    Type: {{ item.type }}
+                    </a>
+                </li>
+            {% endif %}
         {% endfor %}
     </ul>
 </body>

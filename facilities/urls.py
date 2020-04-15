@@ -20,5 +20,7 @@ app_name = 'facilities'
 
 urlpatterns = [
     path('campuses/', facilities_views.display_campueses, name='campuses'),
-    path('viewcampus/<campus_id>', facilities_views.display_campues, name='viewcampus')
+    path('viewcampus/<campus_id>', facilities_views.display_campues, name='viewcampus'),
+    path('buildings/', facilities_views.display_buildings, name='buildings'),
+    path('viewbuilding/<building_id>', facilities_views.display_building, name='viewbuilding')
 ]
