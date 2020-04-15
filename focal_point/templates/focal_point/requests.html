@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Requests</title>
+</head>
+    <body>
+
+    Requests From Users
+
+    <ul>
+        {% for request in requests%}
+        <li>
+            <a href="{% url 'viewrequest' request.id %}">
+            User: {{ request.user }}
+            Request Date: {{ request.request_date }}
+            {% if request.status %}
+                Status: {{ request.status}}
+            {% endif %}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
