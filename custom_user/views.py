@@ -18,17 +18,11 @@ def signupuser(request):
     else:
         # create a new user
         # if request.POST['password1'] == request.POST['password2']:
-        focal_point = False
-        space_planner = False
-        if request.POST['focal_point']:
-            focal_point = True
-        if request.POST['space_planner']:
-            space_planner = True
         try:
             user = CustomUser.objects.create_user(request.POST['email'],
                                                   employee_number=request.POST['employee_number'],
-                                                  focal_point=focal_point,
-                                                  space_planner=space_planner,
+                                                  focal_point=request.POST.get('focal_point', False),
+                                                  space_planner=request.POST.get('space_planner', False),
                                                   percentage=request.POST['percentage'],
                                                   business_group=BusinessGroup(request.POST['business_group']),
                                                   password=request.POST['password'])
