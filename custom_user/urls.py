@@ -18,5 +18,7 @@ from django.urls import path
 from custom_user import views as custom_user_views
 
 urlpatterns = [
-    path('mycubic/', custom_user_views.get_my_cubic, name='mycubic')
+    path('mycubic/', custom_user_views.get_my_cubic, name='mycubic'),
+    path('searchcubic/<user_email>', custom_user_views.search_user_cubic, name='searchcubic'),
+    path('createrequest', custom_user_views.ask_to_change_cubic, name='createrequest'),
 ]

@@ -1,7 +1,7 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import IntegrityError
-from django.contrib.auth import login,logout,authenticate
+from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from custom_user.forms import CustomUserSignUpForm
 from custom_user.models import CustomUser, BusinessGroup
@@ -67,16 +67,18 @@ def get_my_cubic(request):
                   {'assignments': assignments})
 
 
+@login_required()
 def ask_to_change_cubic(request):
     pass
 
 
-def search_user_cubic(request):
-    pass
+@login_required()
+def search_user_cubic(request, user_email):
+    user = get_object_or_404(CustomUser, email=user_email)
+    assignments = AssignUserCubic.objects.filter(assigned_user=user)
+    return render(request, 'custom_user/otherscubics.html',
+                  {'assignments': assignments})
 
-
-def get_business_group(request):
-    pass
 
 
 
