@@ -40,9 +40,9 @@ def signupuser(request):
 
 @login_required
 def logoutuser(request):
-    # if request.method == 'POST':
-    #     logout(request)
-    #     return redirect('home')
+    if request.method == 'POST':
+        logout(request)
+        return redirect('homepage')
     pass
 
 
