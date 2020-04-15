@@ -27,8 +27,7 @@ def assign(request):
                     cubics = form.cleaned_data.get("cubics")
                     for user in assigned_users:
                         for cubic in cubics:
-                            assignment = AssignUserCubic(assigner=focal_point, assigned_users=user,
-                                                         cubic=cubic)
+                            assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
                             print(assignment)
                             assignment.save()
             return redirect('homepage')
