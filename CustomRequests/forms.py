@@ -1,5 +1,5 @@
 from django.forms import ModelForm
-from CustomRequests.models import RequestToChangeCubic
+from CustomRequests.models import RequestToChangeCubic, FocalPointRequest
 
 
 class RequestToChangeCubicForm(ModelForm):
@@ -20,3 +20,9 @@ class RequestToChangeCubicFocalPointForm(ModelForm):
         model = RequestToChangeCubic
         fields = ['user', 'request_date', 'cubic', 'reason', 'status', 'notes']
 
+
+class FocalPointRequestForm(ModelForm):
+    class Meta:
+        model = FocalPointRequest
+        fields = ['business_group', 'size', 'business_group_near_by', 'near_lab', 'near_conference_room',
+                  'destination_date']

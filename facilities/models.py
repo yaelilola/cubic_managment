@@ -78,7 +78,8 @@ class Floor(models.Model):
 
 class Space(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
-    type = models.CharField(choices=(('lab', 'lab'), ('conference_room', 'conference_room')),max_length=MAX_LENGTH)
+    type = models.CharField(choices=(('Regular', 'Regular'), ('Lab', 'Lab'), ('Conference Room', 'Conference Room')),
+                            max_length=MAX_LENGTH)
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
 
     def __str__(self):

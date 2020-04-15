@@ -7,6 +7,7 @@ from custom_user.forms import CustomUserSignUpForm
 from custom_user.models import CustomUser, BusinessGroup
 from assign.models import AssignUserCubic
 from CustomRequests.forms import RequestToChangeCubicForm
+from CustomRequests.models import RequestToChangeCubic
 
 
 def homepage(request):
@@ -90,6 +91,28 @@ def search_user_cubic(request, user_email):
     assignments = AssignUserCubic.objects.filter(assigned_user=user)
     return render(request, 'custom_user/otherscubics.html',
                   {'assignments': assignments})
+
+
+@login_required()
+def display_requests(request):
+    requests = RequestToChangeCubic.objects.filter(user=request.user)
+    return render(request, 'custom_user/requests.html', {'requests': requests})
+
+
+def display_request(request, request_id):
+    user_request = get_object_or_404(RequestToChangeCubic, pk=request_id)
+    print(user_request)
+    if request.method == 'GET':
+        form = RequestToChangeCubicForm(instance=user_request)
+        return render(request, 'custom_user/viewrequest.html', {'request': user_request, 'form': form})
+    else:
+        try:
+            form = RequestToChangeCubicForm(request.POST, instance=user_request)
+            form.save()
+            return redirect('custom_user:requests')
+        except ValueError:
+            return render(request, 'custom_user/viewrequest.html',
+                          {'request': user_request, 'error': 'Bad info', 'form': form})
 
 
 

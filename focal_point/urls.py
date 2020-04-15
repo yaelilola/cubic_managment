@@ -17,7 +17,10 @@ from django.contrib import admin
 from django.urls import path
 from focal_point import views as focal_point_views
 
+app_name='focal_point'
+
 urlpatterns = [
     path('requests/', focal_point_views.display_requests, name='requests'),
-    path('viewrequest/<int:request_id>', focal_point_views.display_request, name='viewrequest')
+    path('viewrequest/<int:request_id>', focal_point_views.display_request, name='viewrequest'),
+    path('createrequest', focal_point_views.create_request, name='createRequest')
 ]
