@@ -1,5 +1,4 @@
 from django.db import models
-from custom_user.models import CustomUser
 from focal_point.models import FocalPoint
 MAX_LENGTH = 100
 
@@ -71,7 +70,7 @@ class Floor(models.Model):
         pass
 
     def get_campus(self):
-        return self.campus
+        return self.building
 
     def get_floor_num(self):
         return self.floor_num

@@ -1,6 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser,BaseUserManager
-from facilities.models import Cubic
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 MAX_LENGTH = 100
 
 
@@ -15,7 +14,8 @@ class BusinessGroup(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, employee_number, type, percentage , business_group, start_date=None, end_date=None, password=None):
+    def create_user(self, email, employee_number, percentage, business_group, start_date=None, end_date=None,
+                    password=None):
         """
         Creates and saves a User with the given email and password.
         """
@@ -25,7 +25,6 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             employee_number=employee_number,
-            type=type,
             start_date=start_date,
             end_date=end_date,
             percentage=percentage,
@@ -40,10 +39,14 @@ class UserManager(BaseUserManager):
         """
         Creates and saves a staff user with the given email and password.
         """
+        business_group = BusinessGroup(email)  # TODO: for trial
+        business_group.save()
         user = self.create_user(
             email,
             password=password,
             employee_number=employee_number,
+            percentage='full_time',
+            business_group=business_group,
         )
         user.staff = True
         user.save(using=self._db)
@@ -59,7 +62,6 @@ class UserManager(BaseUserManager):
             email,
             password=password,
             employee_number="0",
-            type='regular',
             percentage='full_time',
             business_group=business_group,
         )
@@ -76,24 +78,24 @@ class CustomUser(AbstractBaseUser):
         unique=True,
     )
     active = models.BooleanField(default=True)
-    staff = models.BooleanField(default=False) # a admin user; non super-user
-    admin = models.BooleanField(default=False) # a superuser
+    staff = models.BooleanField(default=False)  # a admin user; non super-user
+    admin = models.BooleanField(default=False)  # a superuser
     # notice the absence of a "Password field", that is built in.
     objects = UserManager()
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [] # Email & Password are required by default.
+    REQUIRED_FIELDS = []  # Email & Password are required by default.
 
-    employee_number = models.CharField(max_length=MAX_LENGTH,default="1") #TODO: unique? think about admins( now they are always 0)
+    employee_number = models.CharField(max_length=MAX_LENGTH, default="1")  #TODO: unique? think about admins( now they are always 0)
     type = models.CharField(
         choices=(('regular', 'regular'), ('space_planner', 'space_planner'), ('focal_point', 'focal_point')),
         max_length=MAX_LENGTH, default='regular')
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    percentage = models.CharField(choices=(('full_time','full_time'),('part_time','part_time')),max_length=MAX_LENGTH,
+    percentage = models.CharField(choices=(('full_time', 'full_time'),('part_time', 'part_time')), max_length=MAX_LENGTH,
                                   default="full_time")
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
-    is_focal_point = models.BooleanField(default=False)
-    is_space_planner = models.BooleanField(default=False)
+    focal_point = models.BooleanField(default=False)
+    space_planner = models.BooleanField(default=False)
     #TODO: does user have name?
 
     def get_full_name(self):
@@ -108,28 +110,28 @@ class CustomUser(AbstractBaseUser):
         return self.email
 
     def has_perm(self, perm, obj=None):
-        "Does the user have a specific permission?"
+        """Does the user have a specific permission?"""
         # Simplest possible answer: Yes, always
         return True
 
     def has_module_perms(self, app_label):
-        "Does the user have permissions to view the app `app_label`?"
+        """Does the user have permissions to view the app `app_label`?"""
         # Simplest possible answer: Yes, always
         return True
 
     @property
     def is_staff(self):
-        "Is the user a member of staff?"
+        """Is the user a member of staff?"""
         return self.staff
 
     @property
     def is_admin(self):
-        "Is the user a admin member?"
+        """Is the user a admin member?"""
         return self.admin
 
     @property
     def is_active(self):
-        "Is the user active?"
+        """Is the user active?"""
         return self.active
 
     def get_employee_number(self):
