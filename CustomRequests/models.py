@@ -29,3 +29,8 @@ class FocalPointRequest(models.Model):
     near_conference_room = models.BooleanField(default=False)
     date = models.DateField(default=now())
     destination_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=MAX_LENGTH, choices=(('unread', 'unread'), ('in progress', 'in progress'),
+                                                              ('approved', 'approved'), ('denied', 'denied')),
+                              default='unread')
+    notes = models.TextField(blank=True)
+    # TODO: add conversation field

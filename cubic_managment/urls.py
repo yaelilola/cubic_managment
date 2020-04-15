@@ -26,5 +26,6 @@ urlpatterns = [
     path('', custom_user_views.homepage, name='homepage'),
     path('users/', include('custom_user.urls')),
     path('focal_point/', include('focal_point.urls')),
+    path('space_planner/', include('space_planner.urls')),
 
 ]
