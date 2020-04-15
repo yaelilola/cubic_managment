@@ -1,10 +1,6 @@
-
 from django.contrib import admin
-
+from focal_point.models import FocalPoint, Request
 # Register your models here.
 
-from .models import AssignUserCubic
-
-
-admin.site.register(AssignUserCubic)
-
+admin.site.register(FocalPoint)
+admin.site.register(Request)
