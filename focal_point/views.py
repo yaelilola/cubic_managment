@@ -2,11 +2,39 @@ from django.shortcuts import render, get_object_or_404, redirect
 from CustomRequests.models import RequestToChangeCubic, FocalPointRequest
 from CustomRequests.forms import RequestToChangeCubicFocalPointForm, FocalPointRequestForm
 from focal_point.models import FocalPoint
+from assign.forms import AssignUserCubicForm
+from assign.models import AssignUserCubic
 
 # Create your views here.
 #foacl point actions
-def assign_user(request):
-    pass
+
+def view_assignments(request):
+    focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
+    assignments = AssignUserCubic.objects.filter(assigner=focal_point)
+    return render(request, 'focal_point/assignments.html', {'assignments': assignments})
+
+def assign(request):
+    #TODO - add assignment logic
+    if request.method == 'GET':
+        return render(request, 'focal_point/assign.html', {'form': AssignUserCubicForm()})
+    else:
+        try:
+            focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
+            form = AssignUserCubicForm(request.POST or None)
+            if request.POST:
+                if form.is_valid():
+                    assigned_users = form.cleaned_data.get("users")
+                    cubics = form.cleaned_data.get("cubics")
+                    for user in assigned_users:
+                        for cubic in cubics:
+                            assignment = AssignUserCubic(assigner=focal_point, assigned_users=user,
+                                                         cubic=cubic)
+                            print(assignment)
+                            assignment.save()
+            return redirect('homepage')
+        except ValueError:
+            return render(request, 'focal_point/assign.html',
+                          {'form': AssignUserCubicForm(), 'error': 'Bad data passed in'})
 
 
 def create_request(request):

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Requests</title>
+</head>
+    <body>
+
+    Assignments I made
+
+    <ul>
+        {% for assignment in assignments%}
+        <li>
+            User: {{ assignment.assigned_user }}
+            Cubic: {{ assignment.cubic }}
+            Assigner: {{ assignment.assigner }}
+            Assignment Date: {{assignment.time}}
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -25,4 +25,6 @@ urlpatterns = [
     path('createrequest/', focal_point_views.create_request, name='createRequest'),
     path('myrequests/', focal_point_views.display_my_requests, name='myrequests'),
     path('viewmyrequest/<int:request_id>', focal_point_views.display_my_request, name='viewmyrequest'),
+    path('assign/', focal_point_views.assign, name='assign'),
+    path('assignments/', focal_point_views.view_assignments, name='assignments'),
 ]
