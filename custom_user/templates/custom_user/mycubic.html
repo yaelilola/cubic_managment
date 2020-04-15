@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My cubic</title>
+</head>
+<body>
+    {% if assignments%}
+        {% for assignment in assignments%}
+            {{assignment.assigned_user}}
+            {{assignment.cubic}}
+            {{assignment.assigner}}
+            {{assignment.time}}
+        {% endfor %}
+    {% else %}
+        <p>You have no cubics assigned</p>
+    {% endif %}
+</body>
+</html>

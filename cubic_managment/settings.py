@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'facilities',
     'recruit',
     'focal_point',
-    'space_planner'
+    'space_planner',
+    'assign'
 ]
 
 MIDDLEWARE = [
@@ -125,3 +126,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'custom_user.CustomUser'
+
+LOGIN_URL='/login'

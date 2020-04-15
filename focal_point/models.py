@@ -14,6 +14,8 @@ class FocalPoint(models.Model):
 #     #
 #     # def set_cubics(self):
 #     #     pass
+    def __str__(self):
+        return self.custom_user.__str__()
 
 
 class Request(models.Model):

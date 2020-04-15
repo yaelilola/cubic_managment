@@ -55,7 +55,7 @@ class Floor(models.Model):
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.floor_num
+        return str(self.floor_num)
 
     def get_amount_of_free_cubics_of_space(self, space):
         pass

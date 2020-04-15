@@ -14,3 +14,7 @@ class AssignUserCubic(models.Model):
     class Meta:
         unique_together = (("assigned_user", "cubic"),)
 
+
+    def __str__(self):
+        return self.assigned_user.__str__() + ", " + self.cubic.__str__()
+

@@ -5,6 +5,7 @@ from django.contrib.auth import login,logout,authenticate
 from django.contrib.auth.decorators import login_required
 from custom_user.forms import CustomUserSignUpForm
 from custom_user.models import CustomUser, BusinessGroup
+from assign.models import AssignUserCubic
 
 
 def homepage(request):
@@ -59,9 +60,11 @@ def loginuser(request):
             return redirect('homepage')
     pass
 
-
+@login_required()
 def get_my_cubic(request):
-    pass
+    assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
+    return render(request, 'custom_user/mycubic.html',
+                  {'assignments': assignments})
 
 
 def ask_to_change_cubic(request):
