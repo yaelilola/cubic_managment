@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Requests</title>
+</head>
+    <body>
+
+    New Positions
+
+    <ul>
+        {% for position in positions%}
+        <li>
+            Position Title: {{ position.name }}
+            Business Group: {{ position.business_group }}
+            Creation Date: {{ position.creation_date }}
+            Percentage: {{ position.percentage}}
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

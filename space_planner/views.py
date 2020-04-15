@@ -37,3 +37,9 @@ def display_request(request, request_id):
             return render(request, 'space_planner/viewrequest.html',
                           {'request': focal_point_request, 'error': 'Bad info', 'form': form})
 
+
+def assign_focal_point(request):
+    pass
+
+
+

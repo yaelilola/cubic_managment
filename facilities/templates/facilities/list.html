@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Requests</title>
+</head>
+    <body>
+
+    {{ title }}
+
+    <ul>
+        {% for item in items%}
+        <li>
+            <a href="{% url facilities:{{function_name}} item.id %}">
+            ID: {{ item.user }}
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

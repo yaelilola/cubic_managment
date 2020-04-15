@@ -4,6 +4,7 @@ from CustomRequests.forms import RequestToChangeCubicFocalPointForm, FocalPointR
 from focal_point.models import FocalPoint
 from assign.forms import AssignUserCubicForm
 from assign.models import AssignUserCubic
+from recruit.models import NewPosition
 
 # Create your views here.
 #foacl point actions
@@ -90,3 +91,8 @@ def display_my_request(request, request_id):
         except ValueError:
             return render(request, 'focal_point/viewrequest.html',
                           {'request': user_request, 'error': 'Bad info', 'form': form})
+
+
+def display_new_positions(request):
+    new_positions = NewPosition.objects.all()
+    return render(request, 'focal_point/newpositions.html', {'positions': new_positions})
