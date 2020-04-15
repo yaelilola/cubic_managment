@@ -14,8 +14,8 @@ class BusinessGroup(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, employee_number, percentage, business_group, start_date=None, end_date=None,
-                    password=None):
+    def create_user(self, email, employee_number, percentage, business_group, focal_point=False, space_planner=False,
+                    start_date=None, end_date=None, password=None):
         """
         Creates and saves a User with the given email and password.
         """
@@ -29,6 +29,8 @@ class UserManager(BaseUserManager):
             end_date=end_date,
             percentage=percentage,
             business_group=business_group,
+            focal_point=focal_point,
+            space_planner=space_planner
         )
 
         user.set_password(password)
@@ -86,12 +88,9 @@ class CustomUser(AbstractBaseUser):
     REQUIRED_FIELDS = []  # Email & Password are required by default.
 
     employee_number = models.CharField(max_length=MAX_LENGTH, default="1")  #TODO: unique? think about admins( now they are always 0)
-    type = models.CharField(
-        choices=(('regular', 'regular'), ('space_planner', 'space_planner'), ('focal_point', 'focal_point')),
-        max_length=MAX_LENGTH, default='regular')
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    percentage = models.CharField(choices=(('full_time', 'full_time'),('part_time', 'part_time')), max_length=MAX_LENGTH,
+    percentage = models.CharField(choices=(('full_time', 'full_time'), ('part_time', 'part_time')), max_length=MAX_LENGTH,
                                   default="full_time")
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
     focal_point = models.BooleanField(default=False)
@@ -140,8 +139,6 @@ class CustomUser(AbstractBaseUser):
     def get_email(self):
         return self.email
 
-    def get_type(self):
-        return self.type
 
     def get_start_date(self):
         return self.start_date

@@ -20,8 +20,8 @@ from custom_user import views as custom_user_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     # path('custom_user/', include('custom_user.urls')),
-    path('signup/',custom_user_views.signupuser, name='signupuser'),
-    path('logout/',custom_user_views.logoutuser, name='logoutuser'),
-    path('login/',custom_user_views.loginuser, name='loginuser'),
-    path('',custom_user_views.homepage, name='homepage')
+    path('signup/', custom_user_views.signupuser, name='signupuser'),
+    path('logout/', custom_user_views.logoutuser, name='logoutuser'),
+    path('login/', custom_user_views.loginuser, name='loginuser'),
+    path('', custom_user_views.homepage, name='homepage')
 ]

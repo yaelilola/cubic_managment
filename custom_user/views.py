@@ -18,12 +18,21 @@ def signupuser(request):
     else:
         # create a new user
         # if request.POST['password1'] == request.POST['password2']:
+        focal_point = False
+        space_planner = False
+        if request.POST['focal_point']:
+            focal_point = True
+        if request.POST['space_planner']:
+            space_planner = True
         try:
-            user = CustomUser.objects.create_user(request.POST['email'],employee_number=request.POST['employee_number'],
-                                                  type=request.POST['type'],
+            user = CustomUser.objects.create_user(request.POST['email'],
+                                                  employee_number=request.POST['employee_number'],
+                                                  focal_point=focal_point,
+                                                  space_planner=space_planner,
                                                   percentage=request.POST['percentage'],
                                                   business_group=BusinessGroup(request.POST['business_group']),
                                                   password=request.POST['password'])
+            #TODO - add start date and end date handling
             user.save()
             login(request, user)
             return redirect('homepage')
@@ -44,16 +53,16 @@ def logoutuser(request):
 
 
 def loginuser(request):
-    # if request.method == 'GET':
-    #     return render(request, 'todo/loginuser.html', {'form': AuthenticationForm()})
-    # else:
-    #     user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-    #     if user is None:
-    #         return render(request, 'todo/loginuser.html',
-    #                       {'form': AuthenticationForm(), 'error': 'Username and password did not match'})
-    #     else:
-    #         login(request, user)
-    #         return redirect('currenttodos')
+    if request.method == 'GET':
+        return render(request, 'custom_user/loginuser.html', {'form': AuthenticationForm()})
+    else:
+        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
+        if user is None:
+            return render(request, 'custom_user/loginuser.html',
+                          {'form': AuthenticationForm(), 'error': 'Username and password did not match'})
+        else:
+            login(request, user)
+            return redirect('homepage')
     pass
 
 
