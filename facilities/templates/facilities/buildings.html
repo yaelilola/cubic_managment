@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <ul>
+        {% for item in items%}
+                <li>
+                    <a href="{% url 'facilities:building_floors' campus_id building_id %}">
+                    ID: {{ item.floor_num }}
+                    </a>
+                </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
