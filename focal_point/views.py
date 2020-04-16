@@ -17,13 +17,16 @@ def view_assignments(request):
 def assign(request):
     #TODO - add assignment logic
     if request.method == 'GET':
-        return render(request, 'focal_point/assign.html', {'form': AssignUserCubicForm()})
+        focal_point = get_object_or_404(FocalPoint,custom_user=request.user)
+        return render(request, 'focal_point/assign.html', {'form': AssignUserCubicForm(focal_point=focal_point)})
     else:
         try:
             focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
-            form = AssignUserCubicForm(request.POST or None)
+            print(request.POST)
+            form = AssignUserCubicForm(focal_point=focal_point)
             if request.POST:
                 if form.is_valid():
+                    print(form.cleaned_data)
                     assigned_users = form.cleaned_data.get("users")
                     cubics = form.cleaned_data.get("cubics")
                     for user in assigned_users:

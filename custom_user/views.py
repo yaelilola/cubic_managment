@@ -24,11 +24,11 @@ def signupuser(request):
         try:
             user = CustomUser.objects.create_user(request.POST['email'],
                                                   employee_number=request.POST['employee_number'],
-                                                  focal_point=request.POST.get('focal_point', False),
-                                                  space_planner=request.POST.get('space_planner', False),
+                                                  focal_point=True if request.POST.get('focal_point', False) == 'on' else False,
+                                                  space_planner=True if request.POST.get('space_planner', False) == 'on' else False,
                                                   percentage=request.POST['percentage'],
                                                   business_group=BusinessGroup(request.POST['business_group']),
-                                                  password=request.POST['password'])
+                                                  password=request.POST['password'],)
             #TODO - add start date and end date handling
             user.save()
             login(request, user)
