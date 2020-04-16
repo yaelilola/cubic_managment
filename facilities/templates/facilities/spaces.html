@@ -8,10 +8,8 @@
     <ul>
         {% for item in items%}
          <li>
-            <a href="{% url 'facilities:spaces' item.id %}">
             ID: {{ item.id }}
             Type: {{ item.type }}
-            </a>
          </li>
         {% endfor %}
     </ul>

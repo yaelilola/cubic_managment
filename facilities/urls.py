@@ -19,18 +19,10 @@ from facilities import views as facilities_views
 app_name = 'facilities'
 
 urlpatterns = [
-    # path('campuses/', facilities_views.display_campuses, name='campuses'),
-    # path('campuses/<str:campus_id>/buildings/', facilities_views.display_campus, name='campus_buildings'),
-    # path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/', facilities_views.display_building, name='building_floors'),
-    # path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/', facilities_views.display_floor, name='floor_spaces'),
-    # path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/<str:space_id>/cubics/',
-    #      facilities_views.display_space, name='space_cubics'),
-    # path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/<str:space_id>/cubics/<str:cube_id>/',
-    #      facilities_views.display_cubic,name='cubic'),
     path('campuses/', facilities_views.display_campuses, name='campuses'),
-    path('campuses/buildings/<str:campus_id>', facilities_views.display_campus, name='campus_buildings'),
-    path('campuses/buildings/floors/<str:building_id>', facilities_views.display_building,name='building_floors'),
-    path('campuses/buildings/floors/spaces/<int:floor_id>', facilities_views.display_floor, name='floor_spaces'),
-    path('campuses/buildings/floors/spaces/cubics/<str:space_id>',facilities_views.display_space, name='space_cubics'),
-    path('campuses/buildings/floors/spaces/cubics/<str:cube_id>/', facilities_views.display_cubic, name='cubic'),
+    path('campuses/<str:campus_id>/buildings', facilities_views.display_campus, name='campus_buildings'),
+    path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/', facilities_views.display_building),
+    path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/', facilities_views.display_floor),
+    path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/<str:space_id>/cubics/',facilities_views.display_space),
+    path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/<str:space_id>/cubics/<str:cubic_id>/', facilities_views.display_cubic),
 ]

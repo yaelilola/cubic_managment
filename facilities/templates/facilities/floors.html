@@ -8,9 +8,7 @@
     <ul>
         {% for item in items%}
                 <li>
-                    <a href="{% url 'facilities:floors' item.id %}">
-                    ID: {{ item.id }}
-                    </a>
+                    ID: {{ item.floor_num }}
                 </li>
         {% endfor %}
     </ul>
