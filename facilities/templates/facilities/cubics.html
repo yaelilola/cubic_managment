@@ -7,10 +7,12 @@
 <body>
         <ul>
         {% for item in items%}
+            <a href="{% url 'facilities:cubic' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=space_id cubic_id=item.id %}">
          <li>
             ID: {{ item.id }}
          </li>
         {% endfor %}
+            </a>
     </ul>
 </body>
 </html>

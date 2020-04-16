@@ -7,9 +7,11 @@
 <body>
     <ul>
         {% for item in items%}
+             <a href="{% url 'facilities:building_floors' campus_id=campus_id building_id=item.id%}">
                 <li>
                     ID: {{ item.id }}
                 </li>
+             </a>
         {% endfor %}
     </ul>
 </body>

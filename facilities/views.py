@@ -26,7 +26,8 @@ def display_floor(request,campus_id,building_id,floor_num):
     wanted_building = get_object_or_404(Building, campus=wanted_campus, id=building_id)
     wanted_floor = get_object_or_404(Floor, building=wanted_building, floor_num=int(floor_num))
     spaces = Space.objects.filter(floor=wanted_floor)
-    return render(request, 'facilities/spaces.html', {'items': spaces})
+    return render(request, 'facilities/spaces.html', {'items': spaces,'campus_id':campus_id,'building_id':building_id,
+                                                      'floor_num':floor_num})
 
 
 def display_space(request,campus_id,building_id,floor_num,space_id):
@@ -35,7 +36,8 @@ def display_space(request,campus_id,building_id,floor_num,space_id):
     wanted_floor = get_object_or_404(Floor, building=wanted_building, floor_num=int(floor_num))
     wanted_space = get_object_or_404(Space,floor=wanted_floor,id=space_id)
     cubics = Cubic.objects.filter(space=wanted_space)
-    return render(request, 'facilities/cubics.html', {'items': cubics})
+    return render(request, 'facilities/cubics.html', {'items': cubics,'campus_id':campus_id,'building_id':building_id,
+                                                      'floor_num':floor_num,'space_id':space_id})
 
 
 def display_cubic(request,campus_id,building_id,floor_num,space_id,cubic_id):
