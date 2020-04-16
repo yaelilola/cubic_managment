@@ -5,14 +5,21 @@
     <title>Title</title>
 </head>
 <body>
+    <h2>
+        <a href="{% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_num=floor_num%}">
+            {% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_num=floor_num%}
+        </a>
+    </h2>
         <ul>
         {% for item in items%}
             <a href="{% url 'facilities:cubic' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=space_id cubic_id=item.id %}">
-         <li>
-            ID: {{ item.id }}
-         </li>
-        {% endfor %}
+                  <li>
+                    ID: {{ item.id }}
+                  </li>
             </a>
+
+        {% endfor %}
+
     </ul>
 </body>
 </html>

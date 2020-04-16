@@ -5,7 +5,11 @@
     <title>Title</title>
 </head>
 <body>
-
+    <h2>
+        <a href="{% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=space_id %}">
+            {% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=space_id %}
+        </a>
+    </h2>
     Type: {{ cubic.type }}
     Focal point: {{ cubic.focal_point }}
     Area: {{ cubic.area }}

@@ -46,6 +46,6 @@ def display_cubic(request,campus_id,building_id,floor_num,space_id,cubic_id):
     wanted_floor = get_object_or_404(Floor, building=wanted_building, floor_num=int(floor_num))
     wanted_space = get_object_or_404(Space, floor=wanted_floor, id=space_id)
     cubic = get_object_or_404(Cubic,space=wanted_space,id=cubic_id)
-    return render(request, 'facilities/cubic.html', {'cubic': cubic,'campus':campus_id,'building':building_id,'floor':floor_num,'space':space_id})
+    return render(request, 'facilities/cubic.html', {'campus_id':campus_id,'building_id':building_id,'floor_num':floor_num,'space_id':space_id,'cubic': cubic})
 
 

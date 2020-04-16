@@ -5,6 +5,11 @@
     <title>Title</title>
 </head>
 <body>
+    <h2>
+        <a href="{% url 'facilities:campuses'%}">
+            {% url 'facilities:campuses'%}
+        </a>
+    </h2>
     <ul>
         {% for item in items%}
              <a href="{% url 'facilities:building_floors' campus_id=campus_id building_id=item.id%}">
