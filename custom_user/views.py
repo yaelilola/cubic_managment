@@ -8,6 +8,7 @@ from custom_user.models import CustomUser, BusinessGroup
 from assign.models import AssignUserCubic
 from CustomRequests.forms import RequestToChangeCubicForm
 from CustomRequests.models import RequestToChangeCubic
+from focal_point.models import FocalPoint
 
 
 def homepage(request):
@@ -20,25 +21,32 @@ def signupuser(request):
         return render(request, 'custom_user/signupuser.html', {'form': CustomUserSignUpForm()})
     else:
         # create a new user
-        # if request.POST['password1'] == request.POST['password2']:
-        try:
-            user = CustomUser.objects.create_user(request.POST['email'],
-                                                  employee_number=request.POST['employee_number'],
-                                                  focal_point=True if request.POST.get('focal_point', False) == 'on' else False,
-                                                  space_planner=True if request.POST.get('space_planner', False) == 'on' else False,
-                                                  percentage=request.POST['percentage'],
-                                                  business_group=BusinessGroup(request.POST['business_group']),
-                                                  password=request.POST['password'],)
-            #TODO - add start date and end date handling
-            user.save()
-            login(request, user)
-            return redirect('homepage')
-        except IntegrityError:
+        if request.POST['password'] == request.POST['password2']:
+            focal_point = CustomUser.objects.filter(focal_point=True, business_group=request.POST['business_group'])
+            if request.POST.get('focal_point', False) == 'on' and focal_point:
+                return render(request, 'custom_user/signupuser.html',
+                              {'form': CustomUserSignUpForm(), 'error': 'Focal point for this business group already exists'})
+            else:
+                try:
+                    user = CustomUser.objects.create_user(request.POST['email'],
+                                                          employee_number=request.POST['employee_number'],
+                                                          focal_point=True if request.POST.get('focal_point', False) == 'on' else False,
+                                                          space_planner=True if request.POST.get('space_planner', False) == 'on' else False,
+                                                          percentage=request.POST['percentage'],
+                                                          business_group=BusinessGroup(request.POST['business_group']),
+                                                          password=request.POST['password'],)
+                    #TODO - add start date and end date handling
+                    user.save()
+                    focal_point = FocalPoint(custom_user=user)
+                    focal_point.save()
+                    login(request, user)
+                    return redirect('homepage')
+                except IntegrityError:
+                    return render(request, 'custom_user/signupuser.html',
+                                  {'form': CustomUserSignUpForm(), 'error': 'That username/employee number is already taken. Please choose a new one'})
+        else:
             return render(request, 'custom_user/signupuser.html',
-                          {'form': CustomUserSignUpForm(), 'error': 'That username/employee number is already taken. Please choose a new one'})
-    # else:
-    #     return render(request, 'custom_user/signupuser.html',
-    #                   {'form': CustomUserSignUpForm(), 'error': 'Password did not match'})
+                          {'form': CustomUserSignUpForm(), 'error': 'Password did not match'})
 
 
 @login_required

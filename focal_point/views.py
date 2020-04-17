@@ -22,13 +22,12 @@ def assign(request):
     users_queryset = CustomUser.objects.filter(business_group=focal_point.custom_user.business_group)
     cubics_queryset = Cubic.objects.filter(focal_point=focal_point)
     if request.method == 'GET':
-        return render(request, 'focal_point/assign.html', {'form': AssignUserCubicForm(users_queryset, cubics_queryset)})
+        return render(request, 'focal_point/assign.html', {'form': AssignUserCubicForm(users_queryset=users_queryset, cubics_queryset=cubics_queryset)})
     else:
         try:
             focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
-            form = AssignUserCubicForm(users_queryset, cubics_queryset)
+            form = AssignUserCubicForm(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
             if request.POST:
-                print(form.is_valid())
                 if form.is_valid():
                     assigned_users = form.cleaned_data.get("users")
                     cubics = form.cleaned_data.get("cubics")
@@ -39,7 +38,7 @@ def assign(request):
             return redirect('homepage')
         except ValueError:
             return render(request, 'focal_point/assign.html',
-                          {'form': AssignUserCubicForm(users_queryset, cubics_queryset), 'error': 'Bad data passed in'})
+                          {'form': AssignUserCubicForm(users_queryset=users_queryset, cubics_queryset=cubics_queryset), 'error': 'Bad data passed in'})
 
 
 def create_request(request):

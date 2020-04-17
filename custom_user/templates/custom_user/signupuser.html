@@ -5,6 +5,7 @@
     <title>Title</title>
 </head>
     <body>
+    {{ error }}
     <form method="POST">
           {% csrf_token %}
         {{form.as_p}}

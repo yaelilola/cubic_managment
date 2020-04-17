@@ -21,5 +21,6 @@ app_name = 'space_planner'
 urlpatterns = [
     path('requests/', space_planner_views.display_requests, name='requests'),
     path('viewrequest/<int:request_id>', space_planner_views.display_request, name='viewrequest'),
-    path('assignfocalpoint/', space_planner_views.assign_focal_point, name='assignfocalpoint')
+    path('assignfocalpoint/', space_planner_views.assign_focal_point, name='assignfocalpoint'),
+    path('assign/', space_planner_views.assign_space, name='assign'),
 ]
