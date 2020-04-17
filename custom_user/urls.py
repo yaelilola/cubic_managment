@@ -17,12 +17,13 @@ from django.contrib import admin
 from django.urls import path
 from custom_user import views as custom_user_views
 
-app_name='custom_user'
+app_name = 'custom_user'
 
 urlpatterns = [
     path('mycubic/', custom_user_views.get_my_cubic, name='mycubic'),
-    path('searchcubic/<user_email>', custom_user_views.search_user_cubic, name='searchcubic'),
+    path('searchcubic/', custom_user_views.search_user_cubic, name='searchcubic'),
     path('createrequest', custom_user_views.ask_to_change_cubic, name='createrequest'),
     path('requests/', custom_user_views.display_requests, name='requests'),
-    path('viewrequest/<int:request_id>', custom_user_views.display_request, name='viewrequest')
+    path('viewrequest/<int:request_id>', custom_user_views.display_request, name='viewrequest'),
+    path('viewrequest/<int:request_id>/delete', custom_user_views.delete_request, name='deleterequest')
 ]

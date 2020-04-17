@@ -1,19 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>My cubic</title>
-</head>
+{% extends 'custom_user/base.html' %}
+
+{% block content %}
 <body>
+<h1>My Cubic Details</h1>
     {% if assignments%}
+    <ul>
         {% for assignment in assignments%}
-            {{assignment.assigned_user}}
-            {{assignment.cubic}}
-            {{assignment.assigner}}
-            {{assignment.time}}
+        <li>
+            Assignment number {{ forloop.counter }}
+            <br>
+            <br>
+            Cubic: {{assignment.cubic}}
+            <br>
+            <br>
+            Assigner: {{assignment.assigner}}
+            <br>
+            <br>
+            Assignment Time: {{assignment.time}}
+            <br>
+            <br>
+        </li>
         {% endfor %}
+    </ul>
     {% else %}
         <p>You have no cubics assigned</p>
     {% endif %}
 </body>
-</html>
+
+{% endblock %}

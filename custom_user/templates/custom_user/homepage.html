@@ -1,14 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    Hi!
-<form action="{% url 'logoutuser'%}" method="POST">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-</form>
-</body>
-</html>
+{% extends 'custom_user/base.html' %}
+
+{% block content %}
+Home
+<br>
+<br>
+<a href="{% url 'custom_user:createrequest' %}">
+    <input type="button" value="Ask To Change Cubic">
+</a>
+<br>
+<br>
+<a href="{% url 'custom_user:mycubic' %}">
+    <input type="button" value="My Cubic">
+</a>
+
+<br>
+<br>
+<a href="{% url 'custom_user:searchcubic' %}">
+    <input type="button" value="Search the location of another employee">
+</a>
+<br>
+<br>
+<a href="{% url 'custom_user:requests' %}">
+    <input type="button" value="Display my requests">
+</a>
+
+{% endblock %}

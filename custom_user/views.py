@@ -3,12 +3,14 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.db import IntegrityError
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from custom_user.forms import CustomUserSignUpForm
+from custom_user.forms import CustomUserSignUpForm, SearchUserCubicForm
 from custom_user.models import CustomUser, BusinessGroup
 from assign.models import AssignUserCubic
 from CustomRequests.forms import RequestToChangeCubicForm
 from CustomRequests.models import RequestToChangeCubic
 from focal_point.models import FocalPoint
+from facilities.models import Cubic
+from django.db.models import Q
 
 
 def homepage(request):
@@ -79,27 +81,47 @@ def get_my_cubic(request):
 
 @login_required()
 def ask_to_change_cubic(request):
+    my_assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
+    my_cubics_ids = [assignment.cubic.id for assignment in my_assignments]
+    all_other_cubics = Cubic.objects.exclude(id__in=my_cubics_ids)
+
     if request.method == 'GET':
-        return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm()})
+        return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics)})
     else:
         try:
-            form = RequestToChangeCubicForm(request.POST)
-            newRequest = form.save(commit=False)
-            newRequest.user = request.user
-            newRequest.save()
-            return redirect('homepage')
+            form = RequestToChangeCubicForm(cubics_queryset=all_other_cubics, data=request.POST or None)
+            if request.POST:
+                if form.is_valid():
+                    wanted_cubic = form.cleaned_data.get("cubic")
+                    reason = form.cleaned_data.get("reason")
+                    newRequest = RequestToChangeCubic(user=request.user, cubic=wanted_cubic, reason=reason)
+                    newRequest.save()
+            return redirect('custom_user:requests')
         except ValueError:
-            return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(),
+            return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics),
                                                                     'error': 'Bad data passed in'})
 
 
 @login_required()
-def search_user_cubic(request, user_email):
-    user = get_object_or_404(CustomUser, email=user_email)
-    assignments = AssignUserCubic.objects.filter(assigned_user=user)
-    return render(request, 'custom_user/otherscubics.html',
-                  {'assignments': assignments})
-
+def search_user_cubic(request):
+    if request.method == 'GET':
+        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm()})
+    else:
+        try:
+            form = SearchUserCubicForm(data=request.POST or None)
+            if request.POST:
+                if form.is_valid():
+                    wanted_user = form.cleaned_data.get("user")
+                    assignments = AssignUserCubic.objects.filter(assigned_user=wanted_user)
+                    if len(assignments) != 0:
+                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(),
+                                                                             'assignments': assignments})
+                    else:
+                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(),
+                                                                                 'error': 'no assignments'})
+        except ValueError:
+            return render(request, 'custom_user/otherscubics.html',
+                          {'form': SearchUserCubicForm(), 'error': 'Bad info'})
 
 @login_required()
 def display_requests(request):
@@ -109,18 +131,36 @@ def display_requests(request):
 
 def display_request(request, request_id):
     user_request = get_object_or_404(RequestToChangeCubic, pk=request_id)
-    print(user_request)
+    my_assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
+    my_cubics_ids = [assignment.cubic.id for assignment in my_assignments]
+    all_other_cubics = Cubic.objects.exclude(id__in=my_cubics_ids)
     if request.method == 'GET':
-        form = RequestToChangeCubicForm(instance=user_request)
+        form = RequestToChangeCubicForm(cubics_queryset=all_other_cubics, initial={'cubic': user_request.cubic,
+                                                                                   'reason': user_request.reason})
         return render(request, 'custom_user/viewrequest.html', {'request': user_request, 'form': form})
     else:
         try:
-            form = RequestToChangeCubicForm(request.POST, instance=user_request)
-            form.save()
+            current_request = RequestToChangeCubic.objects.filter(id=request_id)[0]
+            form = RequestToChangeCubicForm(cubics_queryset=all_other_cubics, data=request.POST)
+            if request.POST:
+                if form.is_valid():
+                    wanted_cubic = form.cleaned_data.get("cubic")
+                    reason = form.cleaned_data.get("reason")
+                    current_request.cubic = wanted_cubic
+                    current_request.reason = reason
+                    current_request.save(update_fields=['cubic', 'reason'])
             return redirect('custom_user:requests')
         except ValueError:
             return render(request, 'custom_user/viewrequest.html',
                           {'request': user_request, 'error': 'Bad info', 'form': form})
+
+
+@login_required
+def delete_request(request, request_id):
+    curr_request = get_object_or_404(RequestToChangeCubic, pk=request_id, user=request.user)
+    if request.method == 'POST':
+        curr_request.delete()
+        return redirect('custom_user:requests')
 
 
 

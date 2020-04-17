@@ -83,5 +83,9 @@ class UserAdminChangeForm(forms.ModelForm):
         return self.initial["password"]
 
 
+class SearchUserCubicForm(forms.Form):
+    user = forms.ModelChoiceField(CustomUser.objects.all())
+
+
 
 

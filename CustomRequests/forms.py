@@ -1,11 +1,16 @@
 from django.forms import ModelForm
 from CustomRequests.models import RequestToChangeCubic, FocalPointRequest
+from django import forms
+from facilities.models import Cubic
 
 
-class RequestToChangeCubicForm(ModelForm):
-    class Meta:
-        model = RequestToChangeCubic
-        fields = ['cubic', 'reason']
+class RequestToChangeCubicForm(forms.Form):
+    cubic = forms.ModelChoiceField(queryset=Cubic.objects.all(), required=False)
+    reason = forms.CharField(widget=forms.Textarea, required=False)
+
+    def __init__(self, *args, cubics_queryset, **kwargs):
+        super(RequestToChangeCubicForm, self).__init__(*args, **kwargs)
+        self.fields['cubic'].queryset = cubics_queryset
 
 
 class RequestToChangeCubicFocalPointForm(ModelForm):
