@@ -11,6 +11,11 @@
     <button type="submit">Save</button>
 </form>
 
+<form method="POST" action="{% url 'focal_point:deleterequest' request.id %}">
+    {% csrf_token %}
+    <button type="submit">Delete</button>
+</form>
+
 </body>
 
 {% endblock %}

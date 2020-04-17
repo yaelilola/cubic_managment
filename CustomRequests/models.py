@@ -22,7 +22,7 @@ class RequestToChangeCubic(models.Model):
 class FocalPointRequest(models.Model):
     focal_point = models.ForeignKey(FocalPoint, on_delete=models.CASCADE)
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+')
-    size = models.PositiveIntegerField()
+    size = models.PositiveIntegerField(blank=True, null=True)
     business_group_near_by = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+',
                                                blank=True, null=True)
     near_lab = models.BooleanField(default=False)

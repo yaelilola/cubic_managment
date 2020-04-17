@@ -27,6 +27,10 @@ class RequestToChangeCubicFocalPointForm(ModelForm):
 
 
 class FocalPointRequestForm(ModelForm):
+    def __init__(self, *args, business_group_qs, **kwargs):
+        super(FocalPointRequestForm, self).__init__(*args, **kwargs)
+        self.fields['business_group_near_by'].queryset = business_group_qs
+
     class Meta:
         model = FocalPointRequest
         fields = ['size', 'business_group_near_by', 'near_lab', 'near_conference_room',

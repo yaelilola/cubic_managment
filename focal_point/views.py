@@ -5,7 +5,7 @@ from focal_point.models import FocalPoint
 from assign.forms import AssignUserCubicForm
 from assign.models import AssignUserCubic
 from recruit.models import NewPosition
-from custom_user.models import CustomUser
+from custom_user.models import CustomUser, BusinessGroup
 from facilities.models import Cubic
 
 # Create your views here.
@@ -42,18 +42,32 @@ def assign(request):
 
 
 def create_request(request):
+    my_business_group_id = request.user.business_group.id
+    qs = BusinessGroup.objects.exclude(id=my_business_group_id)
     if request.method == 'GET':
-        return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm()})
+        return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs)})
     else:
         try:
-            form = FocalPointRequestForm(request.POST)
+            if ((request.POST['size'] == '' or request.POST['size'] == '0') and
+                (request.POST['business_group_near_by'] == '') and
+                ('near_lab' not in request.POST.keys()) and
+                ('near_conference_room' not in request.POST.keys())):
+                return render(request, 'focal_point/createrequests.html',
+                              {'form': FocalPointRequestForm(business_group_qs=qs),
+                               'error': 'Cant submit empty form'})
+            request_copy = request.POST.copy()
+            if 'near_lab' in request.POST.keys():
+                request_copy['near_lab'] = True
+            if 'near_conference_room' in request.POST.keys():
+                request_copy['near_conference_room'] = True
+            form = FocalPointRequestForm(request_copy, business_group_qs=qs)
             new_request = form.save(commit=False)
             new_request.focal_point = FocalPoint.objects.filter(custom_user=request.user)[0]
             new_request.business_group = request.user.business_group
             new_request.save()
             return redirect('focal_point:myrequests')
         except ValueError:
-            return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(),
+            return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs),
                                                                     'error': 'Bad data passed in'})
 
 
@@ -87,22 +101,36 @@ def display_my_requests(request):
 
 
 def display_my_request(request, request_id):
+    my_business_group_id = request.user.business_group.id
+    qs = BusinessGroup.objects.exclude(id=my_business_group_id)
     user_request = get_object_or_404(FocalPointRequest, pk=request_id)
     if request.method == 'GET':
-        form = FocalPointRequestForm(instance=user_request)
+        form = FocalPointRequestForm(instance=user_request, business_group_qs=qs)
         return render(request, 'focal_point/viewrequest.html', {'request': user_request, 'form': form})
     else:
         try:
-            form = RequestToChangeCubicFocalPointForm(request.POST, instance=user_request)
+            request_copy = request.POST.copy()
+            if 'near_lab' in request.POST.keys():
+                request_copy['near_lab'] = True
+            if 'near_conference_room' in request.POST.keys():
+                request_copy['near_conference_room'] = True
+            form = FocalPointRequestForm(request_copy, instance=user_request, business_group_qs=qs)
             curr_request = form.save(commit=False)
-            curr_request.focal_point = request.user
+            #curr_request.focal_point = FocalPoint.objects.filter(custom_user=request.user)[0]
             curr_request.save()
             return redirect('focal_point:myrequests')
         except ValueError:
             return render(request, 'focal_point/viewrequest.html',
-                          {'request': user_request, 'error': 'Bad info', 'form': form})
+                          {'request': user_request, 'error': 'bad info', 'form': form})
 
 
 def display_new_positions(request):
     new_positions = NewPosition.objects.filter(business_group=request.user.business_group).order_by('creation_date')
     return render(request, 'focal_point/newpositions.html', {'positions': new_positions})
+
+
+def delete_request(request, request_id):
+    curr_request = get_object_or_404(FocalPointRequest, pk=request_id, business_group=request.user.business_group)
+    if request.method == 'POST':
+        curr_request.delete()
+        return redirect('focal_point:myrequests')
