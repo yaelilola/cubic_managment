@@ -5,6 +5,8 @@ from focal_point.models import FocalPoint
 from assign.forms import AssignUserCubicForm
 from assign.models import AssignUserCubic
 from recruit.models import NewPosition
+from custom_user.models import CustomUser
+from facilities.models import Cubic
 
 # Create your views here.
 #foacl point actions
@@ -16,28 +18,28 @@ def view_assignments(request):
 
 def assign(request):
     #TODO - add assignment logic
+    focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
+    users_queryset = CustomUser.objects.filter(business_group=focal_point.custom_user.business_group)
+    cubics_queryset = Cubic.objects.filter(focal_point=focal_point)
     if request.method == 'GET':
-        focal_point = get_object_or_404(FocalPoint,custom_user=request.user)
-        return render(request, 'focal_point/assign.html', {'form': AssignUserCubicForm(focal_point=focal_point)})
+        return render(request, 'focal_point/assign.html', {'form': AssignUserCubicForm(users_queryset, cubics_queryset)})
     else:
         try:
             focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
-            print(request.POST)
-            form = AssignUserCubicForm(focal_point=focal_point)
+            form = AssignUserCubicForm(users_queryset, cubics_queryset)
             if request.POST:
+                print(form.is_valid())
                 if form.is_valid():
-                    print(form.cleaned_data)
                     assigned_users = form.cleaned_data.get("users")
                     cubics = form.cleaned_data.get("cubics")
                     for user in assigned_users:
                         for cubic in cubics:
                             assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
-                            print(assignment)
                             assignment.save()
             return redirect('homepage')
         except ValueError:
             return render(request, 'focal_point/assign.html',
-                          {'form': AssignUserCubicForm(), 'error': 'Bad data passed in'})
+                          {'form': AssignUserCubicForm(users_queryset, cubics_queryset), 'error': 'Bad data passed in'})
 
 
 def create_request(request):
