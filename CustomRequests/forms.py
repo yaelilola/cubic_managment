@@ -29,7 +29,7 @@ class RequestToChangeCubicFocalPointForm(ModelForm):
 class FocalPointRequestForm(ModelForm):
     class Meta:
         model = FocalPointRequest
-        fields = ['business_group', 'size', 'business_group_near_by', 'near_lab', 'near_conference_room',
+        fields = ['size', 'business_group_near_by', 'near_lab', 'near_conference_room',
                   'destination_date']
 
 

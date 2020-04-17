@@ -47,8 +47,11 @@ def create_request(request):
     else:
         try:
             form = FocalPointRequestForm(request.POST)
-            form.save()
-            return redirect('homepage')
+            new_request = form.save(commit=False)
+            new_request.focal_point = FocalPoint.objects.filter(custom_user=request.user)[0]
+            new_request.business_group = request.user.business_group
+            new_request.save()
+            return redirect('focal_point:myrequests')
         except ValueError:
             return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(),
                                                                     'error': 'Bad data passed in'})
@@ -66,7 +69,10 @@ def display_request(request, request_id):
         return render(request, 'focal_point/viewrequest.html', {'request': user_request, 'form': form})
     else:
         try:
-            form = RequestToChangeCubicFocalPointForm(request.POST, instance=user_request)
+            request_copy = request.POST.copy()
+            request_copy['user'] = user_request.user
+            request_copy['cubic'] = user_request.cubic
+            form = RequestToChangeCubicFocalPointForm(request_copy, instance=user_request)
             form.save()
             return redirect('focal_point:requests')
         except ValueError:
@@ -98,5 +104,5 @@ def display_my_request(request, request_id):
 
 
 def display_new_positions(request):
-    new_positions = NewPosition.objects.all()
+    new_positions = NewPosition.objects.filter(business_group=request.user.business_group).order_by('creation_date')
     return render(request, 'focal_point/newpositions.html', {'positions': new_positions})

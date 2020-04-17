@@ -1,27 +1,47 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
-Home
-<br>
-<br>
-<a href="{% url 'custom_user:createrequest' %}">
-    <input type="button" value="Ask To Change Cubic">
-</a>
-<br>
-<br>
-<a href="{% url 'custom_user:mycubic' %}">
-    <input type="button" value="My Cubic">
-</a>
+    {%if user.is_authenticated%}
+        <h1>Welcome to cubic management system</h1>
+        <br>
+        <br>
+        <a href="{% url 'custom_user:createrequest' %}">
+            <input type="button" value="Ask To Change Cubic">
+        </a>
+        <br>
+        <br>
+        <a href="{% url 'custom_user:mycubic' %}">
+            <input type="button" value="My Cubic">
+        </a>
 
-<br>
-<br>
-<a href="{% url 'custom_user:searchcubic' %}">
-    <input type="button" value="Search the location of another employee">
-</a>
-<br>
-<br>
-<a href="{% url 'custom_user:requests' %}">
-    <input type="button" value="Display my requests">
-</a>
+        <br>
+        <br>
+        <a href="{% url 'custom_user:searchcubic' %}">
+            <input type="button" value="Search the location of another employee">
+        </a>
+        <br>
+        <br>
+        <a href="{% url 'custom_user:requests' %}">
+            <input type="button" value="Display my requests">
+        </a>
+        {% if user.focal_point%}
+            <br>
+            <br>
+            <a href="{% url 'focal_point:requests' %}">
+            <input type="button" value="Display requests from users">
+            </a>
+            <br>
+            <br>
+            <a href="{% url 'focal_point:newpositions' %}">
+            <input type="button" value="Display new positions in my business group">
+            </a>
+            <br>
+            <br>
+            <a href="{% url 'focal_point:createRequest' %}">
+            <input type="button" value="Create a new request from the space planner">
+            </a>
+        {% endif %}
+    {% endif %}
+
 
 {% endblock %}
