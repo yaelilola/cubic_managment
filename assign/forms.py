@@ -17,13 +17,13 @@ class AssignPartTimeUserCubicForm(forms.Form):
 
 
 class AssignFullTimeUserCubicForm(forms.Form):
-    user = forms.ModelChoiceField(queryset=CustomUser.objects.all())
-    cubic = forms.ModelChoiceField(queryset=Cubic.objects.all())
+    users = forms.ModelChoiceField(queryset=CustomUser.objects.all())
+    cubics = forms.ModelChoiceField(queryset=Cubic.objects.all())
 
     def __init__(self, users_queryset, cubics_queryset, *args, **kwargs):
         super(AssignFullTimeUserCubicForm, self).__init__(*args, **kwargs)
-        self.fields['user'].queryset = users_queryset
-        self.fields['cubic'].queryset = cubics_queryset
+        self.fields['users'].queryset = users_queryset
+        self.fields['cubics'].queryset = cubics_queryset
 
 
 class AssignSpacesToBusinessGroupsForm(forms.Form):
