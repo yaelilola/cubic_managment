@@ -56,21 +56,36 @@ def all_assignments_are_okay(focal_point,assigned_users, cubics, cubic_type='pri
 
 
 def assign_part_time(request):
+    return assign(request, AssignPartTimeUserCubicForm,'shared','part_time')
+    #TODO - add assignment logic: should we use ajax, or check in backend?
+
+
+def assign_full_time(request):
+    return assign(request, AssignFullTimeUserCubicForm,'private','full_time')
+
+
+def assign(request,form_type,cubic_type,percentage):
     #TODO - add assignment logic: should we use ajax, or check in backend?
     focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
-    users_queryset = CustomUser.objects.filter(business_group=focal_point.custom_user.business_group, percentage='part_time')
-    cubics_queryset = get_available_cubics(focal_point, 1, 'shared')
+    users_queryset = CustomUser.objects.filter(business_group=focal_point.custom_user.business_group, percentage=percentage)
+    if percentage == 'full_time':
+        full_not_assigned_time_users_id = [user.id for user in users_queryset if len(AssignUserCubic.objects.filter(assigned_user=user)) == 0]
+        users_queryset = CustomUser.objects.filter(id__in=full_not_assigned_time_users_id)
+    cubics_queryset = get_available_cubics(focal_point, 1, cubic_type)
     if request.method == 'GET':
         return render(request, 'focal_point/assign.html',
-                      {'form': AssignPartTimeUserCubicForm(users_queryset=users_queryset, cubics_queryset=cubics_queryset)})
+                      {'form': form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset)})
     else:
         try:
-            form = AssignPartTimeUserCubicForm(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
+            form = form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
             if request.POST:
                 if form.is_valid():
                     assigned_users = form.cleaned_data.get("users")
                     cubics = form.cleaned_data.get("cubics")
-                    if all_assignments_are_okay(focal_point, assigned_users, cubics, 'shared'):
+                    if cubic_type == 'private':
+                        cubics = [cubics]
+                        assigned_users = [assigned_users]
+                    if all_assignments_are_okay(focal_point, assigned_users, cubics, cubic_type):
                         for user in assigned_users:
                             for cubic in cubics:
                                 try:
@@ -81,51 +96,15 @@ def assign_part_time(request):
                                         pass
                     else:
                         return render(request, 'focal_point/assign.html',
-                                      {'form': AssignPartTimeUserCubicForm(users_queryset=users_queryset,
+                                      {'form': form_type(users_queryset=users_queryset,
                                                                            cubics_queryset=cubics_queryset),
                                        'error': 'There is not enough place in the selected cubics'})
             return redirect('focal_point:assignments')
         except ValueError:
             return render(request, 'focal_point/assign.html',
-                          {'form': AssignPartTimeUserCubicForm(users_queryset=users_queryset, cubics_queryset=cubics_queryset), 'error': 'Bad data passed in'})
+                          {'form': form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset), 'error': 'Bad data passed in'})
 
 
-def assign_full_time(request):
-    focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
-    full_time_users = CustomUser.objects.filter(business_group=focal_point.custom_user.business_group, percentage='full_time')
-    full_not_assigned_time_users_id = [user.id for user in full_time_users if len(AssignUserCubic.objects.filter(assigned_user=user)) == 0]
-    users_queryset = CustomUser.objects.filter(id__in=full_not_assigned_time_users_id)
-    cubics_queryset = get_available_cubics(focal_point)
-    if request.method == 'GET':
-        return render(request, 'focal_point/assign.html',
-                      {'form': AssignFullTimeUserCubicForm(users_queryset=users_queryset,
-                                                           cubics_queryset=cubics_queryset)})
-    else:
-        try:
-            form = AssignFullTimeUserCubicForm(users_queryset=users_queryset, cubics_queryset=cubics_queryset,
-                                               data=request.POST or None)
-            if request.POST:
-                if form.is_valid():
-                    assigned_user = form.cleaned_data.get("users")
-                    cubic = form.cleaned_data.get("cubics")
-                    if all_assignments_are_okay(focal_point, [assigned_user], [cubic], 'private'):
-                        try:
-                            assignment = AssignUserCubic(assigner=focal_point, assigned_user=assigned_user, cubic=cubic)
-                            assignment.save()
-                        except Exception as e:
-                            if str(e).startswith('UNIQUE constraint failed'):
-                                pass
-                    else:
-                        return render(request, 'focal_point/assign.html',
-                                      {'form': AssignFullTimeUserCubicForm(users_queryset=users_queryset,
-                                                                           cubics_queryset=cubics_queryset),
-                                       'error': 'Could not make assignment'})
-            return redirect('focal_point:assignments')
-        except ValueError:
-            return render(request, 'focal_point/assign.html',
-                          {'form': AssignFullTimeUserCubicForm(users_queryset=users_queryset,
-                                                               cubics_queryset=cubics_queryset),
-                           'error': 'Bad data passed in'})
 
 
 def edit_assignments_for_user(request,user_id, focal_point, wanted_user, current_cubics, cubic_type):
