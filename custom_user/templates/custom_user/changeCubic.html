@@ -6,11 +6,13 @@
 <h1>Create Request</h1>
 
 <h2>{{ error }}</h2>
+{% if form %}
 <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Request</button>
 </form>
+{% endif %}
 </body>
 
 {% endblock %}

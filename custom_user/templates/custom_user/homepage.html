@@ -20,6 +20,10 @@
         {% if user.focal_point%}
             <br>
             <br>
+            {% if un_read_requests%}
+                You have {{un_read_requests.count}} unread message{{ un_read_requests.count|pluralize }}
+                <br>
+            {% endif %}
             <a href="{% url 'focal_point:requests' %}">
             <input type="button" value="Display requests from users">
             </a>

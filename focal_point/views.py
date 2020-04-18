@@ -199,7 +199,8 @@ def create_request(request):
 
 
 def display_requests(request):
-    requests = RequestToChangeCubic.objects.all()
+    users_in_focal_point_group = CustomUser.objects.filter(business_group=request.user.business_group)
+    requests = RequestToChangeCubic.objects.filter(user__in=users_in_focal_point_group)
     return render(request, 'focal_point/requests.html', {'requests': requests})
 
 

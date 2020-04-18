@@ -14,6 +14,11 @@ from django.db.models import Q
 
 
 def homepage(request):
+    if request.user.is_authenticated:
+        if request.user.focal_point is True:
+            users_in_focal_point_group = CustomUser.objects.filter(business_group=request.user.business_group)
+            un_read_requests_from_users = RequestToChangeCubic.objects.filter(user__in=users_in_focal_point_group,status='unread')
+            return render(request, 'custom_user/homepage.html', {'un_read_requests': un_read_requests_from_users})
     return render(request, 'custom_user/homepage.html')
 
 # Create your views here.
@@ -83,25 +88,30 @@ def get_my_cubic(request):
 
 @login_required()
 def ask_to_change_cubic(request):
-    my_assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
-    my_cubics_ids = [assignment.cubic.id for assignment in my_assignments]
-    all_other_cubics = Cubic.objects.exclude(id__in=my_cubics_ids)
-
-    if request.method == 'GET':
-        return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics)})
-    else:
-        try:
-            form = RequestToChangeCubicForm(cubics_queryset=all_other_cubics, data=request.POST or None)
-            if request.POST:
-                if form.is_valid():
-                    wanted_cubic = form.cleaned_data.get("cubic")
-                    reason = form.cleaned_data.get("reason")
-                    newRequest = RequestToChangeCubic(user=request.user, cubic=wanted_cubic, reason=reason)
-                    newRequest.save()
-            return redirect('custom_user:requests')
-        except ValueError:
-            return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics),
-                                                                    'error': 'Bad data passed in'})
+    try:
+        focal_point_as_custom_user = CustomUser.objects.filter(business_group=request.user.business_group, focal_point=True)[0]
+        focal_point = FocalPoint.objects.filter(custom_user=focal_point_as_custom_user)[0]
+        my_assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
+        my_cubics_ids = [assignment.cubic.id for assignment in my_assignments]
+        all_other_cubics = Cubic.objects.filter(focal_point=focal_point).exclude(id__in=my_cubics_ids)
+        if request.method == 'GET':
+            return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics)})
+        else:
+            try:
+                form = RequestToChangeCubicForm(cubics_queryset=all_other_cubics, data=request.POST or None)
+                if request.POST:
+                    if form.is_valid():
+                        wanted_cubic = form.cleaned_data.get("cubic")
+                        reason = form.cleaned_data.get("reason")
+                        newRequest = RequestToChangeCubic(user=request.user, cubic=wanted_cubic, reason=reason)
+                        newRequest.save()
+                return redirect('custom_user:requests')
+            except ValueError:
+                return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics),'error': 'Bad data passed in'})
+    #the group doesnot have a focal point
+    except IndexError:
+        return render(request, 'custom_user/changeCubic.html',
+                      {'error': 'Cant send requests yet, because your group does not have focal point.'})
 
 
 @login_required()
