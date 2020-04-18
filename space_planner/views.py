@@ -16,6 +16,7 @@ def get_alerts(request):
 
 
 def assign_space(request):
+    #TODO: add logic
     if request.method == 'GET':
         return render(request, 'space_planner/assignspace.html', {'form': AssignSpacesToBusinessGroupsForm()})
     else:
