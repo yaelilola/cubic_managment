@@ -4,7 +4,7 @@
 
     {{ error }}
 
-   <h2> {{user}}'s Assignments: </h2>
+   <h2> {{curr_user}}'s Assignments: </h2>
     <br>
     <br>
     <form method="POST">
@@ -12,7 +12,7 @@
          {{form.as_table}}
     <button type="submit">Update</button>
     </form>
-    <form method="POST" action="{% url 'focal_point:delete_all_user_assignments' user.id %}">
+    <form method="POST" action="{% url 'focal_point:delete_all_user_assignments' curr_user.id %}">
     {% csrf_token %}
     <button type="submit">Delete All Assignments for user</button>
     </form>

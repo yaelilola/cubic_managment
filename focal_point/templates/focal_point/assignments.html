@@ -22,9 +22,13 @@
             </ul>
             {% endfor %}
     </ul>
-      <a href="{% url 'focal_point:assign' %}">
-            <input type="button" value="Create a new assignment">
-            </a>
+      <a href="{% url 'focal_point:assign_part_time' %}">
+            <input type="button" value="Assignment for a part time employee">
+      </a>
+    <br>
+        <a href="{% url 'focal_point:assign_full_time' %}">
+            <input type="button" value="Assignment for a full time employee">
+      </a>
 </body>
 
 {% endblock %}
