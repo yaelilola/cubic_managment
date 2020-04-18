@@ -14,7 +14,8 @@ from facilities.models import Cubic
 def view_assignments(request):
     focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
     assignments = AssignUserCubic.objects.filter(assigner=focal_point)
-    return render(request, 'focal_point/assignments.html', {'assignments': assignments})
+    users = CustomUser.objects.filter(business_group=request.user.business_group)
+    return render(request, 'focal_point/assignments.html', {'assignments': assignments, 'users': users})
 
 def assign(request):
     #TODO - add assignment logic
@@ -35,10 +36,47 @@ def assign(request):
                         for cubic in cubics:
                             assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
                             assignment.save()
-            return redirect('homepage')
+            return redirect('focal_point:assignments')
         except ValueError:
             return render(request, 'focal_point/assign.html',
                           {'form': AssignUserCubicForm(users_queryset=users_queryset, cubics_queryset=cubics_queryset), 'error': 'Bad data passed in'})
+
+def view_all_user_assignments(request,user_id):
+    wanted_user = CustomUser.objects.filter(pk=user_id)[0]
+    wanted_user_assignments = AssignUserCubic.objects.filter(assigned_user=wanted_user)
+    current_cubics = [assignment.cubic for assignment in wanted_user_assignments]
+    focal_point = FocalPoint.objects.filter(custom_user=request.user)[0]
+    if request.method == 'GET':
+        #TODO: think which cubics should be seen
+        form = AssignUserCubicForm(users_queryset=CustomUser.objects.filter(pk=user_id)
+                                   , cubics_queryset=Cubic.objects.filter(focal_point=focal_point), initial={'cubics': current_cubics,
+                                                                                        'users': wanted_user})
+        return render(request, 'focal_point/viewuserassignments.html', {'user': wanted_user, 'form': form})
+    else:
+        try:
+            form = AssignUserCubicForm(users_queryset=CustomUser.objects.all(), cubics_queryset=Cubic.objects.all(), data=request.POST or None)
+            print(request.POST)
+            if request.POST:
+                if form.is_valid():
+                    assigned_users = form.cleaned_data.get("users")
+                    cubics = form.cleaned_data.get("cubics")
+                    for user in assigned_users:
+                        for assignment in AssignUserCubic.objects.filter(assigned_user=user):
+                            assignment.delete()
+                        for cubic in cubics:
+                            assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
+                            assignment.save()
+            return redirect('focal_point:assignments')
+        except ValueError:
+            return render(request, 'focal_point/viewuserassignments.html',
+                          {'user': wanted_user, 'error': 'Bad info', 'form': form})
+
+
+def delete_all_user_assignments(request,user_id):
+    wanted_user = CustomUser.objects.filter(pk=user_id)[0]
+    for assignment in AssignUserCubic.objects.filter(assigned_user=wanted_user):
+        assignment.delete()
+    return redirect('focal_point:assignments')
 
 
 def create_request(request):

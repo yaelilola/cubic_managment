@@ -18,6 +18,7 @@ def homepage(request):
 
 # Create your views here.
 #Todo: change forms, check id doesnot exist, check space planner or focal point does this?
+#TODO: login users shouldnot see it
 def signupuser(request):
     if request.method == 'GET':
         return render(request, 'custom_user/signupuser.html', {'form': CustomUserSignUpForm()})
@@ -39,8 +40,9 @@ def signupuser(request):
                                                           password=request.POST['password'],)
                     #TODO - add start date and end date handling
                     user.save()
-                    focal_point = FocalPoint(custom_user=user)
-                    focal_point.save()
+                    if request.POST.get('focal_point', False):
+                        focal_point = FocalPoint(custom_user=user)
+                        focal_point.save()
                     login(request, user)
                     return redirect('homepage')
                 except IntegrityError:

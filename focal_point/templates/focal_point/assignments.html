@@ -2,19 +2,29 @@
 
 {% block content %}
     <body>
-
+    {% if assignments %}
     Assignments I made
-
+    {% else %}
+    You made no assignments yet
+    {% endif %}
     <ul>
-        {% for assignment in assignments%}
-        <li>
-            User: {{ assignment.assigned_user }}
-            Cubic: {{ assignment.cubic }}
-            Assigner: {{ assignment.assigner }}
-            Assignment Date: {{assignment.time}}
-        </li>
-        {% endfor %}
+            {% for user in users %}
+        <a href="{% url 'focal_point:viewuserassignments' user.id %}"><li> User: {{ user.email }} </li></a>
+            <ul>
+                    {% for assignment in assignments%}
+                        {% if assignment.assigned_user == user%}
+                            <li>
+                                Cubic: {{ assignment.cubic }}
+                                Assignment Date: {{assignment.time}}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+            </ul>
+            {% endfor %}
     </ul>
+      <a href="{% url 'focal_point:assign' %}">
+            <input type="button" value="Create a new assignment">
+            </a>
 </body>
 
 {% endblock %}
