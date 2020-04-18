@@ -19,6 +19,11 @@
         </li>
         {% endfor %}
     </ul>
+    <br>
+    <br>
+    <a href="{% url 'focal_point:createRequest' %}">
+    <input type="button" value="Create a new request from the space planner">
+    </a>
 </body>
 
 {% endblock %}
