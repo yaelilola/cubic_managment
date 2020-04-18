@@ -117,7 +117,7 @@ def assign_full_time(request):
                         return render(request, 'focal_point/assign.html',
                                       {'form': AssignFullTimeUserCubicForm(users_queryset=users_queryset,
                                                                            cubics_queryset=cubics_queryset),
-                                       'error': 'There is not enough place in the selected cubics'})
+                                       'error': 'Could not make assignment'})
             return redirect('focal_point:assignments')
         except ValueError:
             return render(request, 'focal_point/assign.html',
@@ -126,41 +126,85 @@ def assign_full_time(request):
                            'error': 'Bad data passed in'})
 
 
+def edit_assignments_part_time(request,user_id,focal_point,wanted_user,wanted_user_assignments,current_cubics):
+    if request.method == 'GET':
+        #TODO: think which cubics should be seen
+        available_cubics = get_available_cubics(focal_point, 1, 'shared')
+        available_cubics_ids = [cubic.id for cubic in available_cubics]
+        current_cubics_ids = [cubic.id for cubic in current_cubics]
+        cubics_queryset = Cubic.objects.filter(id__in=(available_cubics_ids+current_cubics_ids))
+        form = AssignPartTimeUserCubicForm(users_queryset=CustomUser.objects.filter(pk=user_id), cubics_queryset=cubics_queryset,
+                                           initial={'cubics': current_cubics,'users': wanted_user})
+        return render(request, 'focal_point/viewuserassignments.html', {'curr_user': wanted_user, 'form': form})
+
+    else:
+        try:
+            form = AssignPartTimeUserCubicForm(users_queryset=CustomUser.objects.all(), cubics_queryset=Cubic.objects.all(),
+                                               data=request.POST or None)
+            if request.POST:
+                if form.is_valid():
+                    assigned_user = form.cleaned_data.get("users")
+                    cubics = form.cleaned_data.get("cubics")
+                    if all_assignments_are_okay(focal_point,[assigned_user],cubics,'shared'):
+                        for user in [assigned_user]:
+                            for assignment in AssignUserCubic.objects.filter(assigned_user=user):
+                                assignment.delete()
+                            for cubic in cubics:
+                                assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
+                                assignment.save()
+                        return redirect('focal_point:assignments')
+                    else:
+                        return render(request, 'focal_point/viewuserassignments.html',
+                                      {'curr_user': wanted_user, 'error': 'There is not enough place in the selected cubics', 'form': form})
+        except ValueError:
+            return render(request, 'focal_point/viewuserassignments.html',
+                          {'curr_user': wanted_user, 'error': 'Bad info', 'form': form})
+
+def  edit_assignments_full_time(request,user_id,focal_point,wanted_user,wanted_user_assignments,current_cubics):
+    if request.method == 'GET':
+        available_cubics = get_available_cubics(focal_point, 1, 'private')
+        available_cubics_ids = [cubic.id for cubic in available_cubics]
+        # TODO: we assumed that if the user is full time, it has only one assignment
+        current_cubics_ids = [cubic.id for cubic in current_cubics]
+        cubics_queryset = Cubic.objects.filter(id__in=(available_cubics_ids + current_cubics_ids))
+        form = AssignFullTimeUserCubicForm(users_queryset=CustomUser.objects.filter(pk=user_id)
+                                           , cubics_queryset=cubics_queryset,
+                                           initial={'cubic': current_cubics,
+                                                    'user': wanted_user})
+        return render(request, 'focal_point/viewuserassignments.html', {'curr_user': wanted_user, 'form': form})
+
+    else:
+        try:
+            form = AssignFullTimeUserCubicForm(users_queryset=CustomUser.objects.all(), cubics_queryset=Cubic.objects.all(),
+                                               data=request.POST or None)
+            if request.POST:
+                if form.is_valid():
+                    assigned_user = form.cleaned_data.get("users")
+                    cubic = form.cleaned_data.get("cubics")
+                    if all_assignments_are_okay(focal_point,[assigned_user],[cubic],'shared'):
+                        for user in [assigned_user]:
+                            for assignment in AssignUserCubic.objects.filter(assigned_user=user):
+                                assignment.delete()
+                            for cubic in [cubic]:
+                                assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
+                                assignment.save()
+                        return redirect('focal_point:assignments')
+                    else:
+                        return render(request, 'focal_point/viewuserassignments.html',
+                                      {'curr_user': wanted_user, 'error': 'Could not make assignment', 'form': form})
+        except ValueError:
+            return render(request, 'focal_point/viewuserassignments.html',
+                          {'curr_user': wanted_user, 'error': 'Bad info', 'form': form})
+
 def view_all_user_assignments(request,user_id):
     wanted_user = CustomUser.objects.filter(pk=user_id)[0]
     wanted_user_assignments = AssignUserCubic.objects.filter(assigned_user=wanted_user)
     current_cubics = [assignment.cubic for assignment in wanted_user_assignments]
     focal_point = FocalPoint.objects.filter(custom_user=request.user)[0]
-    if request.method == 'GET':
-        #TODO: think which cubics should be seen
-        if wanted_user.percentage == 'part_time':
-            form = AssignPartTimeUserCubicForm(users_queryset=CustomUser.objects.filter(pk=user_id)
-                                   ,cubics_queryset=Cubic.objects.filter(focal_point=focal_point), initial={'cubics': current_cubics,
-                                                                                        'users': wanted_user})
-            return render(request, 'focal_point/viewuserassignments.html', {'curr_user': wanted_user, 'form': form})
-        else : #full time
-            form = AssignPartTimeUserCubicForm(users_queryset=CustomUser.objects.filter(pk=user_id)
-                                               , cubics_queryset=Cubic.objects.filter(focal_point=focal_point),
-                                               initial={'cubics': current_cubics,
-                                                        'users': wanted_user})
+    if wanted_user.percentage=='part_time':
+        return edit_assignments_part_time(request,user_id,focal_point,wanted_user,wanted_user_assignments,current_cubics)
     else:
-        try:
-            form = AssignPartTimeUserCubicForm(users_queryset=CustomUser.objects.all(), cubics_queryset=Cubic.objects.all(), data=request.POST or None)
-            if request.POST:
-                if form.is_valid():
-                    assigned_users = form.cleaned_data.get("users")
-                    cubics = form.cleaned_data.get("cubics")
-                    for user in assigned_users:
-                        for assignment in AssignUserCubic.objects.filter(assigned_user=user):
-                            assignment.delete()
-                        for cubic in cubics:
-                            assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
-                            assignment.save()
-            return redirect('focal_point:assignments')
-        except ValueError:
-            return render(request, 'focal_point/viewuserassignments.html',
-                          {'curr_user': wanted_user, 'error': 'Bad info', 'form': form})
-
+        return edit_assignments_full_time(request,user_id,focal_point,wanted_user,wanted_user_assignments,current_cubics)
 
 def delete_all_user_assignments(request,user_id):
     wanted_user = CustomUser.objects.filter(pk=user_id)[0]
