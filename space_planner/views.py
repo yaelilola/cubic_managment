@@ -5,6 +5,7 @@ from assign.forms import AssignSpacesToBusinessGroupsForm
 from facilities.models import Cubic
 from custom_user.models import CustomUser
 from focal_point.models import FocalPoint
+from .forms import ChooseFocalPointForm
 
 #space planner actions
 def simulations(request):
@@ -71,7 +72,13 @@ def display_request(request, request_id):
 
 
 def assign_focal_point(request):
-    pass
+    return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm()})
+
+
+def load_employees(request):
+    chosen_business_group = request.GET.get('business_group')
+    employees = CustomUser.objects.filter(business_group=chosen_business_group)
+    return render(request, 'space_planner/employees_dropdown_list_options.html', {'employees': employees})
 
 
 

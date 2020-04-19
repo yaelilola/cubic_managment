@@ -23,4 +23,6 @@ urlpatterns = [
     path('viewrequest/<int:request_id>', space_planner_views.display_request, name='viewrequest'),
     path('assignfocalpoint/', space_planner_views.assign_focal_point, name='assignfocalpoint'),
     path('assign/', space_planner_views.assign_space, name='assign'),
+    path('ajax/load-employees/', space_planner_views.load_employees, name='ajax_load_employees'),
+
 ]
