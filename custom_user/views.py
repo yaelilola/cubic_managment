@@ -89,11 +89,9 @@ def get_my_cubic(request):
 @login_required()
 def ask_to_change_cubic(request):
     try:
-        focal_point_as_custom_user = CustomUser.objects.filter(business_group=request.user.business_group, focal_point=True)[0]
-        focal_point = FocalPoint.objects.filter(custom_user=focal_point_as_custom_user)[0]
         my_assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
         my_cubics_ids = [assignment.cubic.id for assignment in my_assignments]
-        all_other_cubics = Cubic.objects.filter(focal_point=focal_point).exclude(id__in=my_cubics_ids)
+        all_other_cubics = Cubic.objects.filter(business_group=request.user.business_group).exclude(id__in=my_cubics_ids)
         if request.method == 'GET':
             return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics)})
         else:

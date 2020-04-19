@@ -1,7 +1,7 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
-
+  {{ error }}
   <h2>Assign Focal Point</h2>
 
   <form method="post" id="ChooseFocalPointForm" data-employees-url="{% url 'space_planner:ajax_load_employees' %}" novalidate>

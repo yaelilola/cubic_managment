@@ -32,8 +32,8 @@ def is_cubic_available(cubic, person_amount=1):
             return False
 
 
-def get_available_cubics(focal_point, person_amount=1, cubic_type='private'):
-    cubics_queryset_aux = Cubic.objects.filter(focal_point=focal_point, type=cubic_type)
+def get_available_cubics(business_group, person_amount=1, cubic_type='private'):
+    cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
     cubics_queryset = cubics_queryset_aux
     for cubic in cubics_queryset_aux:
         if is_cubic_available(cubic, person_amount)is False:
@@ -41,7 +41,7 @@ def get_available_cubics(focal_point, person_amount=1, cubic_type='private'):
     return cubics_queryset
 
 
-def all_assignments_are_okay(focal_point,assigned_users, cubics, cubic_type='private'):
+def all_assignments_are_okay(business_group,assigned_users, cubics, cubic_type='private'):
     #TODO: assuming that private type means that cubics includes one item
     #checks if the assignment is updated to be the old one
     if cubic_type == 'private' and len(AssignUserCubic.objects.filter(cubic=cubics[0],assigned_user=assigned_users[0]))>0:
@@ -49,7 +49,7 @@ def all_assignments_are_okay(focal_point,assigned_users, cubics, cubic_type='pri
     for cubic in cubics:
         cubics_users = [assignment.assigned_user for assignment in AssignUserCubic.objects.filter(cubic=cubic)]
         users_not_in_cubic = [user for user in assigned_users if user not in cubics_users]
-        available_cubics = get_available_cubics(focal_point, len(users_not_in_cubic), cubic_type)
+        available_cubics = get_available_cubics(business_group, len(users_not_in_cubic), cubic_type)
         if cubic not in available_cubics:
             return False
     return True
@@ -67,11 +67,12 @@ def assign_full_time(request):
 def assign(request,form_type,cubic_type,percentage):
     #TODO - add assignment logic: should we use ajax, or check in backend?
     focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
+    business_group = request.user.business_group
     users_queryset = CustomUser.objects.filter(business_group=focal_point.custom_user.business_group, percentage=percentage)
     if percentage == 'full_time':
         full_not_assigned_time_users_id = [user.id for user in users_queryset if len(AssignUserCubic.objects.filter(assigned_user=user)) == 0]
         users_queryset = CustomUser.objects.filter(id__in=full_not_assigned_time_users_id)
-    cubics_queryset = get_available_cubics(focal_point, 1, cubic_type)
+    cubics_queryset = get_available_cubics(business_group, 1, cubic_type)
     if request.method == 'GET':
         return render(request, 'focal_point/assign.html',
                       {'form': form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset)})
@@ -85,7 +86,7 @@ def assign(request,form_type,cubic_type,percentage):
                     if cubic_type == 'private':
                         cubics = [cubics]
                         assigned_users = [assigned_users]
-                    if all_assignments_are_okay(focal_point, assigned_users, cubics, cubic_type):
+                    if all_assignments_are_okay(business_group, assigned_users, cubics, cubic_type):
                         for user in assigned_users:
                             for cubic in cubics:
                                 try:
@@ -112,7 +113,8 @@ def edit_assignments_for_user(request,user_id, focal_point, wanted_user, current
         form_type = AssignPartTimeUserCubicForm
     else:
         form_type = AssignFullTimeUserCubicForm
-    available_cubics = get_available_cubics(focal_point, 1, cubic_type)
+    business_group = request.user.business_group
+    available_cubics = get_available_cubics(business_group, 1, cubic_type)
     available_cubics_ids = [cubic.id for cubic in available_cubics]
     # TODO: we assumed that if the user is full time, it has only one assignment
     current_cubics_ids = [cubic.id for cubic in current_cubics]
@@ -136,7 +138,7 @@ def edit_assignments_for_user(request,user_id, focal_point, wanted_user, current
                         assigned_user = assigned_user[0]
                     else:
                         cubics = [cubic]
-                    if all_assignments_are_okay(focal_point, [assigned_user], cubics, cubic_type):
+                    if all_assignments_are_okay(business_group, [assigned_user], cubics, cubic_type):
                         for assignment in AssignUserCubic.objects.filter(assigned_user=assigned_user):
                             assignment.delete()
                         for cubic in cubics:

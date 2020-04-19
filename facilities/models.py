@@ -1,5 +1,6 @@
 from django.db import models
 from focal_point.models import FocalPoint
+from custom_user.models import BusinessGroup
 MAX_LENGTH = 100
 
 
@@ -108,8 +109,8 @@ class Cubic(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
     type = models.CharField(choices=(('shared', 'shared'), ('private', 'private')), max_length=MAX_LENGTH)
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
-    # group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    focal_point = models.ForeignKey(FocalPoint, on_delete=models.CASCADE)#Todo: think how to enforce only focal point users
+    business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
+    # focal_point = models.ForeignKey(FocalPoint, on_delete=models.CASCADE)#Todo: think how to enforce only focal point users
     area = models.DecimalField(decimal_places=5, max_digits=10)
 
     def __str__(self):

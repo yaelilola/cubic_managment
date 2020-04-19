@@ -3,7 +3,7 @@ from CustomRequests.models import FocalPointRequest
 from CustomRequests.forms import FocalPointRequestSpacePlannerForm
 from assign.forms import AssignSpacesToBusinessGroupsForm
 from facilities.models import Cubic
-from custom_user.models import CustomUser
+from custom_user.models import CustomUser,BusinessGroup
 from focal_point.models import FocalPoint
 from .forms import ChooseFocalPointForm
 
@@ -72,7 +72,40 @@ def display_request(request, request_id):
 
 
 def assign_focal_point(request):
-    return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm()})
+    if request.method == 'GET':
+        return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm()})
+    else:
+        try:
+            if request.POST:
+                form = ChooseFocalPointForm(data=request.POST or None)
+                print(request.POST)
+                print(form.errors)
+                chosen_business_group_query_set = BusinessGroup.objects.filter(id=request.POST.get('business_group'))
+                chosen_employee_query_set = CustomUser.objects.filter(email=request.POST.get('employee'))
+                form.fields['employee'].queryset = chosen_employee_query_set
+                form.fields['business_group'].queryset = chosen_business_group_query_set
+                chosen_employee = chosen_employee_query_set[0]  # should be only one
+                if form.is_valid():
+                    # chosen_employee = form.cleaned_data.get('employee')
+                    # chosen_business_group = form.cleaned_data.get('business_group')
+                    try:
+                        old_focal_point= CustomUser.objects.filter(business_group=chosen_business_group,focal_point=True)[0]
+                        old_focal_point.focal_point = False
+                        old_focal_point.save()
+                        old_focal_point_as_focal_point = FocalPoint.objects.filter(custom_user=old_focal_point)[0]
+                        old_focal_point_as_focal_point.delete()
+                    except IndexError:
+                        pass
+                    chosen_employee.focal_point = True
+                    chosen_employee.save()
+                    FocalPoint.objects.create(custom_user=chosen_employee)
+                    redirect('custom_user:homepage')
+                else:
+                    return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm(),'error':'Cant make assignment'})
+        except ValueError:
+            return render(request, 'space_planner/assign_focal_point.html',
+                          {'form': ChooseFocalPointForm(), 'error': 'Bad info'})
+
 
 
 def load_employees(request):
