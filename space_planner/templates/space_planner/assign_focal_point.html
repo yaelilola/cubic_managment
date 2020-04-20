@@ -9,25 +9,30 @@
     <table>
       {{ form.as_table }}
     </table>
-    <button type="submit">Save</button>
+    <button type="submit" id="btn">Save</button>
   </form>
 
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>
-    $("#id_business_group").change(function () {
-      var url = $("#ChooseFocalPointForm").attr("data-employees-url");  // get the url of the `load_employees` view
-      var businessGroup = $(this).val();  // get the selected business group from the HTML input
-
-      $.ajax({                       // initialize an AJAX request
-        url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-employees/)
-        data: {
-          'business_group': businessGroup       // add the business to the GET parameters
-        },
-        success: function (data) {   // `data` is the return of the `load_employees` view function
-          $("#id_employee").html(data);  // replace the contents of the employees input with the data that came from the server
-        }
-      });
-
+      $("#id_business_group").change(function () {
+      var url = $("#ChooseFocalPointForm").attr("data-employees-url");
+      var businessGroup = $(this).val();
+      if (businessGroup == 0) { //Not selected
+        $("#id_employee").html("<option value='0'>---------</option>");
+      } else {
+        // disable the city select while the ajax request
+        $("#id_employee").prop('disabled',true);
+        $.ajax({
+          url: url,
+          data: {
+            'business_group': businessGroup
+          },
+          success: function (data) {
+            $("#id_employee").removeAttr("disabled");
+            $("#id_employee").html(data);
+          }
+        });
+      }
     });
   </script>
 
