@@ -2,7 +2,6 @@ from django.db import models
 from custom_user.models import CustomUser, BusinessGroup
 from facilities.models import Cubic
 from django.utils.timezone import now
-from focal_point.models import FocalPoint
 MAX_LENGTH = 100
 
 # Create your models here.
@@ -20,7 +19,6 @@ class RequestToChangeCubic(models.Model):
 
 
 class FocalPointRequest(models.Model):
-    focal_point = models.ForeignKey(FocalPoint, on_delete=models.CASCADE)
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+')
     size = models.PositiveIntegerField(blank=True, null=True)
     business_group_near_by = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+',

@@ -1,23 +1,28 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from CustomRequests.models import RequestToChangeCubic, FocalPointRequest
 from CustomRequests.forms import RequestToChangeCubicFocalPointForm, FocalPointRequestForm
-from focal_point.models import FocalPoint
 from assign.forms import AssignPartTimeUserCubicForm, AssignFullTimeUserCubicForm
 from assign.models import AssignUserCubic
 from recruit.models import NewPosition
 from custom_user.models import CustomUser, BusinessGroup
 from facilities.models import Cubic
+from cubic_managment.decorators import user_is_focal_point, user_is_focal_point_request_author, \
+    user_in_focal_point_group
 
 # Create your views here.
 #foacl point actions
 
+"""
+View all of the assignment to focal point amde
+"""
+@user_is_focal_point
 def view_assignments(request):
-    focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
+    focal_point = get_object_or_404(CustomUser, id=request.user.id, focal_point=True)#Check that the user is really a focal point
     assignments = AssignUserCubic.objects.filter(assigner=focal_point)
     users = CustomUser.objects.filter(business_group=request.user.business_group)
     return render(request, 'focal_point/assignments.html', {'assignments': assignments, 'users': users})
 
-
+@user_is_focal_point
 def is_cubic_available(cubic, person_amount=1):
     if cubic.type == 'private':
         if len(AssignUserCubic.objects.filter(cubic=cubic)) < 1 and person_amount == 1:
@@ -31,7 +36,7 @@ def is_cubic_available(cubic, person_amount=1):
         else:
             return False
 
-
+@user_is_focal_point
 def get_available_cubics(business_group, person_amount=1, cubic_type='private'):
     cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
     cubics_queryset = cubics_queryset_aux
@@ -41,10 +46,11 @@ def get_available_cubics(business_group, person_amount=1, cubic_type='private'):
     return cubics_queryset
 
 
+@user_is_focal_point
 def all_assignments_are_okay(business_group,assigned_users, cubics, cubic_type='private'):
     #TODO: assuming that private type means that cubics includes one item
     #checks if the assignment is updated to be the old one
-    if cubic_type == 'private' and len(AssignUserCubic.objects.filter(cubic=cubics[0],assigned_user=assigned_users[0]))>0:
+    if cubic_type == 'private' and len(AssignUserCubic.objects.filter(cubic=cubics[0], assigned_user=assigned_users[0]))>0:
         return True
     for cubic in cubics:
         cubics_users = [assignment.assigned_user for assignment in AssignUserCubic.objects.filter(cubic=cubic)]
@@ -54,21 +60,21 @@ def all_assignments_are_okay(business_group,assigned_users, cubics, cubic_type='
             return False
     return True
 
-
+@user_is_focal_point
 def assign_part_time(request):
     return assign(request, AssignPartTimeUserCubicForm,'shared','part_time')
     #TODO - add assignment logic: should we use ajax, or check in backend?
 
-
+@user_is_focal_point
 def assign_full_time(request):
     return assign(request, AssignFullTimeUserCubicForm,'private','full_time')
 
-
+@user_is_focal_point
 def assign(request,form_type,cubic_type,percentage):
     #TODO - add assignment logic: should we use ajax, or check in backend?
-    focal_point = get_object_or_404(FocalPoint, custom_user=request.user)
+    focal_point = get_object_or_404(CustomUser, id=request.user.id, focal_point=True)
     business_group = request.user.business_group
-    users_queryset = CustomUser.objects.filter(business_group=focal_point.custom_user.business_group, percentage=percentage)
+    users_queryset = CustomUser.objects.filter(business_group=business_group, percentage=percentage)
     if percentage == 'full_time':
         full_not_assigned_time_users_id = [user.id for user in users_queryset if len(AssignUserCubic.objects.filter(assigned_user=user)) == 0]
         users_queryset = CustomUser.objects.filter(id__in=full_not_assigned_time_users_id)
@@ -107,7 +113,7 @@ def assign(request,form_type,cubic_type,percentage):
 
 
 
-
+@user_is_focal_point
 def edit_assignments_for_user(request,user_id, focal_point, wanted_user, current_cubics, cubic_type):
     if cubic_type == 'shared':
         form_type = AssignPartTimeUserCubicForm
@@ -153,26 +159,30 @@ def edit_assignments_for_user(request,user_id, focal_point, wanted_user, current
             return render(request, 'focal_point/viewuserassignments.html',
                           {'curr_user': wanted_user, 'error': 'Bad info', 'form': form})
 
-
+"""
+See all assignments that a user has
+"""
+@user_is_focal_point
+@user_in_focal_point_group
 def view_all_user_assignments(request,user_id):
     wanted_user = CustomUser.objects.filter(pk=user_id)[0]
     wanted_user_assignments = AssignUserCubic.objects.filter(assigned_user=wanted_user)
     current_cubics = [assignment.cubic for assignment in wanted_user_assignments]
-    focal_point = FocalPoint.objects.filter(custom_user=request.user)[0]
+    focal_point = CustomUser.objects.filter(id=request.user.id, focal_point=True, business_group=wanted_user.business_group)[0]
     cubic_type = 'shared' if wanted_user.percentage == 'part_time' else 'private'
-    return edit_assignments_for_user(request,user_id,focal_point,wanted_user,current_cubics,cubic_type)
+    return edit_assignments_for_user(request, user_id, focal_point, wanted_user, current_cubics, cubic_type)
 
-
+@user_is_focal_point
 def delete_all_user_assignments(request,user_id):
     wanted_user = CustomUser.objects.filter(pk=user_id)[0]
     for assignment in AssignUserCubic.objects.filter(assigned_user=wanted_user):
         assignment.delete()
     return redirect('focal_point:assignments')
 
-
+@user_is_focal_point
 def create_request(request):
     my_business_group_id = request.user.business_group.id
-    qs = BusinessGroup.objects.exclude(id=my_business_group_id)
+    qs = BusinessGroup.objects.exclude(id=my_business_group_id).filter(admin_group=False)
     if request.method == 'GET':
         return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs)})
     else:
@@ -191,7 +201,6 @@ def create_request(request):
                 request_copy['near_conference_room'] = True
             form = FocalPointRequestForm(request_copy, business_group_qs=qs)
             new_request = form.save(commit=False)
-            new_request.focal_point = FocalPoint.objects.filter(custom_user=request.user)[0]
             new_request.business_group = request.user.business_group
             new_request.save()
             return redirect('focal_point:myrequests')
@@ -199,13 +208,14 @@ def create_request(request):
             return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs),
                                                                     'error': 'Bad data passed in'})
 
-
+@user_is_focal_point
 def display_requests(request):
     users_in_focal_point_group = CustomUser.objects.filter(business_group=request.user.business_group)
     requests = RequestToChangeCubic.objects.filter(user__in=users_in_focal_point_group)
     return render(request, 'focal_point/requests.html', {'requests': requests})
 
-
+@user_is_focal_point_request_author
+@user_is_focal_point
 def display_request(request, request_id):
     user_request = get_object_or_404(RequestToChangeCubic, pk=request_id)
     if request.method == 'GET':
@@ -223,16 +233,16 @@ def display_request(request, request_id):
             return render(request, 'focal_point/viewrequest.html',
                           {'request': user_request, 'error': 'Bad info', 'form': form})
 
-
+@user_is_focal_point
 def display_my_requests(request):
-    user = get_object_or_404(FocalPoint, custom_user=request.user)
-    requests = FocalPointRequest.objects.filter(focal_point=user)
+    #TODO - add decorator - only focal point can access
+    requests = FocalPointRequest.objects.filter(business_group=request.user.business_group)
     return render(request, 'focal_point/myrequests.html', {'requests': requests})
 
-
+@user_is_focal_point
 def display_my_request(request, request_id):
     my_business_group_id = request.user.business_group.id
-    qs = BusinessGroup.objects.exclude(id=my_business_group_id)
+    qs = BusinessGroup.objects.exclude(id=my_business_group_id, admin_group=True)
     user_request = get_object_or_404(FocalPointRequest, pk=request_id)
     if request.method == 'GET':
         form = FocalPointRequestForm(instance=user_request, business_group_qs=qs)
@@ -253,12 +263,13 @@ def display_my_request(request, request_id):
             return render(request, 'focal_point/viewrequest.html',
                           {'request': user_request, 'error': 'bad info', 'form': form})
 
-
+@user_is_focal_point
 def display_new_positions(request):
     new_positions = NewPosition.objects.filter(business_group=request.user.business_group).order_by('creation_date')
     return render(request, 'focal_point/newpositions.html', {'positions': new_positions})
 
-
+@user_is_focal_point_request_author
+@user_is_focal_point
 def delete_request(request, request_id):
     curr_request = get_object_or_404(FocalPointRequest, pk=request_id, business_group=request.user.business_group)
     if request.method == 'POST':

@@ -5,7 +5,6 @@ from django.test import TestCase, Client
 from .models import CustomUser, BusinessGroup
 from django.urls import reverse
 from facilities.models import Cubic, Campus, Building, Space, Floor
-from focal_point.models import FocalPoint
 from CustomRequests.models import RequestToChangeCubic
 from assign.forms import AssignPartTimeUserCubicForm
 
@@ -23,7 +22,6 @@ class CustomUserTestCase(TestCase):
         BusinessGroup.objects.create(id='test_group_1')
         bg1 = BusinessGroup.objects.get(id="test_group_1")
         self.user = CustomUser.objects.create_user(email='email@example.com', password='pass',employee_number='1',percentage='part_time',business_group=bg1,focal_point=True)
-        FocalPoint.objects.create(custom_user=self.user)
         Campus.objects.create(id='campus_test_1')
         campus1 = Campus.objects.get(id='campus_test_1')
         Building.objects.create(id='building_test_1',campus=campus1)

@@ -6,6 +6,7 @@ MAX_LENGTH = 100
 
 class BusinessGroup(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
+    admin_group = models.BooleanField(default=False)
 
     def __str__(self):
         return self.id
@@ -42,7 +43,7 @@ class UserManager(BaseUserManager):
         """
         Creates and saves a staff user with the given email and password.
         """
-        business_group = BusinessGroup(email)  # TODO: for trial
+        business_group = BusinessGroup(id=email, admin_group=True)  # TODO: for trial
         business_group.save()
         user = self.create_user(
             email,
@@ -59,7 +60,7 @@ class UserManager(BaseUserManager):
         """
         Creates and saves a superuser with the given email and password.
         """
-        business_group = BusinessGroup(email)#TODO: for trial
+        business_group = BusinessGroup(id=email, admin_group=True)#TODO: for trial
         business_group.save()
         user = self.create_user(
             email,

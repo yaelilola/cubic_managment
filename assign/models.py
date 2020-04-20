@@ -1,6 +1,5 @@
 from django.db import models
 from facilities.models import Cubic
-from focal_point.models import FocalPoint
 from custom_user.models import CustomUser
 from django.utils import timezone
 
@@ -8,7 +7,7 @@ from django.utils import timezone
 
 
 class AssignUserCubic(models.Model):
-    assigner = models.ForeignKey(FocalPoint, on_delete=models.CASCADE, related_name='+')  #TODO: type should be focal point or higher?
+    assigner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='+')  #TODO: type should be focal point or higher?
     time = models.DateField(null=True, blank=True, default=timezone.now())
     assigned_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='+')
     cubic = models.ForeignKey(Cubic, on_delete=models.CASCADE)

@@ -8,9 +8,8 @@ from custom_user.models import CustomUser, BusinessGroup
 from assign.models import AssignUserCubic
 from CustomRequests.forms import RequestToChangeCubicForm
 from CustomRequests.models import RequestToChangeCubic
-from focal_point.models import FocalPoint
 from facilities.models import Cubic
-from django.db.models import Q
+from cubic_managment.decorators import user_is_request_author
 
 
 def homepage(request):
@@ -45,9 +44,6 @@ def signupuser(request):
                                                           password=request.POST['password'],)
                     #TODO - add start date and end date handling
                     user.save()
-                    if request.POST.get('focal_point', False):
-                        focal_point = FocalPoint(custom_user=user)
-                        focal_point.save()
                     login(request, user)
                     return redirect('homepage')
                 except IntegrityError:
@@ -128,7 +124,7 @@ def search_user_cubic(request):
                                                                              'assignments': assignments})
                     else:
                         return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(),
-                                                                                 'error': 'no assignments'})
+                                               'error': str(wanted_user) + ' doesn\'t have a cubic assigned.'})
         except ValueError:
             return render(request, 'custom_user/otherscubics.html',
                           {'form': SearchUserCubicForm(), 'error': 'Bad info'})
@@ -138,7 +134,7 @@ def display_requests(request):
     requests = RequestToChangeCubic.objects.filter(user=request.user)
     return render(request, 'custom_user/requests.html', {'requests': requests})
 
-
+@user_is_request_author
 def display_request(request, request_id):
     user_request = get_object_or_404(RequestToChangeCubic, pk=request_id)
     my_assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
@@ -166,6 +162,7 @@ def display_request(request, request_id):
 
 
 @login_required
+@user_is_request_author
 def delete_request(request, request_id):
     curr_request = get_object_or_404(RequestToChangeCubic, pk=request_id, user=request.user)
     if request.method == 'POST':

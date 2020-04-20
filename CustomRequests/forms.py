@@ -40,7 +40,6 @@ class FocalPointRequestForm(ModelForm):
 class FocalPointRequestSpacePlannerForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(FocalPointRequestSpacePlannerForm, self).__init__(*args, **kwargs)
-        self.fields['focal_point'].widget.attrs['disabled'] = True
         self.fields['business_group'].widget.attrs['disabled'] = True
         self.fields['size'].widget.attrs['disabled'] = True
         self.fields['business_group_near_by'].widget.attrs['disabled'] = True
@@ -51,5 +50,5 @@ class FocalPointRequestSpacePlannerForm(ModelForm):
 
     class Meta:
         model = FocalPointRequest
-        fields = ['focal_point', 'business_group', 'size', 'business_group_near_by', 'near_lab',
+        fields = ['business_group', 'size', 'business_group_near_by', 'near_lab',
                   'near_conference_room', 'date', 'destination_date', 'status', 'notes']

@@ -3,19 +3,22 @@
 {% block content %}
 
     <body>
+    {% if positions %}
+        New Positions
 
-    New Positions
-
-    <ul>
-        {% for position in positions%}
-        <li>
-            Position Title: {{ position.name }}
-            Business Group: {{ position.business_group }}
-            Creation Date: {{ position.creation_date }}
-            Percentage: {{ position.percentage}}
-        </li>
-        {% endfor %}
-    </ul>
+        <ul>
+            {% for position in positions%}
+            <li>
+                Position Title: {{ position.name }}
+                Business Group: {{ position.business_group }}
+                Creation Date: {{ position.creation_date }}
+                Percentage: {{ position.percentage}}
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+    There are no open positions for the group at the moment.
+    {% endif %}
 </body>
 
 {% endblock %}

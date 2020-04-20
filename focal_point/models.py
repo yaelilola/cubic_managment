@@ -4,18 +4,18 @@ from custom_user.models import CustomUser, BusinessGroup
 #from django.contrib.postgres.fields import ArrayField
 # Create your models here.
 
-
-class FocalPoint(models.Model):
-    custom_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
-#     # cubics = ArrayField(base_field=Cubic)
 #
-#     # def get_cubics(self):
-#     #     return self.cubics
-#     #
-#     # def set_cubics(self):
-#     #     pass
-    def __str__(self):
-        return self.custom_user.__str__()
+# class FocalPoint(models.Model):
+#     custom_user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+# #     # cubics = ArrayField(base_field=Cubic)
+# #
+# #     # def get_cubics(self):
+# #     #     return self.cubics
+# #     #
+# #     # def set_cubics(self):
+# #     #     pass
+#     def __str__(self):
+#         return self.custom_user.__str__()
 
 
 class Request(models.Model):

@@ -1,7 +1,6 @@
 from assign.models import AssignUserCubic
 from custom_user.models import CustomUser, BusinessGroup
-from focal_point.models import FocalPoint
-from facilities.models import Cubic,Space
+from facilities.models import Cubic, Space
 from django import forms
 from django.db import models
 
@@ -28,8 +27,7 @@ class AssignFullTimeUserCubicForm(forms.Form):
 
 class AssignSpacesToBusinessGroupsForm(forms.Form):
     spaces = forms.ModelMultipleChoiceField(queryset=Space.objects.all())
-    business_group = forms.ModelChoiceField(queryset=BusinessGroup.objects.all())
-    # business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
+    business_group = forms.ModelChoiceField(queryset=BusinessGroup.objects.filter(admin_group=False))
 
 
 

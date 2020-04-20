@@ -1,5 +1,4 @@
 from django.db import models
-from focal_point.models import FocalPoint
 from custom_user.models import BusinessGroup
 MAX_LENGTH = 100
 
@@ -110,7 +109,6 @@ class Cubic(models.Model):
     type = models.CharField(choices=(('shared', 'shared'), ('private', 'private')), max_length=MAX_LENGTH)
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
-    # focal_point = models.ForeignKey(FocalPoint, on_delete=models.CASCADE)#Todo: think how to enforce only focal point users
     area = models.DecimalField(decimal_places=5, max_digits=10)
 
     def __str__(self):
@@ -128,8 +126,8 @@ class Cubic(models.Model):
     def get_type(self):
         return self.type
 
-    def get_focal_point(self):
-        return self.focal_point
+    def get_business_group(self):
+        return self.business_group
 
-    def set_focal_point(self, focal_point):
-        self.focal_point = focal_point
+    def set_business_group(self, business_group):
+        self.business_group = business_group
