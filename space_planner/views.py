@@ -7,8 +7,10 @@ from custom_user.models import CustomUser, BusinessGroup
 from .forms import ChooseFocalPointForm
 from cubic_managment.decorators import user_is_space_planner
 from assign.models import AssignUserCubic
-from .tables import CampusTable, BuildingTable, FloorTable
+from .tables import CampusTable, BuildingTable, FloorTable, NewPositionTable
 from django_tables2 import RequestConfig
+from recruit.models import NewPosition
+from .filters import PositionFilter
 
 #space planner actions
 @user_is_space_planner
@@ -131,14 +133,14 @@ def get_floor_statistics(building):
         data.append(floor_info)
     return data
 
-
+@user_is_space_planner
 def get_building_table(request, campus_id):
     data = get_building_statistics(campus_id)
     table = BuildingTable(data, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
     return render(request, 'space_planner/building_statistics.html', {'table': table, 'campus_id': campus_id})
 
-
+@user_is_space_planner
 def get_floor_table(request, campus_id, building_id):
     data = get_floor_statistics(building_id)
     building = get_object_or_404(Building, id=building_id)
@@ -157,6 +159,19 @@ def get_statistics(request):
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
     return render(request, 'space_planner/campus_statistics.html', {'table': table})
 
+
+@user_is_space_planner
+def display_new_positions(request):
+    # table = NewPositionTable(NewPosition.objects.all())
+    # RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    # return render(request, 'space_planner/new_positions.html', {'table': table})
+    wanted_business_groups = BusinessGroup.objects.filter(admin_group=False)
+    positions_list = NewPosition.objects.filter(business_group__in=wanted_business_groups)
+    positions_filter = PositionFilter(request.GET, queryset=positions_list)
+    #return render(request, 'space_planner/new_positions.html', {'filter': positions_filter})
+    table = NewPositionTable(positions_filter.qs, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    return render(request, 'space_planner/new_positions.html', {'table': table, 'filter': positions_filter})
 
 @user_is_space_planner
 def display_requests(request):

@@ -1,4 +1,9 @@
 import django_tables2 as tables
+from recruit.models import NewPosition
+from django_filters.views import FilterView
+from django_tables2.views import SingleTableMixin
+from django.forms import DateInput
+import django_filters
 
 class CampusTable(tables.Table):
     Campus = tables.Column(orderable=True,
@@ -34,3 +39,26 @@ class NameTable(tables.Table):
     Occupied = tables.Column(orderable=True)
     Utilization = tables.Column(orderable=True)
 
+class PositionFilter(django_filters.FilterSet):
+    class Meta:
+        model = NewPosition
+        fields = ['business_group', 'creation_date']
+
+
+class NewPositionTable(tables.Table):
+    class Meta:
+        model = NewPosition
+        exclude = ['id']
+        filterset_class = PositionFilter
+
+
+
+class FengyuanChenDatePickerInput(DateInput):
+    template_name = 'space_planner/fengyuanchen_datepicker.html'
+
+# class FilteredPersonListView(SingleTableMixin, FilterView):
+#     table_class = PersonTable
+#     model = Person
+#     template_name = "template.html"
+#
+#     filterset_class = PersonFilter

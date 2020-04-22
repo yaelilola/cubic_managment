@@ -29,4 +29,5 @@ urlpatterns = [
          name='get_building_table'),
     path('statistics/campuses/<str:campus_id>/buildings/<str:building_id>/floors', space_planner_views.get_floor_table,
          name='get_floor_table'),
+    path('new_positions/', space_planner_views.display_new_positions, name='new_positions'),
 ]

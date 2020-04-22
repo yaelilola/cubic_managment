@@ -44,7 +44,10 @@ INSTALLED_APPS = [
     'space_planner',
     'assign',
     'CustomRequests',
-    'django_tables2'
+    'django_tables2',
+    'django_filters',
+    'bootstrap3',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

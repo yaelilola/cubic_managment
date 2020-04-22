@@ -59,6 +59,16 @@
         <a href="{% url 'space_planner:assignfocalpoint' %}">
             <input type="button" value="Assign Focal Point">
         </a>
+        <br>
+        <br>
+        <a href="{% url 'space_planner:statistics' %}">
+            <input type="button" value="Display Facilities Utilization Statistics">
+        </a>
+        <br>
+        <br>
+        <a href="{% url 'space_planner:new_positions' %}">
+            <input type="button" value="Display All New Positions">
+        </a>
         {% endif %}
 
     {% endif %}
