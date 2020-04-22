@@ -38,12 +38,8 @@
           {% render_field filter.form.business_group class="form-control" %}
         </div>
         <div class="form-group col-sm-4 col-md-3">
-          {{ filter.form.created_after.label_tag }}
-          {% render_field filter.form.created_after class="form-control" %}
-        </div>
-        <div class="form-group col-sm-4 col-md-3">
-          {{ filter.form.created_before.label_tag }}
-          {% render_field filter.form.created_before class="form-control" %}
+          {{ filter.form.creation_date.label_tag }}
+          {% render_field filter.form.creation_date class="form-control" %}
         </div>
       </div>
       <button type="submit" class="btn btn-primary">

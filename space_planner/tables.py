@@ -52,13 +52,3 @@ class NewPositionTable(tables.Table):
         filterset_class = PositionFilter
 
 
-
-class FengyuanChenDatePickerInput(DateInput):
-    template_name = 'space_planner/fengyuanchen_datepicker.html'
-
-# class FilteredPersonListView(SingleTableMixin, FilterView):
-#     table_class = PersonTable
-#     model = Person
-#     template_name = "template.html"
-#
-#     filterset_class = PersonFilter
