@@ -103,7 +103,7 @@ def get_campus_statistics():
     for campus in campuses:
         campus_space, campus_utilization = get_campus_utilization(campus)
         campus_info = {'Campus': campus,
-                      'Total_Space': campus_space, 'Occupied': campus_utilization,
+                      'Capacity': campus_space, 'Office_EEs': campus_utilization,
                       'Utilization': float((campus_utilization * 100)) / campus_space}
         data.append(campus_info)
     return data
@@ -113,8 +113,8 @@ def get_building_statistics(campus):
     data = []
     for building in buildings:
         building_space, building_utilization = get_building_utilization(building)
-        building_info = {'Building': building,
-                      'Total_Space': building_space, 'Occupied': building_utilization,
+        building_info = {'Building': building, 'Campus': campus,
+                      'Capacity': building_space, 'Office_EEs': building_utilization,
                       'Utilization': float((building_utilization * 100)) / building_space}
         data.append(building_info)
     return data
@@ -125,8 +125,8 @@ def get_floor_statistics(building):
     data = []
     for floor in floors:
         floor_space, floor_utilization = get_floor_utilization(floor)
-        floor_info = {'Floor': floor,
-                      'Total_Space': floor_space, 'Occupied': floor_utilization,
+        floor_info = {'Floor': floor, 'Building': '', 'Campus': '',
+                      'Capacity': floor_space, 'Office_EEs': floor_utilization,
                       'Utilization': float((floor_utilization * 100)) / floor_space}
         data.append(floor_info)
     return data
@@ -136,14 +136,18 @@ def get_building_table(request, campus_id):
     data = get_building_statistics(campus_id)
     table = BuildingTable(data, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
-    return render(request, 'space_planner/statistics.html', {'table': table})
+    return render(request, 'space_planner/building_statistics.html', {'table': table, 'campus_id': campus_id})
 
 
-def get_floor_table(request, building_id):
+def get_floor_table(request, campus_id, building_id):
     data = get_floor_statistics(building_id)
+    building = get_object_or_404(Building, id=building_id)
+    campus = building.campus
+    path = str(campus) + "/" + str(building_id)
     table = FloorTable(data, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
-    return render(request, 'space_planner/statistics.html', {'table': table})
+    return render(request, 'space_planner/floor_statistics.html', {'table': table, 'campus_id': campus_id,
+                                                                   'building_id': building_id})
 
 
 @user_is_space_planner
@@ -151,7 +155,7 @@ def get_statistics(request):
     data = get_campus_statistics()
     table = CampusTable(data, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
-    return render(request, 'space_planner/statistics.html', {'table': table})
+    return render(request, 'space_planner/campus_statistics.html', {'table': table})
 
 
 @user_is_space_planner

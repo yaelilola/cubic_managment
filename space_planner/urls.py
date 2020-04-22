@@ -24,7 +24,9 @@ urlpatterns = [
     path('assignfocalpoint/', space_planner_views.assign_focal_point, name='assignfocalpoint'),
     path('assign/', space_planner_views.assign_space, name='assign'),
     path('ajax/load-employees/', space_planner_views.load_employees, name='ajax_load_employees'),
-    path('statistics/', space_planner_views.get_statistics, name='statistics'),
-    path('get_building_table/<str:campus_id>', space_planner_views.get_building_table, name='get_building_table'),
-    path('get_floor_table/<str:building_id>', space_planner_views.get_floor_table, name='get_floor_table'),
+    path('statistics/campuses/', space_planner_views.get_statistics, name='statistics'),
+    path('statistics/campuses/<str:campus_id>/buildings', space_planner_views.get_building_table,
+         name='get_building_table'),
+    path('statistics/campuses/<str:campus_id>/buildings/<str:building_id>/floors', space_planner_views.get_floor_table,
+         name='get_floor_table'),
 ]

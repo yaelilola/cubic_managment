@@ -1,0 +1,16 @@
+{% extends 'custom_user/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+    <body>
+
+    <h1>Space Statistics</h1>
+    <br>
+    Statics for: <a href="{% url 'space_planner:statistics' %}">
+            all_campuses/
+        </a>
+        {{campus_id}}
+    <br>
+    {% render_table table %}
+</body>
+{% endblock %}
