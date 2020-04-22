@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'focal_point',
     'space_planner',
     'assign',
-    'CustomRequests'
+    'CustomRequests',
+    'django_tables2'
 ]
 
 MIDDLEWARE = [

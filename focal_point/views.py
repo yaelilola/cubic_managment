@@ -31,7 +31,7 @@ def is_cubic_available(cubic, person_amount=1):
             return False
     else:
     #should be shared
-        if len(AssignUserCubic.objects.filter(cubic=cubic))+person_amount <= 3:
+        if len(AssignUserCubic.objects.filter(cubic=cubic))+person_amount <= 2:
             return True
         else:
             return False

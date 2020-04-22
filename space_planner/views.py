@@ -2,10 +2,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from CustomRequests.models import FocalPointRequest
 from CustomRequests.forms import FocalPointRequestSpacePlannerForm
 from assign.forms import AssignSpacesToBusinessGroupsForm
-from facilities.models import Cubic
+from facilities.models import Cubic, Space, Floor, Campus, Building
 from custom_user.models import CustomUser, BusinessGroup
 from .forms import ChooseFocalPointForm
 from cubic_managment.decorators import user_is_space_planner
+from assign.models import AssignUserCubic
+from .tables import CampusTable, BuildingTable, FloorTable
+from django_tables2 import RequestConfig
 
 #space planner actions
 @user_is_space_planner
@@ -39,14 +42,123 @@ def assign_space(request):
                           {'error': 'Bad info', 'form': AssignSpacesToBusinessGroupsForm()})
 
 
+def get_floor_utilization(floor):
+    spaces = Space.objects.filter(floor=floor)
+    total_space = 0
+    occupied_space = 0
+    for space in spaces:
+        cubics = Cubic.objects.filter(space=space)
+        for cubic in cubics:
+            if cubic.type == 'private':
+                total_space += 1
+                if len(AssignUserCubic.objects.filter(cubic=cubic)) > 0:
+                    occupied_space += 1
+            if cubic.type == 'shared':
+                total_space += 2
+                if len(AssignUserCubic.objects.filter(cubic=cubic)) == 1:
+                    occupied_space += 1
+                if len(AssignUserCubic.objects.filter(cubic=cubic)) == 2:
+                    occupied_space += 2
+    return total_space, occupied_space
+
+
+def get_building_utilization(building):
+    floors = Floor.objects.filter(building=building)
+    total_space = 0
+    occupied_space = 0
+    for floor in floors:
+        floor_total_space, floor_occupied_space = get_floor_utilization(floor)
+        total_space += floor_total_space
+        occupied_space += floor_occupied_space
+    return total_space, occupied_space
+
+def get_data_for_statistics():
+    campuses = Campus.objects.all()
+    data = []
+    for campus in campuses:
+        buildings = Building.objects.filter(campus=campus)
+        for building in buildings:
+            floors = Floor.objects.filter(building=building)
+            for floor in floors:
+                total_floor_space, floor_occupied_space = get_floor_utilization(floor)
+                floor_info = {'Campus': campus, 'Building': building, 'Floor': floor,
+                              'Total_Space': total_floor_space, 'Occupied': floor_occupied_space,
+                              'Utilization': float((floor_occupied_space * 100)) / total_floor_space}
+                data.append(floor_info)
+    return data
+
+def get_campus_utilization(campus):
+    building = Building.objects.filter(campus=campus)
+    total_space = 0
+    occupied_space = 0
+    for building in building:
+        building_total_space, building_occupied_space = get_building_utilization(building)
+        total_space += building_total_space
+        occupied_space += building_occupied_space
+    return total_space, occupied_space
+
+def get_campus_statistics():
+    campuses = Campus.objects.all()
+    data = []
+    for campus in campuses:
+        campus_space, campus_utilization = get_campus_utilization(campus)
+        campus_info = {'Campus': campus,
+                      'Total_Space': campus_space, 'Occupied': campus_utilization,
+                      'Utilization': float((campus_utilization * 100)) / campus_space}
+        data.append(campus_info)
+    return data
+
+def get_building_statistics(campus):
+    buildings = Building.objects.filter(campus=campus)
+    data = []
+    for building in buildings:
+        building_space, building_utilization = get_building_utilization(building)
+        building_info = {'Building': building,
+                      'Total_Space': building_space, 'Occupied': building_utilization,
+                      'Utilization': float((building_utilization * 100)) / building_space}
+        data.append(building_info)
+    return data
+
+
+def get_floor_statistics(building):
+    floors = Floor.objects.filter(building=building)
+    data = []
+    for floor in floors:
+        floor_space, floor_utilization = get_floor_utilization(floor)
+        floor_info = {'Floor': floor,
+                      'Total_Space': floor_space, 'Occupied': floor_utilization,
+                      'Utilization': float((floor_utilization * 100)) / floor_space}
+        data.append(floor_info)
+    return data
+
+
+def get_building_table(request, campus_id):
+    data = get_building_statistics(campus_id)
+    table = BuildingTable(data, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    return render(request, 'space_planner/statistics.html', {'table': table})
+
+
+def get_floor_table(request, building_id):
+    data = get_floor_statistics(building_id)
+    table = FloorTable(data, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    return render(request, 'space_planner/statistics.html', {'table': table})
+
+
 @user_is_space_planner
 def get_statistics(request):
-    pass
+    data = get_campus_statistics()
+    table = CampusTable(data, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    return render(request, 'space_planner/statistics.html', {'table': table})
+
 
 @user_is_space_planner
 def display_requests(request):
     requests = FocalPointRequest.objects.all()
     return render(request, 'space_planner/requests.html', {'requests': requests})
+
 
 @user_is_space_planner
 def display_request(request, request_id):

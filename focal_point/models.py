@@ -19,7 +19,8 @@ from custom_user.models import CustomUser, BusinessGroup
 
 
 class Request(models.Model):
-    business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+')
+    business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+', null=True,
+                                       blank=True)
     size = models.PositiveIntegerField()
     business_group_near_by = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+')
     near_lab = models.BooleanField()

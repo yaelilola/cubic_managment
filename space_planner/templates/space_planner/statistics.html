@@ -1,0 +1,11 @@
+{% extends 'custom_user/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+    <body>
+
+    Space Statistics
+
+    {% render_table table %}
+</body>
+{% endblock %}
