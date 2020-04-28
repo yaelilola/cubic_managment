@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.utils.crypto import get_random_string
 
 MAX_LENGTH = 100
 
@@ -65,7 +66,7 @@ class UserManager(BaseUserManager):
         user = self.create_user(
             email,
             password=password,
-            employee_number="0",
+            employee_number=get_random_string(length=MAX_LENGTH),
             percentage='full_time',
             business_group=business_group,
         )
@@ -89,7 +90,7 @@ class CustomUser(AbstractBaseUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # Email & Password are required by default.
 
-    employee_number = models.CharField(max_length=MAX_LENGTH, default="1")  #TODO: unique? think about admins( now they are always 0)
+    employee_number = models.CharField(max_length=MAX_LENGTH, unique=True)  #TODO: unique? think about admins( now they are always 0)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     percentage = models.CharField(choices=(('full_time', 'full_time'), ('part_time', 'part_time')), max_length=MAX_LENGTH,
