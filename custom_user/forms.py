@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
-from custom_user.models import CustomUser
+from custom_user.models import CustomUser,BusinessGroup
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
@@ -14,6 +14,10 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 class CustomUserSignUpForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(label='Confirm password', widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super(CustomUserSignUpForm, self).__init__(*args, **kwargs)
+        self.fields['business_group'].queryset = BusinessGroup.objects.filter(admin_group=False)
 
     class Meta:
         model = CustomUser

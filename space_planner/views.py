@@ -187,7 +187,15 @@ def display_request(request, request_id):
         return render(request, 'space_planner/viewrequest.html', {'request': focal_point_request, 'form': form})
     else:
         try:
-            form = FocalPointRequestSpacePlannerForm(request.POST, instance=focal_point_request)
+            request_post_copy = request.POST.copy()
+            request_post_copy['business_group'] = focal_point_request.business_group
+            request_post_copy['part_time_employees_amount'] = focal_point_request.part_time_employees_amount
+            request_post_copy['full_time_employees_amount'] = focal_point_request.full_time_employees_amount
+            request_post_copy['business_group_near_by'] = focal_point_request.business_group_near_by
+            request_post_copy['near_lab'] = focal_point_request.near_lab
+            request_post_copy['date'] = focal_point_request.date
+            request_post_copy['destination_date'] = focal_point_request.destination_date
+            form = FocalPointRequestSpacePlannerForm(request_post_copy, instance=focal_point_request)
             form.save()
             return redirect('space_planner:requests')
         except ValueError:

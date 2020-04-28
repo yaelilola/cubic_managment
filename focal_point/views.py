@@ -187,18 +187,14 @@ def create_request(request):
         return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs)})
     else:
         try:
-            if ((request.POST['size'] == '' or request.POST['size'] == '0') and
+            if ((request.POST['full_time_employees_amount'] == '' or request.POST['full_time_employees_amount'] == '0') and
+                (request.POST['part_time_employees_amount'] == '' or request.POST['part_time_employees_amount'] == '0') and
                 (request.POST['business_group_near_by'] == '') and
-                ('near_lab' not in request.POST.keys()) and
-                ('near_conference_room' not in request.POST.keys())):
+                (request.POST['near_lab'] == '')):
                 return render(request, 'focal_point/createrequests.html',
                               {'form': FocalPointRequestForm(business_group_qs=qs),
                                'error': 'Cant submit empty form'})
             request_copy = request.POST.copy()
-            if 'near_lab' in request.POST.keys():
-                request_copy['near_lab'] = True
-            if 'near_conference_room' in request.POST.keys():
-                request_copy['near_conference_room'] = True
             form = FocalPointRequestForm(request_copy, business_group_qs=qs)
             new_request = form.save(commit=False)
             new_request.business_group = request.user.business_group
