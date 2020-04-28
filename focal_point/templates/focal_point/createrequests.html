@@ -10,6 +10,15 @@
     {{ form.as_p }}
     <button type="submit">Save</button>
 </form>
+<script>
+    var now = Date.now();
+    $(function () {
+    $("#id_destination_date").datepicker({
+      format:'dd/mm/yyyy',
+      startDate:now,
+    });
+  });
+</script>
 
 </body>
 

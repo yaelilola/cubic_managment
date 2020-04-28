@@ -53,3 +53,6 @@ class FocalPointRequestSpacePlannerForm(ModelForm):
         model = FocalPointRequest
         fields = ['business_group', 'part_time_employees_amount', 'full_time_employees_amount', 'business_group_near_by',
                   'near_lab', 'date', 'destination_date', 'status', 'notes']
+        widgets = {
+            'destination_date': forms.DateInput(attrs={'class': 'datepicker', 'id': 'id_destination_date'}),
+        }

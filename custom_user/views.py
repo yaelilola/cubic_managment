@@ -30,8 +30,6 @@ def signupuser(request):
         return render(request, 'custom_user/signupuser.html', {'form': CustomUserSignUpForm()})
     else:
         # create a new user
-        print('hi')
-        print(request.POST)
         if request.POST['password'] == request.POST['password2']:
             focal_point = CustomUser.objects.filter(focal_point=True, business_group=request.POST['business_group'])
             if request.POST.get('focal_point', False) == 'on' and focal_point:

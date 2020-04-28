@@ -17,6 +17,9 @@
       $("#id_end_date").datepicker({
       format:'dd/mm/yyyy',
     });
+      $("#id_start_date").on('change', function () {
+       $("#id_end_date").datepicker('setStartDate', $("#id_start_date").datepicker('getDate'));
+      });
   });
     </script>
     </body>

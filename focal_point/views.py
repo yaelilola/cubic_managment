@@ -8,7 +8,7 @@ from custom_user.models import CustomUser, BusinessGroup
 from facilities.models import Cubic
 from cubic_managment.decorators import user_is_focal_point, user_is_focal_point_request_author, \
     user_in_focal_point_group
-
+import datetime
 # Create your views here.
 #foacl point actions
 
@@ -195,6 +195,7 @@ def create_request(request):
                               {'form': FocalPointRequestForm(business_group_qs=qs),
                                'error': 'Cant submit empty form'})
             request_copy = request.POST.copy()
+            request_copy['destination_date'] = datetime.datetime.strptime(request.POST['destination_date'], "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST['destination_date'] != '' else None
             form = FocalPointRequestForm(request_copy, business_group_qs=qs)
             new_request = form.save(commit=False)
             new_request.business_group = request.user.business_group
