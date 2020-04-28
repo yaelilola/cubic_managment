@@ -110,24 +110,25 @@ def ask_to_change_cubic(request):
 
 @login_required()
 def search_user_cubic(request):
+    relevant_users = CustomUser.objects.exclude(employee_number=request.user.employee_number).filter(admin=False)
     if request.method == 'GET':
-        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm()})
+        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(users_query_set=relevant_users)})
     else:
         try:
-            form = SearchUserCubicForm(data=request.POST or None)
+            form = SearchUserCubicForm(users_query_set=relevant_users, data=request.POST or None)
             if request.POST:
                 if form.is_valid():
                     wanted_user = form.cleaned_data.get("user")
                     assignments = AssignUserCubic.objects.filter(assigned_user=wanted_user)
                     if len(assignments) != 0:
-                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(),
+                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(users_query_set=relevant_users),
                                                                              'assignments': assignments})
                     else:
-                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(),
+                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(users_query_set=relevant_users),
                                                'error': str(wanted_user) + ' doesn\'t have a cubic assigned.'})
         except ValueError:
             return render(request, 'custom_user/otherscubics.html',
-                          {'form': SearchUserCubicForm(), 'error': 'Bad info'})
+                          {'form': SearchUserCubicForm(users_query_set=relevant_users), 'error': 'Bad info'})
 
 @login_required()
 def display_requests(request):

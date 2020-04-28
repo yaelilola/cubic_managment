@@ -90,6 +90,11 @@ class UserAdminChangeForm(forms.ModelForm):
 class SearchUserCubicForm(forms.Form):
     user = forms.ModelChoiceField(CustomUser.objects.all())
 
+    def __init__(self,users_query_set, *args, **kwargs):
+        super(SearchUserCubicForm, self).__init__(*args, **kwargs)
+        self.fields['user'].queryset = users_query_set
+
+
 
 
 
