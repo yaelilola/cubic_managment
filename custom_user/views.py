@@ -10,6 +10,7 @@ from CustomRequests.forms import RequestToChangeCubicForm
 from CustomRequests.models import RequestToChangeCubic
 from facilities.models import Cubic
 from cubic_managment.decorators import user_is_request_author
+import datetime
 
 
 def homepage(request):
@@ -23,11 +24,14 @@ def homepage(request):
 # Create your views here.
 #Todo: change forms, check id doesnot exist, check space planner or focal point does this?
 #TODO: login users shouldnot see it
+
 def signupuser(request):
     if request.method == 'GET':
         return render(request, 'custom_user/signupuser.html', {'form': CustomUserSignUpForm()})
     else:
         # create a new user
+        print('hi')
+        print(request.POST)
         if request.POST['password'] == request.POST['password2']:
             focal_point = CustomUser.objects.filter(focal_point=True, business_group=request.POST['business_group'])
             if request.POST.get('focal_point', False) == 'on' and focal_point:
@@ -40,9 +44,12 @@ def signupuser(request):
                                                           focal_point=True if request.POST.get('focal_point', False) == 'on' else False,
                                                           space_planner=True if request.POST.get('space_planner', False) == 'on' else False,
                                                           percentage=request.POST['percentage'],
+                                                          start_date=datetime.datetime.strptime(request.POST['start_date'], "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST['start_date'] != '' else None,
+                                                          end_date=datetime.datetime.strptime(request.POST['end_date'], "%d/%m/%Y").strftime("%Y-%m-%d")if request.POST['end_date'] != '' else None,
                                                           business_group=BusinessGroup(request.POST['business_group']),
                                                           password=request.POST['password'],)
                     #TODO - add start date and end date handling
+                    print(request)
                     user.save()
                     login(request, user)
                     return redirect('homepage')

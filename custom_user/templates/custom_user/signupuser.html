@@ -9,6 +9,16 @@
         {{form.as_p}}
        <button type="submit" class="btn btn-primary">Sign Up</button>
     </form>
+     <script>
+     $(function () {
+    $("#id_start_date").datepicker({
+      format:'dd/mm/yyyy',
+    });
+      $("#id_end_date").datepicker({
+      format:'dd/mm/yyyy',
+    });
+  });
+    </script>
     </body>
 
 {% endblock %}

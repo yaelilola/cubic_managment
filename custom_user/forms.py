@@ -3,12 +3,14 @@ from custom_user.models import CustomUser,BusinessGroup
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from functools import partial
 
 # class CustomUserSignUpForm(UserCreationForm):
 #     class Meta:
 #         model = CustomUser
 #         fields = ('employee_number', 'password', 'type', 'start_date', 'end_date', 'percentage', 'group')
 #
+
 
 
 class CustomUserSignUpForm(forms.ModelForm):
@@ -23,6 +25,10 @@ class CustomUserSignUpForm(forms.ModelForm):
         model = CustomUser
         fields = ('email', 'employee_number', 'focal_point', 'space_planner', 'percentage', 'business_group',
                   'start_date', 'end_date')
+        widgets = {
+            'start_date': forms.DateInput(attrs={'class': 'datepicker', 'id': 'id_start_date'}),
+            'end_date': forms.DateInput(attrs={'class': 'datepicker', 'id': 'id_end_date'})
+        }
 
     def clean_email(self):
         email = self.cleaned_data.get('email')

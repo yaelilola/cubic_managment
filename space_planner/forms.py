@@ -19,3 +19,4 @@ class ChooseFocalPointForm(forms.Form):
         else:
             self.fields['business_group'].queryset = BusinessGroup.objects.filter(admin_group=False)
             self.fields['employee'].queryset = CustomUser.objects.all()
+
