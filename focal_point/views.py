@@ -114,6 +114,7 @@ def assign(request, form_type, cubic_type, percentage):
         return render(request, 'focal_point/assign.html',
                       {'form': form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset)})
     else:
+        print(request.POST)
         try:
             form = form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
             if request.POST:
@@ -295,8 +296,6 @@ def display_request(request, request_id):
             form = RequestToChangeCubicFocalPointForm(request_copy, instance=user_request)
             orig_request_status = user_request.status
             form.save()
-            print(request_copy['status'])
-            print(user_request.status)
             if request_copy['status'] != orig_request_status:
                 send_change_status_notification(request, request_copy)
             return redirect('focal_point:requests')

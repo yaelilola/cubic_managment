@@ -9,7 +9,7 @@ from CustomRequests.models import RequestToChangeCubic
 from assign.forms import AssignPartTimeUserCubicForm
 from assign.models import AssignUserCubic
 from django.shortcuts import get_object_or_404
-from django_webtest import WebTest
+#from django_webtest import WebTest
 
 
 class BusinessGroupTestCase(TestCase):
@@ -55,7 +55,7 @@ class CustomUserTestCase(TestCase):
                                        percentage='part_time', business_group=bg1)
 
 
-    def test_mycubic_no_assignments_yet(self):
+    def test_get_mycubic_no_assignments_yet(self):
         c = Client()
         c.login(email='email@example.com', password='pass')
         response = c.get(reverse('custom_user:mycubic'))
@@ -102,12 +102,12 @@ class CustomUserTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "cubic_test_2")
 
-    def ask_to_change_cubic_post(self):
+    def test_ask_to_change_cubic_POST(self):
         c = Client()
         c.login(email='user1@test_group_1.com', password='pass')
         user1 = CustomUser.objects.get(email='user1@test_group_1.com')
         user_requests_amount_before = len(RequestToChangeCubic.objects.filter(user=user1))
-        c.post(reverse('custom_user:createrequest'))# empty request
+        c.post(reverse('custom_user:createrequest'), {'cubic': '', 'reason': ''})# empty request
         user_requests_amount_after= len(RequestToChangeCubic.objects.filter(user=user1))
         self.assertEqual(user_requests_amount_before+1,user_requests_amount_after)
         cubic_test_2 = Cubic.objects.get(id='cubic_test_2')
@@ -115,17 +115,17 @@ class CustomUserTestCase(TestCase):
         user_requests_amount_after = len(RequestToChangeCubic.objects.filter(user=user1))
         self.assertEqual(user_requests_amount_before + 2, user_requests_amount_after)
         cubic_test_1 = Cubic.objects.get(id='cubic_test_1')
-        print(c.post(reverse('custom_user:createrequest'), {'cubic': cubic_test_1}))  # request with shared cubic
-        user_requests_amount_after = len(RequestToChangeCubic.objects.filter(user=user1))
-        self.assertEqual(user_requests_amount_before + 2, user_requests_amount_after)
-        cubic_test_3 = Cubic.objects.get(id='cubic_test_3')
-        print(c.post(reverse('custom_user:createrequest'), {'cubic': cubic_test_3}))  # request with another group cubic
-        user_requests_amount_after = len(RequestToChangeCubic.objects.filter(user=user1))
-        self.assertEqual(user_requests_amount_before + 2, user_requests_amount_after)
-        cubic_test_4 = Cubic.objects.get(id='cubic_test_4')
-        print(c.post(reverse('custom_user:createrequest'), {'cubic': cubic_test_4}))  # request with private cubic
+        c.post(reverse('custom_user:createrequest'), {'cubic': cubic_test_1})  # request with shared cubic
         user_requests_amount_after = len(RequestToChangeCubic.objects.filter(user=user1))
         self.assertEqual(user_requests_amount_before + 3, user_requests_amount_after)
+        cubic_test_3 = Cubic.objects.get(id='cubic_test_3')
+        c.post(reverse('custom_user:createrequest'), {'cubic': cubic_test_3})  # request with another group cubic
+        user_requests_amount_after = len(RequestToChangeCubic.objects.filter(user=user1))
+        self.assertEqual(user_requests_amount_before + 3, user_requests_amount_after)
+        cubic_test_4 = Cubic.objects.get(id='cubic_test_4')
+        c.post(reverse('custom_user:createrequest'), {'cubic': cubic_test_4})  # request with private cubic
+        user_requests_amount_after = len(RequestToChangeCubic.objects.filter(user=user1))
+        self.assertEqual(user_requests_amount_before + 4, user_requests_amount_after)
 
     # def test_part_time_assignment(self): """this option match django-webtest"""
     #     c_as_focal_point = CustomUser.objects.get(email='email@example.com')
@@ -140,6 +140,66 @@ class CustomUserTestCase(TestCase):
     #     self.assertContains(response, "cubic_test_1")
 
 
+    def test_signup_user_GET(self):
+        c = Client()
+        response = c.get(reverse('signupuser'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Sign Up")
+
+    def test_signup_user_POST(self):
+        c = Client()
+        bg1 = get_object_or_404(BusinessGroup, id="test_group_1")
+        response = c.post(reverse('signupuser'), {'email': 'amit@example.com', 'employee_number': "93",
+                                                  'percentage': 'part_time', 'business_group': bg1,
+                                                'password': 'pass', 'password2': 'pass', 'start_date': "",
+                                                  'end_date': ""})
+        self.assertURLEqual("/", response.url)
+        new_response = c.get(reverse('homepage'))
+        self.assertEquals(new_response.status_code, 200)
+        self.assertContains(new_response, "Logged in as amit@example.com")
+
+    def test_login_user_GET(self):
+        c = Client()
+        response = c.get(reverse('loginuser'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Login")
+
+    def test_login_user_POST(self):
+        c = Client()
+        bg1 = get_object_or_404(BusinessGroup, id="test_group_1")
+        response = c.post(reverse('loginuser'), {'username': 'email@example.com',
+                                                  'password': 'pass'})
+        self.assertURLEqual("/", response.url)
+        new_response = c.get(reverse('homepage'))
+        self.assertEquals(new_response.status_code, 200)
+        self.assertContains(new_response, "Logged in as email@example.com")
+
+    def test_logout_user_POST(self):
+        c = Client()
+        c.login(email='user1@test_group_1.com', password='pass')
+        response = c.post(reverse('logoutuser'))
+        self.assertURLEqual("/", response.url)
+        new_response = c.get(reverse('homepage'))
+        self.assertEquals(new_response.status_code, 200)
+        self.assertContains(new_response, "Log In")
+
+    def test_search_user_cubic_GET(self):
+        pass
+
+    def test_search_user_cubic_POST(self):
+        pass
+
+    def test_display_requests_GET(self):
+        pass
+
+    def test_display_request_GET(self):
+        pass
+
+    def test_display_request_POST(self):
+        pass
+
+    def test_delete_request_POST(self):
+        pass
 
 
 
