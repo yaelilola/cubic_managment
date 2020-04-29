@@ -94,7 +94,7 @@ class UserAdminChangeForm(forms.ModelForm):
 
 
 class SearchUserCubicForm(forms.Form):
-    user = forms.ModelChoiceField(CustomUser.objects.all())
+    user = forms.ModelChoiceField(CustomUser.objects.all(),to_field_name="email")
 
     def __init__(self,users_query_set, *args, **kwargs):
         super(SearchUserCubicForm, self).__init__(*args, **kwargs)
