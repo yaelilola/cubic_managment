@@ -11,7 +11,7 @@ from CustomRequests.models import RequestToChangeCubic
 from facilities.models import Cubic
 from cubic_managment.decorators import user_is_request_author
 import datetime
-
+from django.core.mail import send_mail
 
 def homepage(request):
     if request.user.is_authenticated:
@@ -87,6 +87,21 @@ def get_my_cubic(request):
                   {'assignments': assignments})
 
 
+def send_notification(request, request_content):
+    sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
+    focal_point = get_object_or_404(CustomUser, focal_point=True, business_group=request.user.business_group)
+    receiver_mail = focal_point.email
+    subject = "Request to change cubic from {}".format(request.user.email)
+    content = "{username} requested to change cubic. \n " \
+              "The wanted cubic is : {wanted_cubic} \n " \
+              "The reason is: {reason}".format(username=request.user.email, wanted_cubic=request_content.cubic,
+                                               reason=request_content.reason)
+    print(content)
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
+
+
 @login_required()
 def ask_to_change_cubic(request):
     try:
@@ -104,6 +119,7 @@ def ask_to_change_cubic(request):
                         reason = form.cleaned_data.get("reason")
                         newRequest = RequestToChangeCubic(user=request.user, cubic=wanted_cubic, reason=reason)
                         newRequest.save()
+                        send_notification(request, newRequest)
                 return redirect('custom_user:requests')
             except ValueError:
                 return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics),'error': 'Bad data passed in'})

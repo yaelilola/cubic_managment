@@ -47,9 +47,27 @@ def user_is_focal_point_request_author(function):
     wrap.__name__ = function.__name__
     return wrap
 
+
 def user_in_focal_point_group(function):
     def wrap(request, *args, **kwargs):
         user_group = (CustomUser.objects.get(pk=kwargs['user_id'])).business_group
+        focal_point_group = request.user.business_group
+        if user_group == focal_point_group:
+            return function(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+
+    wrap.__doc__ = function.__doc__
+    wrap.__name__ = function.__name__
+    return wrap
+
+
+"""
+The user who requested to change the sit is in the focal point group
+"""
+def request_user_in_focal_point_group(function):
+    def wrap(request, *args, **kwargs):
+        user_group = ((RequestToChangeCubic.objects.get(pk=kwargs['request_id'])).user).business_group
         focal_point_group = request.user.business_group
         if user_group == focal_point_group:
             return function(request, *args, **kwargs)

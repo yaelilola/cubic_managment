@@ -11,6 +11,7 @@ from .tables import CampusTable, BuildingTable, FloorTable, NewPositionTable
 from django_tables2 import RequestConfig
 from recruit.models import NewPosition
 from .filters import PositionFilter
+from django.core.mail import send_mail
 
 #space planner actions
 @user_is_space_planner
@@ -179,6 +180,18 @@ def display_requests(request):
     return render(request, 'space_planner/requests.html', {'requests': requests})
 
 
+def send_change_status_notification(request, request_content):
+    sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
+    space_planner = request.user.email
+    request_business_group = (request_content['business_group'])
+    request_focal_point = get_object_or_404(CustomUser, focal_point=True, business_group=request_business_group)
+    receiver_mail=request_focal_point.email
+    subject = "Request from space planner status update"
+    content = "{space_planner} changed your request status to '{status}'".format(space_planner=space_planner, status=request_content['status'])
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
+
 @user_is_space_planner
 def display_request(request, request_id):
     focal_point_request = get_object_or_404(FocalPointRequest, pk=request_id)
@@ -187,6 +200,7 @@ def display_request(request, request_id):
         return render(request, 'space_planner/viewrequest.html', {'request': focal_point_request, 'form': form})
     else:
         try:
+            orig_request_status = focal_point_request.status
             request_post_copy = request.POST.copy()
             request_post_copy['business_group'] = focal_point_request.business_group
             request_post_copy['part_time_employees_amount'] = focal_point_request.part_time_employees_amount
@@ -197,10 +211,33 @@ def display_request(request, request_id):
             request_post_copy['destination_date'] = focal_point_request.destination_date
             form = FocalPointRequestSpacePlannerForm(request_post_copy, instance=focal_point_request)
             form.save()
+            if request_post_copy['status'] != orig_request_status:
+                send_change_status_notification(request, request_post_copy)
             return redirect('space_planner:requests')
         except ValueError:
             return render(request, 'space_planner/viewrequest.html',
                           {'request': focal_point_request, 'error': 'Bad info', 'form': form})
+
+
+def send_no_longer_focal_point_notification(space_planner_email, previous_focal_point_email):
+    sender_mail = "yaelAmitIndustrial@gmail.com"  # TODO - change to real mail
+    receiver_mail = previous_focal_point_email
+    subject = "You are no longer a focal point."
+    content = "{space_planner} assigned a new focal point for your group.".format(space_planner=space_planner_email)
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
+
+
+def send_new_focal_point_notification(space_planner_email, new_focal_point_email):
+    sender_mail = "yaelAmitIndustrial@gmail.com"  # TODO - change to real mail
+    receiver_mail = new_focal_point_email
+    subject = "You are the new focal point for your group."
+    content = "{space_planner} assigned you as the new group focal point.".format(space_planner=space_planner_email)
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
+
 
 @user_is_space_planner
 def assign_focal_point(request):
@@ -221,8 +258,10 @@ def assign_focal_point(request):
                                                                 focal_point=True)[0]
                     old_focal_point.focal_point = False
                     old_focal_point.save()
+                    send_no_longer_focal_point_notification(request.user.email, old_focal_point.email)
                 chosen_employee.focal_point = True
                 chosen_employee.save()
+                send_new_focal_point_notification(request.user.email, chosen_employee.email)
                 return redirect('homepage')
         # except ValueError or IndexError:
         #     return render(request, 'space_planner/assign_focal_point.html',
