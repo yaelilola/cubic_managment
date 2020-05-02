@@ -32,8 +32,9 @@ urlpatterns = [
     path('assign/part_time', focal_point_views.assign_part_time, name='assign_part_time'),
     path('assign/full_time', focal_point_views.assign_full_time, name='assign_full_time'),
     path('assignments/', focal_point_views.view_assignments, name='assignments'),
-    path('assignments/<int:user_id>',focal_point_views.view_all_user_assignments,name='viewuserassignments'),
-    path('assignments/<int:user_id>/delete',focal_point_views.delete_all_user_assignments,name='delete_all_user_assignments'),
+    path('assignments/<int:user_id>', focal_point_views.view_all_user_assignments, name='viewuserassignments'),
+    path('assignments/<int:user_id>/delete', focal_point_views.delete_all_user_assignments,
+         name='delete_all_user_assignments'),
     path('newpositions', focal_point_views.display_new_positions, name='newpositions'),
 
 ]

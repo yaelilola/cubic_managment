@@ -96,9 +96,7 @@ def send_assign_notification(focal_point_email, assigned_users, cubics):
         + str(floor) + "\\" \
         + str(space) + "\\" \
         + str(cubics[0]) + "\n"
-    send_mail(subject, content,
-              sender_mail,
-              assigned_users)
+    send_mail(subject, content, sender_mail, assigned_users)
 
 
 def assign(request, form_type, cubic_type, percentage):
@@ -193,9 +191,9 @@ def edit_assignments_for_user(request,user_id, focal_point, wanted_user, current
             return render(request, 'focal_point/viewuserassignments.html',
                           {'curr_user': wanted_user, 'error': 'Bad info', 'form': form})
 
-"""
+'''
 See all assignments that a user has
-"""
+'''
 @user_is_focal_point
 @user_in_focal_point_group
 def view_all_user_assignments(request,user_id):
@@ -207,7 +205,7 @@ def view_all_user_assignments(request,user_id):
     return edit_assignments_for_user(request, user_id, focal_point, wanted_user, current_cubics, cubic_type)
 
 @user_is_focal_point
-def delete_all_user_assignments(request,user_id):
+def delete_all_user_assignments(request, user_id):
     wanted_user = CustomUser.objects.filter(pk=user_id)[0]
     for assignment in AssignUserCubic.objects.filter(assigned_user=wanted_user):
         assignment.delete()
@@ -305,7 +303,6 @@ def display_request(request, request_id):
 
 @user_is_focal_point
 def display_my_requests(request):
-    #TODO - add decorator - only focal point can access
     requests = FocalPointRequest.objects.filter(business_group=request.user.business_group)
     return render(request, 'focal_point/myrequests.html', {'requests': requests})
 
