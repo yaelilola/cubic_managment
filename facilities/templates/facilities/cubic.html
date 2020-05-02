@@ -1,17 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+{% extends 'custom_user/base.html' %}
+
+{% block content %}
+
 <body>
     <h2>
         <a href="{% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=space_id %}">
             {% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=space_id %}
         </a>
     </h2>
+    <h3>Displaying cubic {{cubic.id}} in campus {{campus_id}}, building {{building_id}}, floor number {{floor_num}}, space {{space_id}}</h3>
     Type: {{ cubic.type }}
     Business group: {{ cubic.business_group }}
     Area: {{ cubic.area }}
 </body>
-</html>
+
+{% endblock %}

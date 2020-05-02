@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+{% extends 'custom_user/base.html' %}
+
+{% block content %}
+
 <body>
 <h2>
         <a href="{% url 'facilities:campus_buildings' campus_id=campus_id %}">
             {% url 'facilities:campus_buildings' campus_id=campus_id %}
         </a>
 </h2>
+<h3>Displaying floors in campus {{campus_id}}, building {{building_id}}</h3>
     <ul>
         {% for item in items%}
          <a href="{% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_num=item.floor_num %}">
@@ -20,4 +19,5 @@
         {% endfor %}
     </ul>
 </body>
-</html>
+
+{% endblock %}

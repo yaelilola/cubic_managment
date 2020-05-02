@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
+{% extends 'custom_user/base.html' %}
+
+{% block content %}
 <body>
     <h2>
         <a href="{% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_num=floor_num%}">
             {% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_num=floor_num%}
         </a>
     </h2>
+    <h3>Displaying cubics in campus {{campus_id}}, building {{building_id}}, floor number {{floor_num}}, space {{space_id}}</h3>
         <ul>
         {% for item in items%}
             <a href="{% url 'facilities:cubic' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=space_id cubic_id=item.id %}">
@@ -22,4 +20,5 @@
 
     </ul>
 </body>
-</html>
+
+{% endblock %}
