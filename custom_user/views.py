@@ -89,17 +89,18 @@ def get_my_cubic(request):
 
 def send_notification(request, request_content):
     sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
-    focal_point = get_object_or_404(CustomUser, focal_point=True, business_group=request.user.business_group)
-    receiver_mail = focal_point.email
-    subject = "Request to change cubic from {}".format(request.user.email)
-    content = "{username} requested to change cubic. \n " \
-              "The wanted cubic is : {wanted_cubic} \n " \
-              "The reason is: {reason}".format(username=request.user.email, wanted_cubic=request_content.cubic,
-                                               reason=request_content.reason)
-    #print(content)
-    send_mail(subject, content,
-              sender_mail,
-              [receiver_mail])
+    try:
+        focal_point = get_object_or_404(CustomUser, focal_point=True, business_group=request.user.business_group)
+        receiver_mail = focal_point.email
+        subject = "Request to change cubic from {}".format(request.user.email)
+        content = "{username} requested to change cubic. \n " \
+                  "The wanted cubic is : {wanted_cubic} \n " \
+                  "The reason is: {reason}".format(username=request.user.email, wanted_cubic=request_content.cubic,
+                                                   reason=request_content.reason)
+        #print(content)
+        send_mail(subject, content, sender_mail, [receiver_mail])
+    except:
+        pass
 
 
 @login_required()
@@ -122,7 +123,9 @@ def ask_to_change_cubic(request):
                         send_notification(request, newRequest)
                 return redirect('custom_user:requests')
             except ValueError:
-                return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics),'error': 'Bad data passed in'})
+                return render(request, 'custom_user/changeCubic.html',
+                              {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics),
+                               'error': 'Bad data passed in'})
     #the group doesnot have a focal point
     except IndexError:
         return render(request, 'custom_user/changeCubic.html',

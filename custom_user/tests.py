@@ -35,25 +35,25 @@ class CustomUserTestCase(TestCase):
         Building.objects.create(id='building_test_1',campus=campus1)
         building1 = Building.objects.get(id='building_test_1',campus=campus1)
         """creating floors"""
-        Floor.objects.create(floor_num=1,building=building1)
-        floor1 = Floor.objects.get(floor_num=1,building=building1)
+        Floor.objects.create(floor_num=1, building=building1)
+        floor1 = Floor.objects.get(floor_num=1, building=building1)
         """creating spaces"""
-        space1= Space.objects.create(id='space_test_1',type='Regular',floor=floor1)
+        space1 = Space.objects.create(id='space_test_1', type='Regular', floor=floor1)
         """creating cubics"""
         Cubic.objects.create(id='cubic_test_1', type='shared', business_group=bg1, area='12', space=space1)
         Cubic.objects.create(id='cubic_test_2', type='private', business_group=bg1, area='12', space=space1)
         Cubic.objects.create(id='cubic_test_3', type='shared', business_group=bg2, area='12', space=space1)
         Cubic.objects.create(id='cubic_test_4', type='private', business_group=bg1, area='12', space=space1)
         """creating full time users"""
-        CustomUser.objects.create_user(email='user1@test_group_1.com', password='pass',employee_number='2',percentage='full_time',business_group=bg1)
+        CustomUser.objects.create_user(email='user1@test_group_1.com', password='pass', employee_number='2',
+                                       percentage='full_time', business_group=bg1)
         CustomUser.objects.create_user(email='user2@test_group_1.com', password='pass', employee_number='3',
-                                       percentage='full_time',business_group=bg1)
+                                       percentage='full_time', business_group=bg1)
         """creating part time users"""
         CustomUser.objects.create_user(email='user3@test_group_1.com', password='pass', employee_number='4',
                                        percentage='part_time', business_group=bg1)
         CustomUser.objects.create_user(email='user4@test_group_1.com', password='pass', employee_number='5',
                                        percentage='part_time', business_group=bg1)
-
 
     def test_get_mycubic_no_assignments_yet(self):
         c = Client()
@@ -184,22 +184,78 @@ class CustomUserTestCase(TestCase):
         self.assertContains(new_response, "Log In")
 
     def test_search_user_cubic_GET(self):
-        pass
+        c = Client()
+        c.login(email='user1@test_group_1.com', password='pass')
+        response = c.get(reverse('custom_user:searchcubic'))
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "Where are your friends seated?")
 
+    '''
+    Assigned a user to a cubic. 
+    Then logining in as another user and checking that this user can see the assignment.
+    '''
     def test_search_user_cubic_POST(self):
-        pass
+        focal_point = CustomUser.objects.get(email="email@example.com")
+        assigned_user = CustomUser.objects.get(email="user2@test_group_1.com")
+        cubic = Cubic.objects.get(id="cubic_test_2")
+        AssignUserCubic.objects.create(assigner=focal_point, assigned_user=assigned_user, cubic=cubic)
+        c = Client()
+        c.login(email='user1@test_group_1.com', password='pass')
+        response = c.post(reverse('custom_user:searchcubic'), {'user': 'user2@test_group_1.com'})
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "cubic_test_2")
 
     def test_display_requests_GET(self):
-        pass
+        c = Client()
+        c.login(email='user1@test_group_1.com', password='pass')
+        response = c.get(reverse('custom_user:requests'))
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "My Requests")
 
+    '''
+    Created a request and then tried to view this request. 
+    '''
     def test_display_request_GET(self):
-        pass
+        c = Client()
+        c.login(email='user1@test_group_1.com', password='pass')
+        myself = CustomUser.objects.get(email="user1@test_group_1.com")
+        request = RequestToChangeCubic.objects.create(user=myself, reason="test the function")
+        response = c.get(reverse('custom_user:viewrequest', kwargs={"request_id": request.id}))
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "test the function")
 
+    '''
+    Created a request to change a cubic.
+    Then, sent a POST request to change the reason for the request.
+    Finally, sent a GET request to see the post and checked that the reason was changed. 
+    '''
     def test_display_request_POST(self):
-        pass
+        c = Client()
+        c.login(email='user1@test_group_1.com', password='pass')
+        myself = CustomUser.objects.get(email="user1@test_group_1.com")
+        request = RequestToChangeCubic.objects.create(user=myself, reason="test the function")
+        response = c.post(reverse('custom_user:viewrequest', kwargs={"request_id": request.id}),
+                          {'reason': 'test the function again'})
+        self.assertEquals(response.status_code, 302)
+        response = c.get(reverse('custom_user:viewrequest', kwargs={"request_id": request.id}))
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "test the function again")
 
+    '''
+        Created a request to change a cubic.
+        Then, sent a POST request to delete the request.
+        Finally, compared between the number of requests the user made bafore and after the deletion. 
+    '''
     def test_delete_request_POST(self):
-        pass
+        c = Client()
+        c.login(email='user1@test_group_1.com', password='pass')
+        myself = CustomUser.objects.get(email="user1@test_group_1.com")
+        request = RequestToChangeCubic.objects.create(user=myself, reason="test the function")
+        my_request_amount = len(RequestToChangeCubic.objects.filter(user=myself))
+        response = c.post(reverse('custom_user:deleterequest', kwargs={"request_id": request.id}))
+        self.assertEquals(response.status_code, 302)
+        my_current_request_amount = len(RequestToChangeCubic.objects.filter(user=myself))
+        self.assertEquals(my_request_amount - 1, my_current_request_amount)
 
 
 
