@@ -285,8 +285,10 @@ class FocalPointTestCase(TransactionTestCase):
     def test_display_my_request_POST(self):
         pass
 
+    def test_delete_request_POST(self):
+        pass
+
     def test_display_new_positions_GET(self):
         pass
 
-    def test_delete_request_POST(self):
-        pass
+
