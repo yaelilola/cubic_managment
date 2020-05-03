@@ -205,6 +205,7 @@ def view_all_user_assignments(request,user_id):
     return edit_assignments_for_user(request, user_id, focal_point, wanted_user, current_cubics, cubic_type)
 
 @user_is_focal_point
+@user_in_focal_point_group
 def delete_all_user_assignments(request, user_id):
     wanted_user = CustomUser.objects.filter(pk=user_id)[0]
     for assignment in AssignUserCubic.objects.filter(assigned_user=wanted_user):

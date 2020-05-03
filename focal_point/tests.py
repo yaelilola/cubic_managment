@@ -231,6 +231,7 @@ class FocalPointTestCase(TransactionTestCase):
         self.assertTrue(AssignUserCubic.objects.filter(assigned_user=user5, cubic=cubic_test_5).exists())
 
     def test_delete_all_user_assignments_POST(self):
+        focal_point = CustomUser.objects.get(email='email@example.com')
         c = Client()
         c.login(email='email@example.com', password='pass')
         response = c.get(reverse('focal_point:assignments'))
@@ -244,6 +245,21 @@ class FocalPointTestCase(TransactionTestCase):
         self.assertContains(response, '<option value="cubic_test_2" selected>cubic_test_2</option>')
         c.post(reverse('focal_point:delete_all_user_assignments',kwargs={'user_id': user1.id}))
         self.assertFalse(AssignUserCubic.objects.filter(assigned_user=user1).exists())
+        """part time"""
+        user3 = CustomUser.objects.get(email='user3@test_group_1.com')
+        user4 = CustomUser.objects.get(email='user4@test_group_1.com')
+        user5 = CustomUser.objects.get(email='user5@test_group_1.com')
+        response = c.post(reverse('focal_point:delete_all_user_assignments',kwargs={'user_id': user3.id}))
+        self.assertEquals(response.status_code,403)
+        cubic_test_1 = Cubic.objects.get(id='cubic_test_1')
+        cubic_test_5 = Cubic.objects.get(id='cubic_test_5')
+        AssignUserCubic.objects.create(assigner=focal_point, assigned_user=user4, cubic=cubic_test_1)
+        AssignUserCubic.objects.create(assigner=focal_point, assigned_user=user4, cubic=cubic_test_5)
+        AssignUserCubic.objects.create(assigner=focal_point, assigned_user=user5, cubic=cubic_test_1)
+        AssignUserCubic.objects.create(assigner=focal_point, assigned_user=user5, cubic=cubic_test_5)
+        c.post(reverse('focal_point:delete_all_user_assignments', kwargs={'user_id': user4.id}))
+        self.assertFalse(AssignUserCubic.objects.filter(assigned_user=user4).exists())
+        self.assertTrue(AssignUserCubic.objects.filter(assigned_user=user5).exists())
 
     def test_create_request_GET(self):
         pass
