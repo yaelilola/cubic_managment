@@ -47,7 +47,6 @@ def signupuser(request):
                                                           business_group=BusinessGroup(request.POST['business_group']),
                                                           password=request.POST['password'],)
                     #TODO - add start date and end date handling
-                    #print(request)
                     user.save()
                     login(request, user)
                     return redirect('homepage')
@@ -97,7 +96,6 @@ def send_notification(request, request_content):
                   "The wanted cubic is : {wanted_cubic} \n " \
                   "The reason is: {reason}".format(username=request.user.email, wanted_cubic=request_content.cubic,
                                                    reason=request_content.reason)
-        #print(content)
         send_mail(subject, content, sender_mail, [receiver_mail])
     except:
         pass

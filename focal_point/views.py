@@ -112,7 +112,7 @@ def assign(request, form_type, cubic_type, percentage):
         return render(request, 'focal_point/assign.html',
                       {'form': form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset)})
     else:
-        print(request.POST)
+
         try:
             form = form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
             if request.POST:
@@ -271,8 +271,6 @@ def send_change_status_notification(request, request_content):
     sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
     focal_point = request.user.email
     receiver_mail = (request_content['user']).email
-    print(focal_point)
-    print(receiver_mail)
     subject = "Request to change cubic status update"
     content = "{focal_point} changed your request status to '{status}'".format(focal_point=focal_point, status=request_content['status'])
     send_mail(subject, content,
