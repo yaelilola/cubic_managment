@@ -1,0 +1,14 @@
+{
+    "dev": {
+        "aws_region": "us-east-2",
+        "django_settings": "cubic_managment.settings",
+        "profile_name": "default",
+        "project_name": "cubic-managment",
+        "runtime": "python3.7",
+        "s3_bucket": "zappa-snzxoay9i"
+		"vpc_config" : {
+            "SubnetIds": [ "subnet-d0b8249c","subnet-1b6e5a61" ],
+            "SecurityGroupIds": [ "sg-17a23a6e" ]
+        }
+    }
+}
