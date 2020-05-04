@@ -268,44 +268,15 @@ class FocalPointTestCase(TransactionTestCase):
         focal_point = CustomUser.objects.get(email='email@example.com')
         c = Client()
         c.login(email='user3@test_group_1.com', password='pass')
-        response = c.post(reverse('focal_point:createRequest'))
+        response = c.get(reverse('focal_point:createRequest'))
         self.assertEquals(response.status_code, 403)
         c.logout()
         c.login(email='email@example.com', password='pass')
         response = c.get(reverse('focal_point:createRequest'))
         self.assertTemplateUsed(response,'focal_point/createrequests.html')
-        self.assertContains(response.content, '<option value="test_group_2">test_group_2</option>')
-        self.assertNotContains(response.content, '<option value="test_group_1">test_group_1</option>')
-        self.assertContains(response.content, '<option value="lab_1">lab_1</option>')
-
-    #TODO : checking dates
-    def test_create_request_POST(self):
-        focal_point = CustomUser.objects.get(email='email@example.com')
-        c = Client()
-        c.login(email='user3@test_group_1.com', password='pass')
-        response = c.post(reverse('focal_point:createRequest'))
-        self.assertEquals(response.status_code,403)
-        c.logout()
-        c.login(email='email@example.com', password='pass')
-        response = c.post(reverse('focal_point:createRequest'))
-        self.assertContains(response.content, 'Cant submit empty form')
-        bg1 = BusinessGroup.objects.get(id="test_group_1")
-        bg2 = BusinessGroup.objects.get(id="test_group_2")
-        lab1 = Space.objects.get(id='lab_1', type='Lab')
-        c.post(reverse('focal_point:createRequest'), kwargs={'business_group': bg1, 'full_time_employees_amount': 1,
-                                                            'business_group_near_by': bg2, 'near_lab': lab1})
-        self.assertTrue(FocalPointRequest.objects.filter(business_group=focal_point.business_group,
-                                                         business_group_near_by=bg2, near_lab=lab1,
-                                                         full_time_employees_amount=1,status='unread').exists())
-        c.post(reverse('focal_point:createRequest'), kwargs={'business_group': bg1, 'full_time_employees_amount': 1,
-                                                             'part_time_employees_amount':2,
-                                                             'business_group_near_by': bg2, 'near_lab': lab1})
-        self.assertTrue(FocalPointRequest.objects.filter(business_group=focal_point.business_group,
-                                                         business_group_near_by=bg2, near_lab=lab1,
-                                                         part_time_employees_amount= 2,
-                                                         full_time_employees_amount=1, status='unread').exists())
-        self.assertEquals(2,len(FocalPointRequest.objects.filter(business_group=focal_point.business_group)))
-
+        self.assertContains(response, '<option value="test_group_2">test_group_2</option>')
+        self.assertNotContains(response, '<option value="test_group_1">test_group_1</option>')
+        self.assertContains(response, '<option value="lab_1">lab_1</option>')
 
     def test_display_requests_GET(self):
         pass
