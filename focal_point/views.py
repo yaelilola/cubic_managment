@@ -242,15 +242,15 @@ def create_request(request):
         return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs)})
     else:
         try:
-            if ((request.POST['full_time_employees_amount'] == '' or request.POST['full_time_employees_amount'] == '0') and
-                (request.POST['part_time_employees_amount'] == '' or request.POST['part_time_employees_amount'] == '0') and
-                (request.POST['business_group_near_by'] == '') and
-                (request.POST['near_lab'] == '')):
+            if ((request.POST.get('full_time_employees_amount') == '' or request.POST.get('full_time_employees_amount') == '0') and
+                (request.POST.get('part_time_employees_amount') == '' or request.POST.get('part_time_employees_amount') == '0') and
+                (request.POST.get('business_group_near_by') == '') and
+                (request.POST.get('near_lab') == '')):
                 return render(request, 'focal_point/createrequests.html',
                               {'form': FocalPointRequestForm(business_group_qs=qs),
                                'error': 'Cant submit empty form'})
             request_copy = request.POST.copy()
-            request_copy['destination_date'] = datetime.datetime.strptime(request.POST['destination_date'], "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST['destination_date'] != '' else None
+            request_copy['destination_date'] = datetime.datetime.strptime(request.POST.get('destination_date'), "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST.get('destination_date') != '' else None
             form = FocalPointRequestForm(request_copy, business_group_qs=qs)
             new_request = form.save(commit=False)
             new_request.business_group = request.user.business_group
