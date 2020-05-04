@@ -25,7 +25,7 @@ SECRET_KEY = '9pvh3#=)3iwr&m4ac!2ayx5rb8fwd0-oxw3uq_&3(h2i96%#=t'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['pc6m9n5jrh.execute-api.us-east-2.amazonaws.com','localhost']
 
 
 # Application definition
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_filters',
     'bootstrap3',
     'widget_tweaks',
+	'zappa_django_utils',
 ]
 
 MIDDLEWARE = [
@@ -86,8 +87,12 @@ WSGI_APPLICATION = 'cubic_managment.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'cubicmanagmentv1',
+        'USER': 'postgres',
+        'PASSWORD': 'yaelamit234313',
+        'HOST': 'cubicmanagmentv1.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
@@ -110,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+#the right location- cubic managment instead of the settings.py file
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
