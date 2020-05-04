@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'bootstrap3',
     'widget_tweaks',
 	'zappa_django_utils',
+    'django_s3_storage',
 ]
 
 MIDDLEWARE = [
@@ -145,3 +146,15 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "yaelamitindustrial@gmail.com"
 EMAIL_HOST_PASSWORD = "234313YA"
+
+YOUR_S3_BUCKET = "cubic-management-static-v1"
+
+STATICFILES_STORAGE = "django_s3_storage.storage.StaticS3Storage"
+AWS_S3_BUCKET_NAME_STATIC = YOUR_S3_BUCKET
+
+# These next two lines will serve the static files directly
+# from the s3 bucket
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % YOUR_S3_BUCKET
+STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "cubic_managment/static")]

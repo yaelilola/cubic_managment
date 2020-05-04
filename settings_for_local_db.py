@@ -140,3 +140,7 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = "yaelamitindustrial@gmail.com"
 EMAIL_HOST_PASSWORD = "234313YA"
+
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "cubic_managment/static")]

@@ -1,7 +1,8 @@
 {% extends 'custom_user/base.html' %}
-
+{% load static %}
 {% block content %}
     {%if user.is_authenticated%}
+        <img src="{% static 'img/intellogo.png' %}">
         <h1>Welcome to cubic management system</h1>
         <a href="{% url 'custom_user:mycubic' %}">
             <input type="button" value="My Cubic">
