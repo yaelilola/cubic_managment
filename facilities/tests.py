@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 
 
 
-class CustomUserTestCase(TestCase):
+class FacilitiesTestCase(TestCase):
     def setUp(self):
         BusinessGroup.objects.create(id='test_group_1')
         bg1 = BusinessGroup.objects.get(id="test_group_1")
