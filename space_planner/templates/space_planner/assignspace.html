@@ -45,25 +45,46 @@
 <div>{% render_table spaces_table%}</div>
 </div>
 
-<button id="submit">submit</button>
-
+ <form method="post" id="AssignSpaceForm" data-employees-url="{% url 'space_planner:ajax_assign_spaces' %}" novalidate>
+    {% csrf_token %}
+    <button type=submit id="submit">submit</button>
+  </form>
 
 
 </body>
-
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
-    document.getElementById("id_business_group").style["width"] = "150px"
-    $("#submit").click(function () {
+ document.getElementById("id_business_group").style["width"] = "150px"
+    $("#submit").click(function() {
+    var url = $("#AssignSpaceForm").attr("data-employees-url");
     var yourArray = [];
-    $('.table-container tr').each(function(i, row){
-        var $row = $(row);
-        var $checkbox = $row.find('input:checked');
-        if($checkbox) {
-            yourArray.push(row);
-        }
-    })//each
-    console.log(yourArray);
-    })//click
+    var all_rows = document.getElementsByTagName("tr")
+    var e = document.getElementById("id_business_group")
+    var selected_bg = e.options[e.selectedIndex].text;
+    for (var i = 0; i < all_rows.length ; i++) {
+        input = all_rows[i].getElementsByTagName("input")[0]
+		if(input){
+			if(input.type==="checkbox"){
+				if(input.checked)
+				{
+					space_td = all_rows[i].getElementsByTagName("td")[4]
+					yourArray.push(space_td.innerHTML)
+				}
+			}
+		}
+    }
+     $.ajax({
+          type:'POST',
+          url: url,
+          data: {
+            'business_group': selected_bg,
+            'spaces': yourArray,
+            csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+          }
+        });
+ });
+
+
 
 </script>
 

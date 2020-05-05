@@ -60,21 +60,26 @@ def assign_space(request):
                       {'requests_table': requests_table, 'requests_filter': requests_filter, 'spaces_table': spaces_table})
     else:
         try:
-            form = AssignSpacesToBusinessGroupsForm(data=request.POST or None)
-            if request.POST:
-                if form.is_valid():
-                    business_group = form.cleaned_data.get("business_group")
-                    spaces = form.cleaned_data.get("spaces")
-                    for space in spaces:
-                        cubics = Cubic.objects.filter(space=space)
-                        for cubic in cubics:
-                            cubic.set_business_group(business_group)
-                            cubic.save()
+            # form = AssignSpacesToBusinessGroupsForm(data=request.POST or None)
+            # if request.POST:
+            #     if form.is_valid():
+            #         business_group = form.cleaned_data.get("business_group")
+            #         spaces = form.cleaned_data.get("spaces")
+            #         for space in spaces:
+            #             cubics = Cubic.objects.filter(space=space)
+            #             for cubic in cubics:
+            #                 cubic.set_business_group(business_group)
+            #                 cubic.save()
+            print("hey")
             return redirect('homepage')
         except ValueError:
             return render(request, 'space_planner/assignspace.html',
                           {'error': 'Bad info', 'form': AssignSpacesToBusinessGroupsForm()})
 
+@user_is_space_planner
+def assign_space_ajax(request):
+    print(request.POST)
+    return redirect('homepage')
 
 @user_is_space_planner
 def load_requests(request):
