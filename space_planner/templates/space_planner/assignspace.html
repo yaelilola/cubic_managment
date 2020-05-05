@@ -45,7 +45,7 @@
 <div>{% render_table spaces_table%}</div>
 </div>
 
- <form method="post" id="AssignSpaceForm" data-employees-url="{% url 'space_planner:ajax_assign_spaces' %}" novalidate>
+ <form method="post" id="AssignSpaceForm" data-employees-url="{% url 'space_planner:assign' %}">
     {% csrf_token %}
     <button type=submit id="submit">submit</button>
   </form>
@@ -78,9 +78,11 @@
           url: url,
           data: {
             'business_group': selected_bg,
-            'spaces': yourArray,
+            'spaces':yourArray,
             csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
-          }
+          },
+          traditional: true,
+           success:function(json){console.log("hey")}
         });
  });
 

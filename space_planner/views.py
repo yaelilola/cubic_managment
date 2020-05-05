@@ -70,16 +70,16 @@ def assign_space(request):
             #             for cubic in cubics:
             #                 cubic.set_business_group(business_group)
             #                 cubic.save()
-            print("hey")
+            print(request.POST)
             return redirect('homepage')
         except ValueError:
             return render(request, 'space_planner/assignspace.html',
                           {'error': 'Bad info', 'form': AssignSpacesToBusinessGroupsForm()})
 
-@user_is_space_planner
-def assign_space_ajax(request):
-    print(request.POST)
-    return redirect('homepage')
+# @user_is_space_planner
+# def assign_space_ajax(request):
+#     print(request.POST)
+#     return redirect('homepage')
 
 @user_is_space_planner
 def load_requests(request):
