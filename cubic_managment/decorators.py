@@ -38,8 +38,8 @@ def user_is_request_author(function):
 
 def user_is_focal_point_request_author(function):
     def wrap(request, *args, **kwargs):
-        request_to_change_cubic = FocalPointRequest.objects.get(pk=kwargs['request_id'])
-        if request_to_change_cubic.business_group == request.user.business_group:
+        focal_point_request = FocalPointRequest.objects.get(pk=kwargs['request_id'])
+        if focal_point_request.business_group == request.user.business_group:
             return function(request, *args, **kwargs)
         else:
             raise PermissionDenied

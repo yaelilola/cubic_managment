@@ -300,11 +300,15 @@ def display_request(request, request_id):
             return render(request, 'focal_point/viewrequest.html',
                           {'request': user_request, 'error': 'Bad info', 'form': form})
 
+
+
 @user_is_focal_point
 def display_my_requests(request):
     requests = FocalPointRequest.objects.filter(business_group=request.user.business_group)
     return render(request, 'focal_point/myrequests.html', {'requests': requests})
 
+
+@user_is_focal_point_request_author
 @user_is_focal_point
 def display_my_request(request, request_id):
     my_business_group_id = request.user.business_group.id
