@@ -9,3 +9,6 @@ class PositionFilter(django_filters.FilterSet):
     business_group = django_filters.ModelMultipleChoiceFilter(queryset=BusinessGroup.objects.filter(admin_group=False))
     creation_date = django_filters.DateFromToRangeFilter(widget=RangeWidget(attrs={'placeholder': 'YYYY/MM/DD',
                                                                                    'type': 'date'}))
+
+class RequestsFilter(django_filters.FilterSet):
+    business_group = django_filters.ModelChoiceFilter(queryset=BusinessGroup.objects.filter(admin_group=False))

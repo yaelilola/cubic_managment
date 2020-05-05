@@ -226,8 +226,10 @@ def send_notification(request, request_content):
         content += "The group needs space for {part_time} full time employees. \n".format(part_time=request_content.part_time_employees_amount)
     if request_content.business_group_near_by:
         content += "They need to be near the group:{business_group_near_by}.\n".format(business_group_near_by=request_content.business_group_near_by)
-    if request_content.near_lab:
-        content += "They need to be near the lab:{near_lab}.\n".format(near_lab=request_content.near_lab)
+    if request_content.near_low_density_lab:
+        content += "They need to be near low density lab.\n"
+    if request_content.near_high_density_lab:
+        content += "They need to be near high density lab.\n"
     if request_content.destination_date:
         content += "The due date for the request is {due_date}. \n".format(due_date=request_content.destination_date)
     content += "Thank you."
@@ -242,15 +244,16 @@ def create_request(request):
         return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs)})
     else:
         try:
-            if ((request.POST.get('full_time_employees_amount') == '' or request.POST.get('full_time_employees_amount') == '0') and
-                (request.POST.get('part_time_employees_amount') == '' or request.POST.get('part_time_employees_amount') == '0') and
-                (request.POST.get('business_group_near_by') == '') and
-                request.POST.get('near_lab') == ''):
+            if ((request.POST.get('full_time_employees_amount') == '' or request.POST.get('full_time_employees_amount') == '0')
+                    and (request.POST.get('part_time_employees_amount') == '' or request.POST.get('part_time_employees_amount') == '0')
+                    and (request.POST.get('business_group_near_by') == '')):
                 return render(request, 'focal_point/createrequests.html',
                               {'form': FocalPointRequestForm(business_group_qs=qs),
                                'error': 'Cant submit empty form'})
             request_copy = request.POST.copy()
-            request_copy['destination_date'] = datetime.datetime.strptime(request.POST.get('destination_date',''), "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST.get('destination_date') != '' else None
+            request_copy['near_low_density_lab'] = True if request.POST.get('near_low_density_lab', False) == 'on' else False
+            request_copy['near_high_density_lab'] = True if request.POST.get('near_high_density_lab', False) == 'on' else False
+            request_copy['destination_date'] = datetime.datetime.strptime(request.POST.get('destination_date', ''), "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST.get('destination_date') != '' else None
             form = FocalPointRequestForm(request_copy, business_group_qs=qs)
             new_request = form.save(commit=False)
             new_request.business_group = request.user.business_group

@@ -1,15 +1,70 @@
 {% extends 'custom_user/base.html' %}
+{% load render_table from django_tables2 %}
+{% load widget_tweaks %}
+{% load bootstrap3 %}
 
 {% block content %}
 
-<body>
-{{ error }}
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Static Example</title>
+  <style>body {font-family: Arial, sans-serif;}</style>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+
+  <!-- Fengyuan Chen's Datepicker -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.css" integrity="sha256-b88RdwbRJEzRx95nCuuva+hO5ExvXXnpX+78h8DjyOE=" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.js" integrity="sha256-/7FLTdzP6CfC1VBAj/rsp3Rinuuu9leMRGd354hvk0k=" crossorigin="anonymous"></script>
+
+<style>
+    div#filter-requests.div{
+        float: left;
+        clear: none;
+    }
+
+</style>
+
+</head>
+
+<body>
+<div id="filter-requests">
+<form method="get">
+          {{ requests_filter.form.business_group.label_tag }}
+          {% render_field requests_filter.form.business_group class="form-control" onchange="this.form.submit()"%}
+  </form>
+    <div>{% render_table requests_table %}</div>
+</div>
+
+<div>
+    <br>
+<br>
+    <p>Choose space for the group</p>
+<div>{% render_table spaces_table%}</div>
+</div>
+
+<button id="submit">submit</button>
+
+
 
 </body>
-{% endblock %}
+
+<script>
+    document.getElementById("id_business_group").style["width"] = "150px"
+    $("#submit").click(function () {
+    var yourArray = [];
+    $('.table-container tr').each(function(i, row){
+        var $row = $(row);
+        var $checkbox = $row.find('input:checked');
+        if($checkbox) {
+            yourArray.push(row);
+        }
+    })//each
+    console.log(yourArray);
+    })//click
+
+</script>
+
+{%endblock%}

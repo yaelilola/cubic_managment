@@ -3,6 +3,9 @@ from recruit.models import NewPosition
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 from django.forms import DateInput
+from CustomRequests.models import FocalPointRequest
+from facilities.models import Space
+
 import django_filters
 
 class CampusTable(tables.Table):
@@ -50,5 +53,34 @@ class NewPositionTable(tables.Table):
         model = NewPosition
         exclude = ['id']
         filterset_class = PositionFilter
+
+
+class RequestFilter(django_filters.FilterSet):
+    class Meta:
+        model = FocalPointRequest
+        fields = ['business_group']
+
+
+class FocalPointRequestsTable(tables.Table):
+    class Meta:
+        model = FocalPointRequest
+        exclude = ['id', 'notes', 'status', 'date']
+        filterset_class = RequestFilter
+
+
+class SpacesTable(tables.Table):
+    template = '<input type="checkbox" name="Chosen"/>'
+    Chosen = tables.TemplateColumn(template)
+    #Chosen = tables.CheckBoxColumn(orderable=True, accessor="Id", verbose_name="Chosen")
+    Campus = tables.Column(orderable=True)
+    Building = tables.Column(orderable=True)
+    Floor = tables.Column(orderable=True)
+    Id = tables.Column(orderable=True)
+    Utilization = tables.Column(orderable=True)
+    Free_Private = tables.Column(orderable=True)
+    Free_Shared = tables.Column(orderable=True)
+
+
+
 
 

@@ -29,13 +29,13 @@ class RequestToChangeCubicFocalPointForm(ModelForm):
 class FocalPointRequestForm(ModelForm):
     def __init__(self, *args, business_group_qs, **kwargs):
         super(FocalPointRequestForm, self).__init__(*args, **kwargs)
-        self.fields['near_lab'].queryset = Space.objects.filter(type='Lab')
+        # self.fields['near_lab'].queryset = Space.objects.filter(type='Lab')
         self.fields['business_group_near_by'].queryset = business_group_qs
 
     class Meta:
         model = FocalPointRequest
-        fields = ['part_time_employees_amount', 'full_time_employees_amount', 'business_group_near_by', 'near_lab',
-                  'destination_date']
+        fields = ['part_time_employees_amount', 'full_time_employees_amount', 'business_group_near_by',
+                  'near_low_density_lab', 'near_high_density_lab', 'destination_date']
 
 
 class FocalPointRequestSpacePlannerForm(ModelForm):
@@ -45,14 +45,15 @@ class FocalPointRequestSpacePlannerForm(ModelForm):
         self.fields['part_time_employees_amount'].widget.attrs['disabled'] = True
         self.fields['full_time_employees_amount'].widget.attrs['disabled'] = True
         self.fields['business_group_near_by'].widget.attrs['disabled'] = True
-        self.fields['near_lab'].widget.attrs['disabled'] = True
+        self.fields['near_low_density_lab'].widget.attrs['disabled'] = True
+        self.fields['near_high_density_lab'].widget.attrs['disabled'] = True
         self.fields['date'].widget.attrs['disabled'] = True
         self.fields['destination_date'].widget.attrs['disabled'] = True
 
     class Meta:
         model = FocalPointRequest
         fields = ['business_group', 'part_time_employees_amount', 'full_time_employees_amount', 'business_group_near_by',
-                  'near_lab', 'date', 'destination_date', 'status', 'notes']
+                  'near_low_density_lab', 'near_high_density_lab', 'date', 'destination_date', 'status', 'notes']
         widgets = {
             'destination_date': forms.DateInput(attrs={'class': 'datepicker', 'id': 'id_destination_date'}),
         }

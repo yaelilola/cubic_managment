@@ -26,8 +26,9 @@ class AssignFullTimeUserCubicForm(forms.Form):
 
 
 class AssignSpacesToBusinessGroupsForm(forms.Form):
-    spaces = forms.ModelMultipleChoiceField(queryset=Space.objects.all())
     business_group = forms.ModelChoiceField(queryset=BusinessGroup.objects.filter(admin_group=False))
+    spaces = forms.ModelMultipleChoiceField(queryset=Space.objects.all())
+
 
 
 

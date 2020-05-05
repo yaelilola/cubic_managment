@@ -7,10 +7,10 @@ from custom_user.models import CustomUser, BusinessGroup
 from .forms import ChooseFocalPointForm
 from cubic_managment.decorators import user_is_space_planner
 from assign.models import AssignUserCubic
-from .tables import CampusTable, BuildingTable, FloorTable, NewPositionTable
+from .tables import CampusTable, BuildingTable, FloorTable, NewPositionTable, FocalPointRequestsTable, SpacesTable
 from django_tables2 import RequestConfig
 from recruit.models import NewPosition
-from .filters import PositionFilter
+from .filters import PositionFilter, RequestsFilter
 from django.core.mail import send_mail
 
 #space planner actions
@@ -22,11 +22,42 @@ def simulations(request):
 def get_alerts(request):
     pass
 
+def get_business_group_requests(request):
+    wanted_business_groups = BusinessGroup.objects.filter(admin_group=False)
+    requests_list = FocalPointRequest.objects.filter(business_group__in=wanted_business_groups)
+    requests_filter = RequestsFilter(request.GET, queryset=requests_list)
+    # return render(request, 'space_planner/new_positions.html', {'filter': positions_filter})
+    table = FocalPointRequestsTable(requests_filter.qs, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 5, "page": 1}).configure(table)
+    return table, requests_filter
+
+
+def get_spaces_with_room(request):
+    spaces = Space.objects.all()
+    data = []
+    for space in spaces:
+        total_space, occupied_space, private_space, shared_space = get_space_utilization(space)
+        if (occupied_space < total_space and space.type == 'Regular'):
+            floor = space.floor
+            building = floor.building
+            campus = building.campus
+            space_info = {'Campus': campus, 'Building': building, 'Floor': space.floor, 'Id': space.id,
+                            'Free_Private': private_space,
+                          'Free_Shared': shared_space, 'Utilization': float((occupied_space * 100)) / total_space}
+            data.append(space_info)
+    table = SpacesTable(data, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
+    return table
+
+
 @user_is_space_planner
 def assign_space(request):
     #TODO: add logic
     if request.method == 'GET':
-        return render(request, 'space_planner/assignspace.html', {'form': AssignSpacesToBusinessGroupsForm()})
+        requests_table, requests_filter = get_business_group_requests(request)
+        spaces_table = get_spaces_with_room(request)
+        return render(request, 'space_planner/assignspace.html',
+                      {'requests_table': requests_table, 'requests_filter': requests_filter, 'spaces_table': spaces_table})
     else:
         try:
             form = AssignSpacesToBusinessGroupsForm(data=request.POST or None)
@@ -45,23 +76,47 @@ def assign_space(request):
                           {'error': 'Bad info', 'form': AssignSpacesToBusinessGroupsForm()})
 
 
+@user_is_space_planner
+def load_requests(request):
+    chosen_business_group = request.GET.get('business_group')
+    requests = FocalPointRequest.objects.filter(business_group=chosen_business_group)
+    return render(request, 'space_planner/focal_point_request_info.html', {'requests': requests})
+
+
+def get_space_utilization(space):
+    total_space = 0
+    occupied_space = 0
+    private_space = 0
+    shared_space = 0
+    cubics = Cubic.objects.filter(space=space)
+    for cubic in cubics:
+        if cubic.type == 'private':
+            total_space += 1
+            if len(AssignUserCubic.objects.filter(cubic=cubic)) > 0:
+                occupied_space += 1
+            else:
+                private_space += 1
+        if cubic.type == 'shared':
+            total_space += 2
+            if len(AssignUserCubic.objects.filter(cubic=cubic)) == 1:
+                occupied_space += 1
+                shared_space += 1
+            if len(AssignUserCubic.objects.filter(cubic=cubic)) == 2:
+                occupied_space += 2
+            else:
+                shared_space += 2
+    return total_space, occupied_space, private_space, shared_space
+
+
+
 def get_floor_utilization(floor):
     spaces = Space.objects.filter(floor=floor)
     total_space = 0
     occupied_space = 0
     for space in spaces:
-        cubics = Cubic.objects.filter(space=space)
-        for cubic in cubics:
-            if cubic.type == 'private':
-                total_space += 1
-                if len(AssignUserCubic.objects.filter(cubic=cubic)) > 0:
-                    occupied_space += 1
-            if cubic.type == 'shared':
-                total_space += 2
-                if len(AssignUserCubic.objects.filter(cubic=cubic)) == 1:
-                    occupied_space += 1
-                if len(AssignUserCubic.objects.filter(cubic=cubic)) == 2:
-                    occupied_space += 2
+        space_total_space, space_occupied_space, private_space, shared_space = get_space_utilization(space)
+        total_space += space_total_space
+        occupied_space += space_occupied_space
     return total_space, occupied_space
 
 
@@ -206,7 +261,8 @@ def display_request(request, request_id):
             request_post_copy['part_time_employees_amount'] = focal_point_request.part_time_employees_amount
             request_post_copy['full_time_employees_amount'] = focal_point_request.full_time_employees_amount
             request_post_copy['business_group_near_by'] = focal_point_request.business_group_near_by
-            request_post_copy['near_lab'] = focal_point_request.near_lab
+            request_post_copy['near_low_density_lab'] = focal_point_request.near_low_density_lab
+            request_post_copy['near_high_density_lab'] = focal_point_request.near_high_density_lab
             request_post_copy['date'] = focal_point_request.date
             request_post_copy['destination_date'] = focal_point_request.destination_date
             form = FocalPointRequestSpacePlannerForm(request_post_copy, instance=focal_point_request)

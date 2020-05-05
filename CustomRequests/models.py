@@ -24,7 +24,9 @@ class FocalPointRequest(models.Model):
     part_time_employees_amount = models.PositiveIntegerField(blank=True, null=True)
     business_group_near_by = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+',
                                                blank=True, null=True)
-    near_lab = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='+',null=True,blank=True)
+    near_low_density_lab = models.BooleanField(default=False)
+    near_high_density_lab = models.BooleanField(default=False)
+    # near_lab = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='+',null=True,blank=True)
     #near_conference_room = models.BooleanField(default=False)
     date = models.DateField(default=now())
     destination_date = models.DateField(null=True, blank=True)
