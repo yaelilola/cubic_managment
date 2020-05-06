@@ -12,6 +12,7 @@ from django_tables2 import RequestConfig
 from recruit.models import NewPosition
 from .filters import PositionFilter, RequestsFilter
 from django.core.mail import send_mail
+from focal_point.views import is_cubic_available
 
 #space planner actions
 @user_is_space_planner
@@ -31,19 +32,47 @@ def get_business_group_requests(request):
     RequestConfig(request, paginate={"per_page": 5, "page": 1}).configure(table)
     return table, requests_filter
 
+def find_groups_in_floor(floor):
+    groups = []
+    groups_str = ""
+    spaces = Space.objects.filter(floor=floor)
+    print(spaces)
+    for space in spaces:
+        cubics = Cubic.objects.filter(space=space)
+        for cubic in cubics:
+            if cubic.business_group:
+                print(str(cubic) + " " + str(cubic.business_group))
+                groups.append(str(cubic.business_group))
+    groups_no_dups = list(set(groups))
+    print(groups_no_dups)
+    for i in range(len(groups_no_dups)-1):
+        groups_str += (groups_no_dups[i] + ",")
+    groups_str += groups_no_dups[len(groups_no_dups)-1]
+    return groups_str
+
 
 def get_spaces_with_room(request):
     spaces = Space.objects.all()
     data = []
     for space in spaces:
-        total_space, occupied_space, private_space, shared_space = get_space_utilization(space)
-        if (occupied_space < total_space and space.type == 'Regular'):
+        total_space, private_free_space, shared_free_space = get_amount_available_cubics_in_space(space)
+        if (private_free_space > 0 or shared_free_space > 0) and space.type == 'Regular':
             floor = space.floor
+            groups_in_floor = find_groups_in_floor(floor)
             building = floor.building
             campus = building.campus
+            near_low_density_lab = False
+            low_density_labs = Space.objects.filter(type="Low Density Lab", floor=floor)
+            if low_density_labs.exists():
+                near_low_density_lab = True
+            near_high_density_lab = False
+            low_density_labs = Space.objects.filter(type="High Density Lab", floor=floor)
+            if low_density_labs.exists():
+                near_high_density_lab = True
             space_info = {'Campus': campus, 'Building': building, 'Floor': space.floor, 'Id': space.id,
-                            'Free_Private': private_space,
-                          'Free_Shared': shared_space, 'Utilization': float((occupied_space * 100)) / total_space}
+                            'Free_Private': private_free_space, 'Free_Shared': shared_free_space,
+                          'Near_Low_Density_Lab': near_low_density_lab, 'Near_High_Density_Lab': near_high_density_lab,
+                          'Groups_Nearby': groups_in_floor}
             data.append(space_info)
     table = SpacesTable(data, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
@@ -53,39 +82,67 @@ def get_spaces_with_room(request):
 @user_is_space_planner
 def assign_space(request):
     #TODO: add logic
+    business_groups = BusinessGroup.objects.filter(admin_group=False)
+    spaces_table = get_spaces_with_room(request)
     if request.method == 'GET':
         requests_table, requests_filter = get_business_group_requests(request)
-        spaces_table = get_spaces_with_room(request)
         return render(request, 'space_planner/assignspace.html',
-                      {'requests_table': requests_table, 'requests_filter': requests_filter, 'spaces_table': spaces_table})
+                      {'table': spaces_table, 'business_groups': business_groups})
     else:
         try:
-            # form = AssignSpacesToBusinessGroupsForm(data=request.POST or None)
-            # if request.POST:
-            #     if form.is_valid():
-            #         business_group = form.cleaned_data.get("business_group")
-            #         spaces = form.cleaned_data.get("spaces")
-            #         for space in spaces:
-            #             cubics = Cubic.objects.filter(space=space)
-            #             for cubic in cubics:
-            #                 cubic.set_business_group(business_group)
-            #                 cubic.save()
-            print(request.POST)
+            if request.POST:
+                business_group_id = request.POST.get("chosen_business_group")
+                business_group = BusinessGroup.objects.get(id=business_group_id)
+                spaces_ids = request.POST.getlist("selection")
+                if not spaces_ids:
+                    return render(request, 'space_planner/assignspace.html',
+                                  {'error': 'Use must choose a space', 'table': spaces_table,
+                                   'business_groups': business_groups})
+                else:
+                    spaces = Space.objects.filter(id__in=spaces_ids)
+                    for space in spaces:
+                        cubics = Cubic.objects.filter(space=space)
+                        for cubic in cubics:
+                            #checking if the cubic is assigned to a group
+                            if cubic.business_group is None:
+                                cubic.set_business_group(business_group)
+                                cubic.save()
             return redirect('homepage')
         except ValueError:
             return render(request, 'space_planner/assignspace.html',
-                          {'error': 'Bad info', 'form': AssignSpacesToBusinessGroupsForm()})
+                          {'error': 'Bad info'})
+
+
 
 # @user_is_space_planner
 # def assign_space_ajax(request):
 #     print(request.POST)
 #     return redirect('homepage')
 
+
+
 @user_is_space_planner
 def load_requests(request):
     chosen_business_group = request.GET.get('business_group')
     requests = FocalPointRequest.objects.filter(business_group=chosen_business_group)
     return render(request, 'space_planner/focal_point_request_info.html', {'requests': requests})
+
+
+def get_amount_available_cubics_in_space(space):
+    total_space = 0
+    private_free_space = 0
+    shared_free_space = 0
+    cubics = Cubic.objects.filter(space=space)
+    for cubic in cubics:
+        if cubic.type == 'private':
+            total_space += 1
+            if cubic.business_group is None:
+                private_free_space += 1
+        if cubic.type == 'shared':
+            total_space += 2
+            if cubic.business_group is None:
+                shared_free_space += 2
+    return total_space, private_free_space, shared_free_space
 
 
 def get_space_utilization(space):
@@ -106,7 +163,7 @@ def get_space_utilization(space):
             if len(AssignUserCubic.objects.filter(cubic=cubic)) == 1:
                 occupied_space += 1
                 shared_space += 1
-            if len(AssignUserCubic.objects.filter(cubic=cubic)) == 2:
+            elif len(AssignUserCubic.objects.filter(cubic=cubic)) == 2:
                 occupied_space += 2
             else:
                 shared_space += 2

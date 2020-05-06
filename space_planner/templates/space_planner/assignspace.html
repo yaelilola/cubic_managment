@@ -5,89 +5,113 @@
 
 {% block content %}
 
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Static Example</title>
-  <style>body {font-family: Arial, sans-serif;}</style>
+    <style>
+        tfoot{
+            background-color: #53b2cf;
+        }
 
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-
-  <!-- Fengyuan Chen's Datepicker -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.css" integrity="sha256-b88RdwbRJEzRx95nCuuva+hO5ExvXXnpX+78h8DjyOE=" crossorigin="anonymous" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.js" integrity="sha256-/7FLTdzP6CfC1VBAj/rsp3Rinuuu9leMRGd354hvk0k=" crossorigin="anonymous"></script>
-
-<style>
-    div#filter-requests.div{
-        float: left;
-        clear: none;
-    }
-
-</style>
+    </style>
 
 </head>
-
-<body>
-<div id="filter-requests">
-<form method="get">
-          {{ requests_filter.form.business_group.label_tag }}
-          {% render_field requests_filter.form.business_group class="form-control" onchange="this.form.submit()"%}
-  </form>
-    <div>{% render_table requests_table %}</div>
-</div>
-
-<div>
-    <br>
+<h1>Assign spaces to business groups</h1>
 <br>
-    <p>Choose space for the group</p>
-<div>{% render_table spaces_table%}</div>
-</div>
+<form method="post" id="ChooseBusinessGroupForm" action="{% url 'space_planner:assign'%}"
+      data-requests-url="{% url 'space_planner:ajax_load_requests' %}" novalidate>
+    <h4>Business Groups:</h4>
+    <select id="business_group" name="chosen_business_group">
+            <option value="illegal">----------</option>
+        {% for bg in business_groups %}
+            <option value="{{bg.id}}">{{bg.id}}</option>
+        {% endfor %}
 
- <form method="post" id="AssignSpaceForm" data-employees-url="{% url 'space_planner:assign' %}">
+    </select>
+    <br>
+    <br>
     {% csrf_token %}
-    <button type=submit id="submit">submit</button>
-  </form>
+    <h4>Spaces with room</h4>
+    <br>
+    {% render_table table %}
+    <h6 id="error" style="visibility:hidden">You must choose a business group in order to submit</h6>
+    <button input="submit" disabled id="submit-btn">Submit</button>
+    {{ error }}
+</form>
+
+<h1 id="requests_title" style="visibility:hidden">Requests from group</h1>
+<ul id="business_group_requests"></ul>
 
 
-</body>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-<script>
- document.getElementById("id_business_group").style["width"] = "150px"
-    $("#submit").click(function() {
-    var url = $("#AssignSpaceForm").attr("data-employees-url");
-    var yourArray = [];
-    var all_rows = document.getElementsByTagName("tr")
-    var e = document.getElementById("id_business_group")
-    var selected_bg = e.options[e.selectedIndex].text;
-    for (var i = 0; i < all_rows.length ; i++) {
-        input = all_rows[i].getElementsByTagName("input")[0]
-		if(input){
-			if(input.type==="checkbox"){
-				if(input.checked)
-				{
-					space_td = all_rows[i].getElementsByTagName("td")[4]
-					yourArray.push(space_td.innerHTML)
-				}
-			}
-		}
-    }
-     $.ajax({
-          type:'POST',
-          url: url,
-          data: {
-            'business_group': selected_bg,
-            'spaces':yourArray,
-            csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
-          },
-          traditional: true,
-           success:function(json){console.log("hey")}
+  <script>
+      $("#business_group").change(function () {
+      var url = $("#ChooseBusinessGroupForm").attr("data-requests-url");
+      var businessGroup = $(this).val();
+      if (businessGroup.localeCompare("illegal") !== 0){
+          $.ajax({
+              url: url,
+              data: {
+                'business_group': businessGroup
+              },
+              success: function (data) {
+                $("#requests_title").css('visibility', 'visible');
+                $("#error").css('visibility', 'hidden');
+                $("#business_group_requests").html(data);
+                $("#submit-btn").prop('disabled', false);
+              }
+            });
+      } else {
+            $("#requests_title").css('visibility', 'hidden');
+            $("#error").css('visibility', 'visible');
+            $("#business_group_requests").html("");
+            $("#submit-btn").prop('disabled', true);
+      }
+    });
+
+    $(function () {
+
+    function update_sum() {
+        var sum_private = 0;
+        var sum_shared = 0;
+        var low_density = "✘";
+        var high_density = "✘";
+        var business_groups = [];
+        // loop over each checkbox within <tbody>
+        $('tbody input[type=checkbox]').each(function () {
+            // if the checkbox is checked
+            if ($(this).is(':checked')) {
+                sum_private += parseInt($(this).parents('tr').find('.free_private').html());
+                sum_shared += parseInt($(this).parents('tr').find('.free_shared').html());
+                var is_true_low = $(this).parents('tr').find('.low_density').html();
+                var is_true_high = $(this).parents('tr').find('.high_density').html();
+                if (is_true_low.includes("true")){
+                    low_density = "✔";
+                }
+                if (is_true_high.includes("true")){
+                    high_density = "✔";
+                }
+                var business_groups_in_space = $(this).parents('tr').find('.business_groups').html().split(",");
+                for (var i = 0; i < business_groups_in_space.length; i++){
+                        business_groups.push(business_groups_in_space[i]);
+                }
+            }
         });
- });
+        var uniqueNames = [];
+        $.each(business_groups, function(i, el){
+            if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
+        });
+        $('tfoot .free_private').html(sum_private);
+        $('tfoot .free_shared').html(sum_shared);
+        $('tfoot .low_density').html(low_density);
+        $('tfoot .high_density').html(high_density);
+        $('tfoot .business_groups').html(uniqueNames.join(" , "));
+    }
 
+    // update the sum after each change
+    $('tbody input[type=checkbox]').on('change', update_sum);
 
-
-</script>
+    // update the sum initially.
+    update_sum();
+});
+  </script>
 
 {%endblock%}

@@ -4,24 +4,23 @@
     {% if request.full_time_employees_amount %}
         Amount of space for full time employees: {{ request.full_time_employees_amount}}
     {% endif %}
-    {% if request.full_time_employees_amount %}
-        Amount of space for full time employees: {{ request.full_time_employees_amount}}
-    {% endif %}
     {% if request.part_time_employees_amount %}
-        Amount of space for full time employees: {{ request.part_time_employees_amount}}
+        Amount of space for part time employees: {{ request.part_time_employees_amount}}
     {% endif %}
     {% if request.business_group_near_by %}
-        Amount of space for full time employees: {{ request.business_group_near_by}}
+        Near business group: {{ request.business_group_near_by}}
     {% endif %}
     {% if request.near_low_density_lab %}
-        Amount of space for full time employees: {{ request.near_low_density_lab}}
+        Near low density lab: {{ request.near_low_density_lab}}
     {% endif %}
     {% if request.near_high_density_lab %}
-        Amount of space for full time employees: {{ request.near_high_density_lab}}
+        Near high density lab: {{ request.near_high_density_lab}}
     {% endif %}
     {% if request.destination_date %}
-        Amount of space for full time employees: {{ request.destination_date}}
+        Destination date: {{ request.destination_date}}
     {% endif %}
 </li>
+{% empty %}
+    No requests found for this group
 {% endfor %}
 

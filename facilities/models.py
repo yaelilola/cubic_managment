@@ -109,7 +109,7 @@ class Cubic(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
     type = models.CharField(choices=(('shared', 'shared'), ('private', 'private')), max_length=MAX_LENGTH)
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
-    business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
+    business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, null=True, blank=True)
     area = models.DecimalField(decimal_places=5, max_digits=10)
 
     def __str__(self):

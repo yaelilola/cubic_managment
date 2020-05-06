@@ -68,17 +68,25 @@ class FocalPointRequestsTable(tables.Table):
         filterset_class = RequestFilter
 
 
+class CheckBoxColumnWithName(tables.CheckBoxColumn):
+    @property
+    def header(self):
+        return self.verbose_name
+
 class SpacesTable(tables.Table):
-    template = '<input type="checkbox" name="Chosen"/>'
-    Chosen = tables.TemplateColumn(template)
-    #Chosen = tables.CheckBoxColumn(orderable=True, accessor="Id", verbose_name="Chosen")
+    #template = '<input type="checkbox" name="Chosen"/>'
+    #Chosen = tables.TemplateColumn(template)
+    #selection = tables.CheckBoxColumn(accessor='Id')
+    selection = CheckBoxColumnWithName(verbose_name="Chosen", accessor="Id", empty_values=(), footer='Total:')
     Campus = tables.Column(orderable=True)
     Building = tables.Column(orderable=True)
     Floor = tables.Column(orderable=True)
     Id = tables.Column(orderable=True)
-    Utilization = tables.Column(orderable=True)
-    Free_Private = tables.Column(orderable=True)
-    Free_Shared = tables.Column(orderable=True)
+    Free_Private = tables.Column(orderable=True, attrs={'cell': {'class': 'free_private'}})
+    Free_Shared = tables.Column(orderable=True, attrs={'cell': {'class': 'free_shared'}})
+    Near_Low_Density_Lab = tables.BooleanColumn(orderable=True, attrs={'cell': {'class': 'low_density'}})
+    Near_High_Density_Lab = tables.BooleanColumn(orderable=True, attrs={'cell': {'class': 'high_density'}})
+    Groups_Nearby = tables.Column(attrs={'cell': {'class': 'business_groups'}})
 
 
 
