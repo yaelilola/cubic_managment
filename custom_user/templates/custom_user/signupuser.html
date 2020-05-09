@@ -1,15 +1,38 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
-
+    <style>
+        label {
+        display: block;
+        }
+        input:not([type='checkbox']) ,select{
+        width: 100%;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        line-height: 1.5;
+        height: calc(1.5em + .75rem + 2px);
+        }
+    </style>
     <body>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-5">
+            <h2>Sign Up</h2>
+        </div>
+    </div>
     {{ error }}
+      <div class="row justify-content-center mt-5">
+          <div class="col-md-5">
     <form method="POST">
           {% csrf_token %}
         {{form.as_p}}
        <button type="submit" class="btn btn-primary">Sign Up</button>
     </form>
-     <script>
+          </div>
+      </div>
+     <div class="text-center">
+                Do you already have an account? <a href="{% url 'loginuser' %}">Login here</a>
+            </div>
+    <script>
      $(function () {
     $("#id_start_date").datepicker({
       format:'dd/mm/yyyy',

@@ -1,35 +1,99 @@
+{% load static %}
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+
     <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 
   <!-- Fengyuan Chen's Datepicker -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.css" integrity="sha256-b88RdwbRJEzRx95nCuuva+hO5ExvXXnpX+78h8DjyOE=" crossorigin="anonymous" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/datepicker/0.6.5/datepicker.min.js" integrity="sha256-/7FLTdzP6CfC1VBAj/rsp3Rinuuu9leMRGd354hvk0k=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
 </head>
-<a href="{% url 'homepage' %}">
-    <input type="button" value="Home">
-</a>
-<br>
-<br>
+    <title>Cubic managment</title>
+    <style>
+         img.bg {
+          /* Set rules to fill background */
+          min-height: 100%;
+          min-width: 1024px;
 
-{% if user.is_authenticated %}
-Logged in as {{user.email}}
+          /* Set up proportionate scaling */
+          width: 100%;
+          height: auto;
+
+          /* Set up positioning */
+          position: fixed;
+          top: 0;
+          left: 0;
+           z-index: -1;
+           filter: grayscale(50%);
+        }
+
+        @media screen and (max-width: 1024px) { /* Specific to this particular image */
+          img.bg {
+            left: 50%;
+            margin-left: -512px;   /* 50% */
+          }
+        }
+    </style>
+</head>
+<body>
 
 
-<form action="{% url 'logoutuser'%}" method="POST">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-</form>
+<nav class="navbar navbar-expand-md bg-warning navbar-light">
+<div class="container" >
+    <a class="navbar-brand" href="{% url 'homepage' %}">
+        <span>Home</span>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+    {% if user.is_authenticated %}
+        <ul class="navbar-nav mr-auto">
 
-{% else %}
-<a href="{% url 'signupuser'%}">Sign Up</a>
-<a href="{% url 'loginuser'%}">Log In</a>
-{% endif %}
-<br>
-<br>
+                <li class="nav-item">
+                        <a class="nav-link" href="{% url 'custom_user:mycubic' %}">My Cubic</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'custom_user:searchcubic' %}">Search</a>
+                </li>
+                <li class="nav-item">
+                   <a class="nav-link" href="{% url 'custom_user:requests' %}">Display My Requests</a>
+                </li>
 
-{% block content %}
+        </ul>
+    {% endif %}
+    <ul class="navbar-nav ml-auto">
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="#" onclick="$('#signOutBtn').click()" class="nav-link">Logout</a>
+                    <form style='display: none;' method="POST" action="{% url 'logoutuser' %}">
+                        {% csrf_token %}
+                        <button id="signOutBtn" type="submit">Logout</button>
+                    </form>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'signupuser' %}">Sign Up</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'loginuser' %}">Login</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</div>
+</nav>
 
-{% endblock %}
+<div class="container">
+{% block content %}{% endblock %}
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>

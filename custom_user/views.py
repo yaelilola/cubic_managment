@@ -15,10 +15,14 @@ from django.core.mail import send_mail
 
 def homepage(request):
     if request.user.is_authenticated:
+        assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
+        focal_point = CustomUser.objects.filter(business_group=request.user.business_group, focal_point=True)
         if request.user.focal_point is True:
             users_in_focal_point_group = CustomUser.objects.filter(business_group=request.user.business_group)
             un_read_requests_from_users = RequestToChangeCubic.objects.filter(user__in=users_in_focal_point_group,status='unread')
             return render(request, 'custom_user/homepage.html', {'un_read_requests': un_read_requests_from_users})
+        else:
+            return render(request, 'custom_user/homepage.html', {'assignments': assignments, 'focal_point': focal_point, 'business_group':request.user.business_group})
     return render(request, 'custom_user/homepage.html')
 
 # Create your views here.

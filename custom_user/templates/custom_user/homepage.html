@@ -2,24 +2,11 @@
 {% load static %}
 {% block content %}
     {%if user.is_authenticated%}
-        <img src="{% static 'img/intellogo.png' %}">
-        <h1>Welcome to cubic management system</h1>
-        <a href="{% url 'custom_user:mycubic' %}">
-            <input type="button" value="My Cubic">
-        </a>
-
-        <br>
-        <br>
-        <a href="{% url 'custom_user:searchcubic' %}">
-            <input type="button" value="Search the location of another employee">
-        </a>
-        <br>
-        <br>
-        <a href="{% url 'custom_user:requests' %}">
-            <input type="button" value="Display my requests">
-        </a>
-        <br>
-        <br>
+    <style>
+        #helloHeader{
+            margin-top:15px;
+        }
+    </style>
         {% if user.focal_point%}
             <br>
             <br>
@@ -71,8 +58,56 @@
             <input type="button" value="Display All New Positions">
         </a>
         {% endif %}
+         {% if not user.focal_point and not user.space_planner%}
+      <h1 id="helloHeader">Hello {{user.email}}!</h1>
+        <br>
+        <br>
+        <h4>Business Group</h4>
+        {{ business_group }}
+         <br>
+        <br>
+        <h4>Current Focal Point</h4>
+        {% for fp in focal_point %}
+            {{ fp }}
+        {% empty %}
+             You don't have a focal point yet.
+        {% endfor %}
+        <br>
+        <br>
+        <h4>My Cubic Details</h4>
+        {% if assignments%}
+        <ul>
+            {% for assignment in assignments%}
+            <li>
+                Assignment number {{ forloop.counter }}
+                <br>
+                <br>
+                Cubic: {{assignment.cubic}}
+                <br>
+                <br>
+                Assigner: {{assignment.assigner}}
+                <br>
+                <br>
+                Assignment Time: {{assignment.time}}
+                <br>
+                <br>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+         <p>You have no cubics assigned</p>
+        {% endif %}
+    {% endif %}
+    {% else %}
+    <div class="row justify-content-center mt-5">
+        <div class="text-center">
+                 <h1>Welcome To Cubic Management System</h1>
+                <img src="{% static 'img/Inspirational-Home-Office-Workspace-Tips-to-Get-Organized.jpg' %}" class="bg">
+        </div>
+    </div>
 
     {% endif %}
+
 
 
 {% endblock %}
