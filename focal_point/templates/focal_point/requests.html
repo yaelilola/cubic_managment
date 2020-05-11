@@ -1,25 +1,31 @@
 {% extends 'custom_user/base.html' %}
+{% load render_table from django_tables2 %}
 
 {% block content %}
     <body>
+<style>
+        #helloHeader{
+            margin-top:20px;
+            text-align: center;
+        }
+        tbody tr:hover{
+            background-color: #81d4fa;
+            cursor: pointer;
+        }
+</style>
 
-    Requests From Users
-
-    <ul>
-        {% for request in requests%}
-        <li>
-            <a href="{% url 'focal_point:viewrequest' request.id %}">
-            User: {{ request.user }}
-            Request Date: {{ request.request_date }}
-            {% if request.status %}
-                Status: {{ request.status}}
-            {% endif %}
-            </a>
-        </li>
-        {% empty %}
-            No requests yet.
-        {% endfor %}
-    </ul>
+<h1 id="helloHeader">Requests From Users</h1>
+<br>
+    {% render_table table %}
 </body>
+
+<script>
+  $(function () {
+    $('tbody > tr').click(function(){
+        var request_id = $(this).attr("request_id")
+        window.location.href = "/focal_point/viewrequest/".concat(request_id.toString());
+        });
+  });
+</script>
 
 {% endblock %}

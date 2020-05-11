@@ -10,6 +10,9 @@ from cubic_managment.decorators import user_is_focal_point, user_is_focal_point_
     user_in_focal_point_group, request_user_in_focal_point_group
 import datetime
 from django.core.mail import send_mail
+from .tables import UserRequestsTable
+from django_tables2 import RequestConfig
+
 # Create your views here.
 #foacl point actions
 
@@ -267,8 +270,10 @@ def create_request(request):
 @user_is_focal_point
 def display_requests(request):
     users_in_focal_point_group = CustomUser.objects.filter(business_group=request.user.business_group)
-    requests = RequestToChangeCubic.objects.filter(user__in=users_in_focal_point_group)
-    return render(request, 'focal_point/requests.html', {'requests': requests})
+    requests = RequestToChangeCubic.objects.filter(user__in=users_in_focal_point_group).order_by('request_date')
+    table = UserRequestsTable(requests, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 5, "page": 1}).configure(table)
+    return render(request, 'focal_point/requests.html', {'table': table})
 
 
 def send_change_status_notification(request, request_content):

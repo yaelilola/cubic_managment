@@ -3,37 +3,76 @@
 {% block content %}
     {%if user.is_authenticated%}
     <style>
-        #helloHeader{
+        .helloHeader{
             margin-top:20px;
             text-align: center;
         }
+
+        .action{
+            border-style: solid;
+            border-color: black;
+            border-radius: 20px;
+            height: 200px;
+            width: 250px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            margin-left: 30x;
+            margin-right: 30px;
+        }
+
+        .custom_row{
+            width:1200px;
+            height: 200px;
+        }
+
     </style>
         {% if user.focal_point%}
+            <div class="row justify-content-center mb-3">
+              <div class="col-md-9 text-center">
+                <h1 class="helloHeader" class="font-weight-bold">Hello {{user.email}}!</h1>
+              </div>
+            </div>
             <br>
             <br>
-            {% if un_read_requests%}
+        <div class="row justify-content-center custom_row">
+            <div class="row justify-content-center text-center action" >
                 You have {{un_read_requests.count}} unread message{{ un_read_requests.count|pluralize }}
-                <br>
-            {% endif %}
-            <a href="{% url 'focal_point:requests' %}">
-            <input type="button" value="Display requests from users">
-            </a>
-            <br>
-            <br>
-            <a href="{% url 'focal_point:newpositions' %}">
-            <input type="button" value="Display new positions in my business group">
-            </a>
-            <br>
-            <br>
-            <a href="{% url 'focal_point:myrequests' %}">
-            <input type="button" value="Display my requests from the space planner">
-            </a>
-            <br>
-            <br>
-            <a href="{% url 'focal_point:assignments' %}">
-            <input type="button" value="See assignments I made">
-            </a>
+                <a href="{% url 'focal_point:requests' %}">
+                  <img src="{% static 'img/baseline_how_to_vote_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="User Requests" class="btn btn-primary">
+                </a>
+             </div>
+
+            <div class="row justify-content-center text-center action" >
+                There are {{new_positions.count}} new position{{ new_positions.count|pluralize }}
+                <a href="{% url 'focal_point:newpositions' %}">
+                  <img src="{% static 'img/baseline_person_add_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="New Positions" class="btn btn-primary">
+                </a>
+             </div>
+
+            <div class="row justify-content-center text-center action" >
+                My requests to the space planner
+                <a href="{% url 'focal_point:myrequests' %}">
+                  <img src="{% static 'img/baseline_send_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="My Requests" class="btn btn-primary">
+                </a>
+             </div>
+
+            <div class="row justify-content-center text-center action" >
+                Previous assignments
+                <a href="{% url 'focal_point:assignments' %}">
+                  <img src="{% static 'img/baseline_create_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="Assignments" class="btn btn-primary">
+                </a>
+             </div>
+</div>
         {% endif %}
+
         {% if user.space_planner %}
         <a href="{% url 'space_planner:requests' %}">
             <input type="button" value="Display requests from focal points">
@@ -60,7 +99,7 @@
         </a>
         {% endif %}
          {% if not user.focal_point and not user.space_planner%}
-      <h1 id="helloHeader">Hello {{user.email}}!</h1>
+      <h1 class="helloHeader">Hello {{user.email}}!</h1>
         <br>
         <br>
         <h4>Business Group</h4>

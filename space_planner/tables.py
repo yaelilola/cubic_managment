@@ -68,6 +68,7 @@ class FocalPointRequestsTable(tables.Table):
         filterset_class = RequestFilter
 
 
+
 class CheckBoxColumnWithName(tables.CheckBoxColumn):
     @property
     def header(self):
