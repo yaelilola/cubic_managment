@@ -145,7 +145,7 @@ def assign(request, form_type, cubic_type, percentage):
 
 
 @user_is_focal_point
-def edit_assignments_for_user(request,user_id, focal_point, wanted_user, current_cubics, cubic_type):
+def edit_assignments_for_user(request, user_id, focal_point, wanted_user, current_cubics, cubic_type):
     if cubic_type == 'shared':
         form_type = AssignPartTimeUserCubicForm
     else:

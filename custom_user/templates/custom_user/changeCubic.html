@@ -3,15 +3,38 @@
 {% block content %}
 
 <body>
-<h1>Create Request</h1>
+<style>
+        .helloHeader{
+            margin-top:20px;
+            text-align: center;
+        }
+        label {
+        display: block;
+        }
+        input:not([type='checkbox']) ,select{
+        width: 100%;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        line-height: 1.5;
+        height: calc(1.5em + .75rem + 2px);
 
-<h2>{{ error }}</h2>
+        .error input{
+
+        }
+</style>
+<h1 class="helloHeader">Create Request</h1>
+
+<h4 class="helloHeader">{{ error|linebreaksbr }}</h4>
 {% if form %}
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Request</button>
-</form>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <form method="POST" class="{% if error %}error{% endif %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Request</button>
+        </form>
+    </div>
+</div>
 {% endif %}
 </body>
 

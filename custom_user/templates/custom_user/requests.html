@@ -2,27 +2,63 @@
 
 {% block content %}
     <body>
+<style>
+        #helloHeader{
+            margin-top:20px;
+            text-align: center;
+        }
+</style>
 
-    My Requests
-
-    <ul>
+<h1 id="helloHeader">My Requests</h1>
+<br>
+    <div class="list-group">
         {% for request in requests%}
-        <li>
-            <a href="{% url 'custom_user:viewrequest' request.id %}">
-            User: {{ request.user }}
-            Request Date: {{ request.request_date }}
-            {% if request.status %}
-                Status: {{ request.status}}
+            {% if request.status == "denied" %}
+                <a href="{% url 'custom_user:viewrequest' request.id %}"
+                class="list-group-item list-group-item-action list-group-item-danger">
+                Request Date: {{ request.request_date }}
+                {% if request.status %}
+                    Status: {{ request.status}}
+                {% endif %}
+                </a>
             {% endif %}
-            </a>
-        </li>
+            {% if request.status == "approved" %}
+                <a href="{% url 'custom_user:viewrequest' request.id %}"
+                class="list-group-item list-group-item-action list-group-item-success">
+                Request Date: {{ request.request_date }}
+                {% if request.status %}
+                    Status: {{ request.status}}
+                {% endif %}
+                </a>
+            {% endif %}
+            {% if request.status == "unread" %}
+                <a href="{% url 'custom_user:viewrequest' request.id %}"
+                class="list-group-item list-group-item-action list-group-item-warning">
+                Request Date: {{ request.request_date }}
+                {% if request.status %}
+                    Status: {{ request.status}}
+                {% endif %}
+                </a>
+            {% endif %}
+            {% if request.status == "in progress" %}
+                <a href="{% url 'custom_user:viewrequest' request.id %}"
+                class="list-group-item list-group-item-action list-group-item-primary">
+                Request Date: {{ request.request_date }}
+                {% if request.status %}
+                    Status: {{ request.status}}
+                {% endif %}
+                </a>
+            {% endif %}
         {% endfor %}
-    </ul>
+    </div>
         <br>
         <br>
+<div class="row justify-content-center align-items-center">
         <a href="{% url 'custom_user:createrequest' %}">
-            <input type="button" value="Ask To Change Cubic">
+            <input type="button" value="Ask To Change Cubic" class="btn btn-primary">
         </a>
+</div>
 </body>
+
 
 {% endblock %}

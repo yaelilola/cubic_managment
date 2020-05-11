@@ -4,7 +4,8 @@
     {%if user.is_authenticated%}
     <style>
         #helloHeader{
-            margin-top:15px;
+            margin-top:20px;
+            text-align: center;
         }
     </style>
         {% if user.focal_point%}
@@ -75,25 +76,28 @@
         <br>
         <br>
         <h4>My Cubic Details</h4>
+        <br>
         {% if assignments%}
-        <ul>
-            {% for assignment in assignments%}
-            <li>
-                Assignment number {{ forloop.counter }}
-                <br>
-                <br>
-                Cubic: {{assignment.cubic}}
-                <br>
-                <br>
-                Assigner: {{assignment.assigner}}
-                <br>
-                <br>
-                Assignment Time: {{assignment.time}}
-                <br>
-                <br>
-            </li>
+            <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Assignment number</th>
+                    <th>Cubic</th>
+                    <th>Assigner</th>
+                    <th>Assignment Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for assignment in assignments%}
+                <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{assignment.cubic}}</td>
+                <td>{{assignment.assigner}}</td>
+                <td>{{assignment.time}}</td>
+                </tr>
             {% endfor %}
-        </ul>
+                </tbody>
+              </table>
         {% else %}
          <p>You have no cubics assigned</p>
         {% endif %}
@@ -107,7 +111,6 @@
     </div>
 
     {% endif %}
-
 
 
 {% endblock %}

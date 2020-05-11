@@ -107,10 +107,11 @@ def send_notification(request, request_content):
 
 @login_required()
 def ask_to_change_cubic(request):
+    my_assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
+    my_cubics_ids = [assignment.cubic.id for assignment in my_assignments]
+    all_other_cubics = Cubic.objects.filter(business_group=request.user.business_group).exclude(id__in=my_cubics_ids)
     try:
-        my_assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
-        my_cubics_ids = [assignment.cubic.id for assignment in my_assignments]
-        all_other_cubics = Cubic.objects.filter(business_group=request.user.business_group).exclude(id__in=my_cubics_ids)
+        CustomUser.objects.filter(focal_point=True, business_group=request.user.business_group)[0]
         if request.method == 'GET':
             return render(request, 'custom_user/changeCubic.html', {'form': RequestToChangeCubicForm(cubics_queryset=all_other_cubics)})
         else:
@@ -130,8 +131,11 @@ def ask_to_change_cubic(request):
                                'error': 'Bad data passed in'})
     #the group doesnot have a focal point
     except IndexError:
+        form = RequestToChangeCubicForm(cubics_queryset=all_other_cubics)
         return render(request, 'custom_user/changeCubic.html',
-                      {'error': 'Cant send requests yet, because your group does not have focal point.'})
+                      {'error': 'Your group does not have focal point.\r\n' 
+                                'Once a focal point is assigned, they will take care of your request.',
+                       'form': form})
 
 
 @login_required()
