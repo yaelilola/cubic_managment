@@ -357,7 +357,6 @@ def display_new_positions(request):
     table = NewPositionTable(positions_filter.qs, template_name="django_tables2/bootstrap.html")
     table.exclude = ('business_group')
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
-    print(request.POST)
     return render(request, 'focal_point/newpositions.html', {'table': table, 'filter': positions_filter})
 
 

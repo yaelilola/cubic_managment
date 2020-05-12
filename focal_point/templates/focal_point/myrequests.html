@@ -2,30 +2,72 @@
 
 {% block content %}
 
-    <body>
+  <body>
+<style>
+        .Header{
+            margin-top:20px;
+            text-align: center;
+        }
+</style>
 
-    My Requests For More Space
-
-    <ul>
+<h1 class="Header">My Requests For More Space</h1>
+<br>
+    <div class="list-group">
         {% for request in requests%}
-        <li>
-            <a href="{% url 'focal_point:viewmyrequest' request.id %}">
-            Business Group: {{ request.business_group }}
-            Request Date: {{ request.date }}
-            {% if request.status %}
-                Status: {{ request.status}}
+            {% if request.status == "denied" %}
+               <a href="{% url 'focal_point:viewmyrequest' request.id %}"
+                class="list-group-item list-group-item-action list-group-item-danger">
+                   Request Date: {{ request.date }} --
+                   Status: {{ request.status}}
+                </a>
             {% endif %}
-            </a>
-        </li>
+            {% if request.status == "approved" %}
+                 <a href="{% url 'focal_point:viewmyrequest' request.id %}"
+                class="list-group-item list-group-item-action list-group-item-success">
+                     Request Date: {{ request.date }} --
+                     Status: {{ request.status}}
+                </a>
+            {% endif %}
+            {% if request.status == "unread" %}
+                 <a href="{% url 'focal_point:viewmyrequest' request.id %}"
+                class="list-group-item list-group-item-action list-group-item-warning">
+                     Request Date: {{ request.date }} --
+                     Status: {{ request.status}}
+                </a>
+             {% endif %}
+             {% if request.status == "in progress" %}
+               <a href="{% url 'focal_point:viewmyrequest' request.id %}"
+                class="list-group-item list-group-item-action list-group-item-primary">
+                      Request Date: {{ request.date }} --
+                      Status: {{ request.status}}
+                </a>
+             {% endif %}
+
         {% empty %}
         You have not sent any requests yet.
         {% endfor %}
-    </ul>
-    <br>
-    <br>
-    <a href="{% url 'focal_point:createRequest' %}">
-    <input type="button" value="Create a new request from the space planner">
-    </a>
+    </div>
+        <br>
+        <br>
+<div class="row justify-content-center align-items-center">
+          <a href="{% url 'focal_point:createRequest' %}">
+            <input type="button" value="Create a new request from the space planner" class="btn btn-primary">
+          </a>
+</div>
 </body>
 
+
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
