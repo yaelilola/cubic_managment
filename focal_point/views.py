@@ -12,6 +12,8 @@ import datetime
 from django.core.mail import send_mail
 from .tables import UserRequestsTable
 from django_tables2 import RequestConfig
+from space_planner.tables import NewPositionTable
+from space_planner.filters import PositionFilter
 
 # Create your views here.
 #foacl point actions
@@ -272,7 +274,7 @@ def display_requests(request):
     users_in_focal_point_group = CustomUser.objects.filter(business_group=request.user.business_group)
     requests = RequestToChangeCubic.objects.filter(user__in=users_in_focal_point_group).order_by('request_date')
     table = UserRequestsTable(requests, template_name="django_tables2/bootstrap.html")
-    RequestConfig(request, paginate={"per_page": 5, "page": 1}).configure(table)
+    RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
     return render(request, 'focal_point/requests.html', {'table': table})
 
 
@@ -308,6 +310,13 @@ def display_request(request, request_id):
             return render(request, 'focal_point/viewrequest.html',
                           {'request': user_request, 'error': 'Bad info', 'form': form})
 
+@request_user_in_focal_point_group
+@user_is_focal_point
+def delete_user_request(request, request_id):
+    curr_request = get_object_or_404(RequestToChangeCubic, pk=request_id)
+    if request.method == 'POST':
+        curr_request.delete()
+        return redirect('focal_point:requests')
 
 
 @user_is_focal_point
@@ -343,8 +352,17 @@ def display_my_request(request, request_id):
 
 @user_is_focal_point
 def display_new_positions(request):
-    new_positions = NewPosition.objects.filter(business_group=request.user.business_group).order_by('creation_date')
-    return render(request, 'focal_point/newpositions.html', {'positions': new_positions})
+    positions_list = NewPosition.objects.filter(business_group=request.user.business_group).order_by('creation_date')
+    positions_filter = PositionFilter(request.GET, queryset=positions_list)
+    table = NewPositionTable(positions_filter.qs, template_name="django_tables2/bootstrap.html")
+    table.exclude = ('business_group')
+    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    print(request.POST)
+    return render(request, 'focal_point/newpositions.html', {'table': table, 'filter': positions_filter})
+
+
+
+
 
 @user_is_focal_point_request_author
 @user_is_focal_point

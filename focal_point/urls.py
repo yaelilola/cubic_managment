@@ -23,6 +23,7 @@ urlpatterns = [
     # requests from the business group users
     path('requests/', focal_point_views.display_requests, name='requests'),
     path('viewrequest/<int:request_id>', focal_point_views.display_request, name='viewrequest'),
+    path('viewrequest/<int:request_id>/delete', focal_point_views.delete_user_request, name='deleteuserrequest'),
     # requests to the space planner
     path('createrequest/', focal_point_views.create_request, name='createRequest'),
     path('myrequests/', focal_point_views.display_my_requests, name='myrequests'),
