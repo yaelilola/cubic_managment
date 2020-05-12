@@ -10,7 +10,7 @@ from cubic_managment.decorators import user_is_focal_point, user_is_focal_point_
     user_in_focal_point_group, request_user_in_focal_point_group
 import datetime
 from django.core.mail import send_mail
-from .tables import UserRequestsTable
+from .tables import UserRequestsTable, AssignmentsTable, AssignmentsFilter
 from django_tables2 import RequestConfig
 from space_planner.tables import NewPositionTable
 from space_planner.filters import PositionFilter
@@ -23,10 +23,14 @@ View all of the assignment to focal point amde
 """
 @user_is_focal_point
 def view_assignments(request):
-    focal_point = get_object_or_404(CustomUser, id=request.user.id, focal_point=True)#Check that the user is really a focal point
-    assignments = AssignUserCubic.objects.filter(assigner=focal_point)
-    users = CustomUser.objects.filter(business_group=request.user.business_group)
-    return render(request, 'focal_point/assignments.html', {'assignments': assignments, 'users': users})
+    cubics_of_business_group = Cubic.objects.filter(business_group=request.user.business_group)
+    users_in_business_group = CustomUser.objects.filter(business_group=request.user.business_group)
+    assignments = AssignUserCubic.objects.filter(assigned_user__in=users_in_business_group)
+    assignments_filter = AssignmentsFilter(request.GET, users_queryset=users_in_business_group,
+                                           cubics_queryset=cubics_of_business_group, queryset=assignments)
+    table = AssignmentsTable(assignments_filter.qs, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    return render(request, 'focal_point/assignments.html', {'table': table,'filter': assignments_filter})
 
 
 def is_cubic_available(cubic, person_amount=1):
@@ -191,10 +195,14 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
                     else:
                         return render(request, 'focal_point/viewuserassignments.html',
                                       {'curr_user': wanted_user, 'error': 'Could not make assignment', 'form': form})
+                else:
+                    return render(request, 'focal_point/viewuserassignments.html',
+                                  {'curr_user': wanted_user,'form': form})
         except ValueError:
             form = form_type(users_queryset=CustomUser.objects.filter(pk=user_id), cubics_queryset=cubics_queryset,data=request.POST or None)
             return render(request, 'focal_point/viewuserassignments.html',
                           {'curr_user': wanted_user, 'error': 'Bad info', 'form': form})
+
 
 '''
 See all assignments that a user has

@@ -1,19 +1,48 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
+    <style>
+         .Header{
+            margin-top:20px;
+            text-align: center;
+            }
+            select{
+                width: 100%;
+                border: 1px solid #ced4da;
+                border-radius: .25rem;
+                line-height: 1.5;
+            }
+            button{
+            margin-top: 10px;
+            }
+    </style>
 
-    {{ error }}
 
-   <h2> {{curr_user}}'s Assignments: </h2>
-    <br>
-    <br>
-    <form method="POST">
+   <h2 class="Header"> {{curr_user}}'s Assignments: </h2>
+    <div class="row justify-content-center mt-5">
+        <br>
+          <div class="col-md-5">
+               <form method="POST">
+                {% csrf_token %}
+                     {{form.as_table}}
+                 <button type="submit" class="btn btn-primary" id="updateButton">Update</button>
+                   <button type="button" class="btn btn-danger" onclick="$('#delete').click()">Delete</button>
+               </form>
+                  {{ error }}
+          </div>
+    </div>
+
+    <form  style='display: none;' method="POST" action="{% url 'focal_point:delete_all_user_assignments' curr_user.id %}">
     {% csrf_token %}
-         {{form.as_table}}
-    <button type="submit">Update</button>
+        <button id="delete" type="submit">Delete All Assignments for user</button>
     </form>
-    <form method="POST" action="{% url 'focal_point:delete_all_user_assignments' curr_user.id %}">
-    {% csrf_token %}
-    <button type="submit">Delete All Assignments for user</button>
-    </form>
+    <script>
+        $( document ).ready(function() {
+            $('#updateButton').prop('disabled', false);
+            $('#updateButton').click(function() {
+             $('div > form').submit();
+            $(this).prop('disabled', true);
+            });
+        });
+    </script>
 {% endblock %}

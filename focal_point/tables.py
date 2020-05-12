@@ -1,10 +1,7 @@
 import django_tables2 as tables
-from recruit.models import NewPosition
-from django_filters.views import FilterView
-from django_tables2.views import SingleTableMixin
-from django.forms import DateInput
 from CustomRequests.models import RequestToChangeCubic
-from facilities.models import Space
+from assign.models import AssignUserCubic
+from custom_user.models import CustomUser
 
 import django_filters
 
@@ -15,6 +12,28 @@ class UserRequestsTable(tables.Table):
         exclude = ['id']
         row_attrs = {
             "request_id": lambda record: record.pk
+        }
+
+
+class AssignmentsFilter(django_filters.FilterSet):
+    def __init__(self, *args, users_queryset,cubics_queryset, **kwargs):
+        super(AssignmentsFilter, self).__init__(*args, **kwargs)
+        self.filters['assigned_user'].queryset = users_queryset
+        self.filters['assigner'].queryset = CustomUser.objects.filter(admin=False)
+        self.filters['cubic'].queryset = cubics_queryset
+
+    class Meta:
+        model = AssignUserCubic
+        fields = ['assigner', 'assigned_user', 'cubic']
+
+
+class AssignmentsTable(tables.Table):
+    class Meta:
+        model = AssignUserCubic
+        exclude = ['id']
+        filterset_class = AssignmentsFilter
+        row_attrs = {
+            "user_id": lambda record: record.assigned_user.pk
         }
 
 

@@ -1,34 +1,82 @@
 {% extends 'custom_user/base.html' %}
+{% load render_table from django_tables2 %}
+{% load widget_tweaks %}
+{% load bootstrap3 %}
 
 {% block content %}
-    <body>
-    {% if assignments %}
-    Assignments I made
-    {% else %}
-    You made no assignments yet
-    {% endif %}
-    <ul>
-            {% for user in users %}
-        <a href="{% url 'focal_point:viewuserassignments' user.id %}"><li> User: {{ user.email }} </li></a>
-            <ul>
-                    {% for assignment in assignments%}
-                        {% if assignment.assigned_user == user%}
-                            <li>
-                                Cubic: {{ assignment.cubic }}
-                                Assignment Date: {{assignment.time}}
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-            </ul>
-            {% endfor %}
-    </ul>
-      <a href="{% url 'focal_point:assign_part_time' %}">
-            <input type="button" value="Assignment for a part time employee">
-      </a>
-    <br>
-        <a href="{% url 'focal_point:assign_full_time' %}">
-            <input type="button" value="Assignment for a full time employee">
-      </a>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>Cubic Management</title>
+  <style>
+    body {font-family: Arial, sans-serif;}
+   .Header{
+            margin-top:20px;
+            text-align: center;
+        }
+   tbody tr:hover{
+            background-color: #81d4fa;
+            cursor: pointer;
+   }
+   #AssignPartTimeButton{
+   margin-right: 5px;
+   }
+</style>
+</head>
+
+<body>
+<h1 class="Header">{{user.business_group}} Cubic Assignments</h1>
+<form method="get">
+    <div class="well">
+      <h4 style="margin-top: 0">Filter</h4>
+      <div class="row">
+        <div class="form-group col-sm-4 col-md-3">
+          {{ filter.form.assigner.label_tag }}
+          {% render_field filter.form.assigner class="form-control" %}
+        </div>
+        <div class="form-group col-sm-4 col-md-3">
+          {{ filter.form.assigned_user.label_tag }}
+          {% render_field filter.form.assigned_user class="form-control" %}
+        </div>
+        <div class="form-group col-sm-4 col-md-3">
+          {{ filter.form.cubic.label_tag }}
+          {% render_field filter.form.cubic class="form-control" %}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">
+        <span class="glyphicon glyphicon-search"></span> Filter
+      </button>
+    </div>
+  </form>
+
+
+{% render_table table %}
+  <table>
+    <tr>
+      <td>
+         <a href="{% url 'focal_point:assign_part_time' %}" id="AssignPartTimeButton">
+            <input type="button" value="Assign Part Time" class="btn btn-danger">
+         </a>
+      </td>
+      <td>
+         <a href="{% url 'focal_point:assign_full_time' %}">
+            <input type="button" value="Assign Full Time" class="btn btn-success">
+         </a>
+      </td>
+    </tr>
+  </table>
+
+
 </body>
+<script>
+   $(function () {
+    $('tbody > tr').click(function(){
+        var user_id = $(this).attr("user_id")
+        window.location.href = "/focal_point/assignments/".concat(user_id.toString());
+        });
+  });
+</script>
 
 {% endblock %}
+

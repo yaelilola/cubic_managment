@@ -1,15 +1,32 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
-
+<style>
+     .Header{
+            margin-top:20px;
+            text-align: center;
+            }
+     select{
+                width: 100%;
+                border: 1px solid #ced4da;
+                border-radius: .25rem;
+                line-height: 1.5;
+      }
+</style>
 <body>
-{{ error }}
 
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-</form>
+  <div class="row justify-content-center mt-5">
+
+          <div class="col-md-5">
+        <form method="POST">
+             <h1 class="Header">Assign Users</h1>
+                 {% csrf_token %}
+                 {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+                         {{ error }}
+          </div>
+  </div>
 
 </body>
 
