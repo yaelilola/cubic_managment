@@ -131,7 +131,7 @@ def ask_to_change_cubic(request):
                         reason = form.cleaned_data.get("reason")
                         newRequest = RequestToChangeCubic(user=request.user, cubic=wanted_cubic, reason=reason)
                         newRequest.save()
-                        send_notification(request, newRequest)
+                        #send_notification(request, newRequest)
                 return redirect('custom_user:requests')
             except ValueError:
                 return render(request, 'custom_user/changeCubic.html',
