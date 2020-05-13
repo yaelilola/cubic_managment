@@ -1,16 +1,33 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
-  {{ error }}
-  <h2>Assign Focal Point</h2>
-
-  <form method="post" id="ChooseFocalPointForm" data-employees-url="{% url 'space_planner:ajax_load_employees' %}" novalidate>
-    {% csrf_token %}
-    <table>
-      {{ form.as_table }}
-    </table>
-    <button type="submit" id="btn">Save</button>
-  </form>
+<style>
+       .Header{
+            margin-top:20px;
+            text-align: center;
+            }
+        label {
+        display: block;
+        }
+        select{
+         width: 100%;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        line-height: 1.5;
+        height: calc(1.5em + .75rem + 2px);
+        }
+  </style>
+  <h2 class="Header">Assign Focal Point</h2>
+ <div class="row justify-content-center mt-5 ">
+          <div class="col-md-5">
+              <form method="post" id="ChooseFocalPointForm" data-employees-url="{% url 'space_planner:ajax_load_employees' %}" novalidate>
+                {% csrf_token %}
+                  {{ form.as_p }}
+                <button type="submit" id="btn" class="btn btn-primary">Save</button>
+              </form>
+              {{ error }}
+          </div>
+ </div>
 
   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>

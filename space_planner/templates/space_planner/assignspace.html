@@ -7,14 +7,18 @@
 
 <head>
     <style>
-        tfoot{
+     .Header{
+            margin-top:20px;
+            text-align: center;
+            }
+      tfoot{
             background-color: #53b2cf;
-        }
+       }
 
     </style>
 
 </head>
-<h1>Assign spaces to business groups</h1>
+<h1 class="Header">Assign spaces to business groups</h1>
 <br>
 <form method="post" id="ChooseBusinessGroupForm" action="{% url 'space_planner:assign'%}"
       data-requests-url="{% url 'space_planner:ajax_load_requests' %}" novalidate>
@@ -33,7 +37,7 @@
     <br>
     {% render_table table %}
     <h6 id="error" style="visibility:hidden">You must choose a business group in order to submit</h6>
-    <button input="submit" disabled id="submit-btn">Submit</button>
+    <button input="submit" disabled id="submit-btn" class="btn btn-primary">Submit</button>
     {{ error }}
 </form>
 

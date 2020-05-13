@@ -36,15 +36,12 @@ def find_groups_in_floor(floor):
     groups = []
     groups_str = ""
     spaces = Space.objects.filter(floor=floor)
-    print(spaces)
     for space in spaces:
         cubics = Cubic.objects.filter(space=space)
         for cubic in cubics:
             if cubic.business_group:
-                print(str(cubic) + " " + str(cubic.business_group))
                 groups.append(str(cubic.business_group))
     groups_no_dups = list(set(groups))
-    print(groups_no_dups)
     for i in range(len(groups_no_dups)-1):
         groups_str += (groups_no_dups[i] + ",")
     groups_str += groups_no_dups[len(groups_no_dups)-1]
