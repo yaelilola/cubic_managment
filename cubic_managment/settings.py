@@ -25,7 +25,7 @@ SECRET_KEY = '9pvh3#=)3iwr&m4ac!2ayx5rb8fwd0-oxw3uq_&3(h2i96%#=t'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['pc6m9n5jrh.execute-api.us-east-2.amazonaws.com','localhost']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -48,8 +48,6 @@ INSTALLED_APPS = [
     'django_filters',
     'bootstrap3',
     'widget_tweaks',
-	'zappa_django_utils',
-    'django_s3_storage',
 ]
 
 MIDDLEWARE = [
@@ -88,12 +86,8 @@ WSGI_APPLICATION = 'cubic_managment.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'cubicmanagmentv1',
-        'USER': 'postgres',
-        'PASSWORD': 'yaelamit234313',
-        'HOST': 'cubicmanagmentv1.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -116,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-#the right location- cubic managment instead of the settings.py file
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -147,14 +141,6 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = "yaelamitindustrial@gmail.com"
 EMAIL_HOST_PASSWORD = "234313YA"
 
-YOUR_S3_BUCKET = "cubic-management-static-v1"
 
-STATICFILES_STORAGE = "django_s3_storage.storage.StaticS3Storage"
-AWS_S3_BUCKET_NAME_STATIC = YOUR_S3_BUCKET
-
-# These next two lines will serve the static files directly
-# from the s3 bucket
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % YOUR_S3_BUCKET
-STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
-
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "cubic_managment/static")]
