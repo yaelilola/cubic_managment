@@ -3,17 +3,51 @@
 
 {% block content %}
      <style>
-         .Header{
+     .Header{
             margin-top:20px;
             text-align: center;
             }
+      tfoot{
+            background-color: #bdbdbd;
+       }
+
     </style>
     <body>
 
-    <h1 class="Header">Space Statistics</h1>
+    <h1 class="Header">Site Utilization</h1>
     <br>
-    <p>Statistics for all campuses</p>
+    <h5>Statistics for all campuses</h5>
     <br>
     {% render_table table %}
 </body>
+
+<script>
+  function GreenYellowRed(value) {
+  value--;
+
+  var r,g,b;
+
+  if (value < 50) {
+    // green to yellow
+    r = Math.floor(255 * (value / 50));
+    g = 255;
+
+  } else {
+    // yellow to red
+    r = 255;
+    g = Math.floor(255 * ((50-value%50) / 50));
+  }
+  b = 0;
+
+  return r + "," + g + "," + b;
+}
+
+   $(function () {
+    $('.utilization').each(function(){
+        var utilization = parseInt($(this).text());
+        var rgb = GreenYellowRed(utilization);
+        $(this).css('background-color', "rgb(" + rgb + ")");
+        });
+  });
+</script>
 {% endblock %}

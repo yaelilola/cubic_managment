@@ -5,33 +5,44 @@ from django_tables2.views import SingleTableMixin
 from django.forms import DateInput
 from CustomRequests.models import FocalPointRequest
 from facilities.models import Space
+from statistics import mean
 
 import django_filters
 
+class ColumnWithName(tables.Column):
+    @property
+    def header(self):
+        return self.verbose_name
+
 class CampusTable(tables.Table):
     Campus = tables.Column(orderable=True,
-                           linkify={"viewname": "space_planner:get_building_table", "args": [tables.A("Campus__pk")]})
-    Capacity = tables.Column(orderable=True)
-    Office_EEs = tables.Column(orderable=True)
-    Utilization = tables.Column(orderable=True)
+                           linkify={"viewname": "space_planner:get_building_table", "args": [tables.A("Campus__pk")]},
+                           empty_values=(), footer='Total:')
+    Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
+    Office_EEs = tables.Column(orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
+                                 footer=lambda table: mean(x["Utilization"] for x in table.data))
+    #Utilization = tables.Column(orderable=True, attrs={"td": {"class": "utilization"}})
 
 
 class BuildingTable(tables.Table):
     Campus = tables.Column(visible=False)
-    Building = tables.Column(orderable=True,
+    Building = tables.Column(orderable=True, empty_values=(), footer='Total:',
                              linkify={"viewname": "space_planner:get_floor_table",
                                       "args": [tables.A('Campus'), tables.A('Building')]})
 
-    Capacity = tables.Column(orderable=True)
-    Office_EEs = tables.Column(orderable=True)
-    Utilization = tables.Column(orderable=True)
+    Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
+    Office_EEs = tables.Column(orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
+                                 footer=lambda table: mean(x["Utilization"] for x in table.data))
 
 
 class FloorTable(tables.Table):
-    Floor = tables.Column(orderable=True)
-    Capacity = tables.Column(orderable=True)
-    Office_EEs = tables.Column(orderable=True)
-    Utilization = tables.Column(orderable=True)
+    Floor = tables.Column(orderable=True, empty_values=(), footer='Total:')
+    Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
+    Office_EEs = tables.Column(orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
+                                 footer=lambda table: mean(x["Utilization"] for x in table.data))
 
 
 class NameTable(tables.Table):
