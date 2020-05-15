@@ -1,24 +1,55 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
-
+<style>
+     .Header{
+            margin-top:20px;
+            text-align: center;
+     }
+</style>
 <body>
-    <h2>
+<h1 class="Header">Displaying spaces in campus {{campus_id}}, building {{building_id}}, floor number {{floor_num}}</h1>
+    <h4 class="Header">Back to
         <a href="{% url 'facilities:building_floors' campus_id=campus_id building_id=building_id%}">
             {% url 'facilities:building_floors' campus_id=campus_id building_id=building_id%}
         </a>
-    </h2>
-    <h3>Displaying spaces in campus {{campus_id}}, building {{building_id}}, floor number {{floor_num}}</h3>
-    <ul>
-        {% for item in items%}
-        <a href="{% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=item.id%}">
-         <li>
-            ID: {{ item.id }}
-            Type: {{ item.type }}
-         </li>
-        </a>
-        {% endfor %}
-    </ul>
+    </h4>
+    <br>
+    <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Campus Id</th>
+                    <th>Building Id</th>
+                    <th>Floor Num</th>
+                    <th>Space Id</th>
+                    <th>Space Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items%}
+                        <tr>
+                            <td>
+                            {{ campus_id }}
+                            </td>
+                            <td>
+                            {{ building_id }}
+                            </td>
+                            <td>
+                            {{ item.floor}}
+                            </td>
+                            <td>
+                            <a href="{% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=item.id%}">
+                            {{ item.id }}
+                            </a>
+                            </td>
+                            <td>
+                            {{ item.type}}
+                            </td>
+                        </tr>
+                {% endfor %}
+            </tbody>
+    </table>
+
 </body>
 
 {% endblock %}

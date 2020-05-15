@@ -82,6 +82,8 @@ class Space(models.Model):
                                      ('High Density Lab', 'High Density Lab')),
                             max_length=MAX_LENGTH)
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
+    campus = models.ForeignKey(Campus, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.id
@@ -111,6 +113,9 @@ class Cubic(models.Model):
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, null=True, blank=True)
     area = models.DecimalField(decimal_places=5, max_digits=10)
+    floor = models.ForeignKey(Floor, on_delete=models.CASCADE, null=True, blank=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
+    campus = models.ForeignKey(Campus, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.id

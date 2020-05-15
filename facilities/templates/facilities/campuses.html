@@ -1,18 +1,35 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
-<body>
+    <style>
+     .Header{
+            margin-top:20px;
+            text-align: center;
+            }
+    </style>
 
-<h1>Campuses</h1>
-    <ul>
-        {% for item in items%}
-                <li>
-                    <a href="{% url 'facilities:campus_buildings' campus_id=item.id %}">
-                    ID: {{ item.id }}
-                    </a>
-                </li>
-        {% endfor %}
-    </ul>
-</body>
+    <body>
+
+        <h1 class="Header">Campuses</h1>
+        <br>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Campus Id</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items%}
+                        <tr>
+                            <td>
+                            <a href="{% url 'facilities:campus_buildings' campus_id=item.id %}">
+                            {{ item.id }}
+                            </a>
+                            </td>
+                        </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
 
 {% endblock %}

@@ -1,24 +1,65 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
+<style>
+     .Header{
+            margin-top:20px;
+            text-align: center;
+     }
+</style>
 <body>
-    <h2>
+<h1 class="Header">Displaying cubics in campus {{campus_id}}, building {{building_id}}, floor number {{floor_num}}, space {{space_id}}</h1>
+    <h4 class="Header">Back to
         <a href="{% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_num=floor_num%}">
             {% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_num=floor_num%}
         </a>
-    </h2>
-    <h3>Displaying cubics in campus {{campus_id}}, building {{building_id}}, floor number {{floor_num}}, space {{space_id}}</h3>
-        <ul>
-        {% for item in items%}
-            <a href="{% url 'facilities:cubic' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=space_id cubic_id=item.id %}">
-                  <li>
-                    ID: {{ item.id }}
-                  </li>
-            </a>
+    </h4>
+    <br>
+    <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Campus Id</th>
+                    <th>Building Id</th>
+                    <th>Floor Num</th>
+                    <th>Space Id</th>
+                    <th>Cubic Id</th>
+                    <th>Cubic Type</th>
+                    <th>Cubic Business Group</th>
+                    <th>Cubic Area</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items%}
+                        <tr>
+                            <td>
+                            {{ campus_id }}
+                            </td>
+                            <td>
+                            {{ building_id }}
+                            </td>
+                            <td>
+                            {{ floor_num}}
+                            </td>
+                            <td>
+                            {{ item.space.id}}
+                            </td>
+                            <td>
+                            {{ item.id }}
+                            </td>
+                            <td>
+                            {{ item.type}}
+                            </td>
+                            <td>
+                            {{ item.business_group}}
+                            </td>
+                            <td>
+                            {{ item.area}}
+                            </td>
+                        </tr>
+                {% endfor %}
+            </tbody>
+    </table>
 
-        {% endfor %}
-
-    </ul>
 </body>
 
 {% endblock %}

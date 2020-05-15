@@ -1,23 +1,43 @@
 {% extends 'custom_user/base.html' %}
 
 {% block content %}
-
+<style>
+     .Header{
+            margin-top:20px;
+            text-align: center;
+     }
+</style>
 <body>
-    <h2>
+    <h1 class="Header">Displaying buildings in campus {{campus_id}}</h1>
+    <h4 class="Header">Back to
         <a href="{% url 'facilities:campuses'%}">
             {% url 'facilities:campuses'%}
         </a>
-    </h2>
-    <h3>Displaying buildings in campus {{campus_id}}</h3>
-    <ul>
-        {% for item in items%}
-             <a href="{% url 'facilities:building_floors' campus_id=campus_id building_id=item.id%}">
-                <li>
-                    ID: {{ item.id }}
-                </li>
-             </a>
-        {% endfor %}
-    </ul>
+    </h4>
+    <br>
+    <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Campus Id</th>
+                    <th>Building Id</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items%}
+                        <tr>
+                            <td>
+                            {{ item.campus.id }}
+                            </td>
+                            <td>
+                            <a href="{% url 'facilities:building_floors' campus_id=campus_id building_id=item.id %}">
+                            {{ item.id }}
+                            </a>
+                            </td>
+                        </tr>
+                {% endfor %}
+            </tbody>
+    </table>
+
 </body>
 
 {% endblock %}

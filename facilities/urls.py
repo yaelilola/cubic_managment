@@ -28,4 +28,6 @@ urlpatterns = [
          facilities_views.display_space, name='space_cubics'),
     path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/<str:space_id>/cubics/<str:cubic_id>/',
          facilities_views.display_cubic, name="cubic"),
+    path('cubics/', facilities_views.display_all_cubics, name='cubics'),
+    path('labs/', facilities_views.display_all_labs, name='labs'),
 ]

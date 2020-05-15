@@ -6,6 +6,7 @@ from django.forms import DateInput
 from CustomRequests.models import FocalPointRequest
 from facilities.models import Space
 from statistics import mean
+from facilities.models import Cubic
 
 import django_filters
 
@@ -102,6 +103,39 @@ class SpacesTable(tables.Table):
     Near_Low_Density_Lab = tables.BooleanColumn(orderable=True, attrs={'cell': {'class': 'low_density'}})
     Near_High_Density_Lab = tables.BooleanColumn(orderable=True, attrs={'cell': {'class': 'high_density'}})
     Groups_Nearby = tables.Column(attrs={'cell': {'class': 'business_groups'}})
+
+
+class CubicsFilter(django_filters.FilterSet):
+    area__gte = django_filters.NumberFilter(field_name='area', lookup_expr='gte')
+    area__lte = django_filters.NumberFilter(field_name='area', lookup_expr='lte')
+    def __init__(self, *args, business_groups_queryset, spaces_queryset, **kwargs):
+        super(CubicsFilter, self).__init__(*args, **kwargs)
+        self.filters['business_group'].queryset = business_groups_queryset
+        self.filters['space'].queryset = spaces_queryset
+
+    class Meta:
+        model = Cubic
+        fields = ['id', 'type', 'space', 'business_group', 'area', 'floor', 'building', 'campus']
+
+class CubicsTable(tables.Table):
+    class Meta:
+        model = Cubic
+        filterset_class = CubicsFilter
+
+
+class LabsFilter(django_filters.FilterSet):
+    class Meta:
+        model = Space
+        fields = ['type', 'floor', 'building', 'campus']
+
+class LabsTable(tables.Table):
+    class Meta:
+        model = Space
+        filterset_class = LabsFilter
+
+
+
+
 
 
 
