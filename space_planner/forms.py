@@ -4,7 +4,7 @@ from custom_user.models import CustomUser, BusinessGroup
 
 class ChooseFocalPointForm(forms.Form):
     business_group = forms.ModelChoiceField(queryset=BusinessGroup.objects.filter(admin_group=False))
-    employee = forms.ModelChoiceField(queryset=CustomUser.objects.all(), required=False)
+    employee = forms.ModelChoiceField(queryset=CustomUser.objects.filter(admin=False), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -18,5 +18,5 @@ class ChooseFocalPointForm(forms.Form):
                 pass
         else:
             self.fields['business_group'].queryset = BusinessGroup.objects.filter(admin_group=False)
-            self.fields['employee'].queryset = CustomUser.objects.all()
+            self.fields['employee'].queryset = CustomUser.objects.filter(admin=False)
 
