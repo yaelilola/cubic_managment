@@ -28,6 +28,11 @@ def homepage(request):
             return render(request, 'custom_user/homepage.html', {'un_read_requests': un_read_requests_from_users,
                                                                  'new_positions': new_positions,
                                                                  'unread_requests_to_sp': unread_requests_to_space_planner})
+        if request.user.space_planner is True:
+            unread_requests_from_focal_point = FocalPointRequest.objects.filter(status='unread')
+            new_positions = NewPosition.objects.all()
+            return render(request, 'custom_user/homepage.html', {'new_positions': new_positions,
+                                                                 'unread_requests_from_fp': unread_requests_from_focal_point})
         else:
             return render(request, 'custom_user/homepage.html', {'assignments': assignments, 'focal_point': focal_point,
                                                                  'business_group': request.user.business_group})

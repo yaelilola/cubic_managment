@@ -122,7 +122,14 @@ def assign_space(request):
 def load_requests(request):
     chosen_business_group = request.GET.get('business_group')
     requests = FocalPointRequest.objects.filter(business_group=chosen_business_group)
-    return render(request, 'space_planner/focal_point_request_info.html', {'requests': requests})
+    if len(requests) == 0:
+        return render(request, 'space_planner/focal_point_request_info.html', {'business_group': chosen_business_group})
+    else:
+        table = FocalPointRequestsTable(requests, template_name="django_tables2/bootstrap.html")
+        table.exclude = ('status', 'notes', 'date')
+        RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
+        return render(request, 'space_planner/focal_point_request_info.html', {'table': table,
+                                                                               'business_group': chosen_business_group})
 
 
 def get_amount_available_cubics_in_space(space):
@@ -291,7 +298,9 @@ def display_new_positions(request):
 @user_is_space_planner
 def display_requests(request):
     requests = FocalPointRequest.objects.all()
-    return render(request, 'space_planner/requests.html', {'requests': requests})
+    table = FocalPointRequestsTable(requests, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
+    return render(request, 'space_planner/requests.html', {'table': table})
 
 
 def send_change_status_notification(request, request_content):

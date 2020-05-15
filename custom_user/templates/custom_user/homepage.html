@@ -74,30 +74,72 @@
         {% endif %}
 
         {% if user.space_planner %}
-        <a href="{% url 'space_planner:requests' %}">
-            <input type="button" value="Display requests from focal points">
-            </a>
+            <div class="row justify-content-center mb-3">
+              <div class="col-md-9 text-center">
+                <h1 class="helloHeader" class="font-weight-bold">Hello {{user.email}}!</h1>
+              </div>
+            </div>
+            <br>
+            <br>
+    <div class="row justify-content-center custom_row">
+        <div class="row justify-content-center text-center action" >
+                You have {{unread_requests_from_fp.count}} unread message{{ unread_requests_from_fp.count|pluralize }}
+                <a href="{% url 'space_planner:requests' %}">
+                  <img src="{% static 'img/baseline_how_to_vote_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="Focal Point Requests" class="btn btn-primary">
+                </a>
+        </div>
+        <div class="row justify-content-center text-center action" >
+                Assign Spaces To Business Groups
+                <a href="{% url 'space_planner:assign' %}">
+                  <img src="{% static 'img/baseline_create_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="Assign spaces" class="btn btn-primary">
+                </a>
+        </div>
+
+        <div class="row justify-content-center text-center action" >
+                Focal Points For Business Groups
+                <a href="{% url 'space_planner:assignfocalpoint' %}">
+                  <img src="{% static 'img/baseline_assignment_ind_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="Assign Focal Point" class="btn btn-primary">
+                </a>
+        </div>
+        </div>
         <br>
-        <br>
-        <a href="{% url 'space_planner:assign' %}">
-            <input type="button" value="Assign spaces">
-        </a>
-        <br>
-        <br>
-        <a href="{% url 'space_planner:assignfocalpoint' %}">
-            <input type="button" value="Assign Focal Point">
-        </a>
-        <br>
-        <br>
-        <a href="{% url 'space_planner:statistics' %}">
-            <input type="button" value="Display Facilities Utilization Statistics">
-        </a>
-        <br>
-        <br>
-        <a href="{% url 'space_planner:new_positions' %}">
-            <input type="button" value="Display All New Positions">
-        </a>
+        <div class="row justify-content-center custom_row">
+        <div class="row justify-content-center text-center action" >
+                Facilities Utilization Statistics
+                <a href="{% url 'space_planner:statistics' %}">
+                  <img src="{% static 'img/baseline_house_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="Site Utilization" class="btn btn-primary">
+                </a>
+        </div>
+
+        <div class="row justify-content-center text-center action" >
+                There are {{new_positions.count}} new position{{ new_positions.count|pluralize }}
+                <a href="{% url 'space_planner:new_positions' %}">
+                  <img src="{% static 'img/baseline_person_add_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="New Positions" class="btn btn-primary">
+                </a>
+        </div>
+
+        <div class="row justify-content-center text-center action" >
+                Display Site Properties
+                <a href="{% url 'facilities:campuses' %}">
+                  <img src="{% static 'img/baseline_apartment_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="Space Details" class="btn btn-primary">
+                </a>
+        </div>
+        </div>
         {% endif %}
+
+
          {% if not user.focal_point and not user.space_planner%}
       <h1 class="helloHeader">Hello {{user.email}}!</h1>
         <br>

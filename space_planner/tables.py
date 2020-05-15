@@ -64,8 +64,11 @@ class RequestFilter(django_filters.FilterSet):
 class FocalPointRequestsTable(tables.Table):
     class Meta:
         model = FocalPointRequest
-        exclude = ['id', 'notes', 'status', 'date']
+        exclude = ['id']
         filterset_class = RequestFilter
+        row_attrs = {
+            "request_id": lambda record: record.pk
+        }
 
 
 
