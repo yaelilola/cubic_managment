@@ -65,7 +65,7 @@ def display_all_cubics(request):
     cubic_filter = CubicsFilter(request.GET, queryset=all_cubics, business_groups_queryset=business_groups,
                                 spaces_queryset=spaces)
     table = CubicsTable(cubic_filter.qs, template_name="django_tables2/bootstrap.html")
-    RequestConfig(request, paginate={"per_page": 20, "page": 1}).configure(table)
+    RequestConfig(request, paginate={"per_page": 5, "page": 1}).configure(table)
     return render(request, 'facilities/cubic.html', {'table': table, 'filter': cubic_filter})
 
 

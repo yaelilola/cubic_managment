@@ -118,20 +118,27 @@ class CubicsFilter(django_filters.FilterSet):
         fields = ['id', 'type', 'space', 'business_group', 'area', 'floor', 'building', 'campus']
 
 class CubicsTable(tables.Table):
+    area = tables.Column(footer=lambda table: sum(x.area for x in table.data))
     class Meta:
         model = Cubic
         filterset_class = CubicsFilter
-
+        fields = ['id', 'type', 'space', 'business_group', 'floor', 'building', 'campus']
 
 class LabsFilter(django_filters.FilterSet):
+    area__gte = django_filters.NumberFilter(field_name='area', lookup_expr='gte')
+    area__lte = django_filters.NumberFilter(field_name='area', lookup_expr='lte')
+    type = django_filters.ChoiceFilter(choices=(('Low Density Lab', 'Low Density Lab'), ('High Density Lab', 'High Density Lab')))
+
     class Meta:
         model = Space
-        fields = ['type', 'floor', 'building', 'campus']
+        fields = ['id', 'type', 'floor', 'building', 'campus', 'area']
 
 class LabsTable(tables.Table):
+    area = tables.Column(footer=lambda table: sum(x.area for x in table.data))
     class Meta:
         model = Space
         filterset_class = LabsFilter
+        fields = ['id', 'type', 'floor', 'building', 'campus']
 
 
 

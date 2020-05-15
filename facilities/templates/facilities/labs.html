@@ -36,6 +36,18 @@
               {{ filter.form.campus.label_tag }}
               {% render_field filter.form.campus class="form-control" %}
             </div>
+              <div class="form-group col-sm-4 col-md-3">
+              {{ filter.form.area.label_tag }}
+              {% render_field filter.form.area class="form-control" %}
+            </div>
+ <div class="form-group col-sm-4 col-md-3">
+              {{ filter.form.area__gte.label_tag }}
+              {% render_field filter.form.area__gte class="form-control" %}
+            </div>
+              <div class="form-group col-sm-4 col-md-3">
+              {{ filter.form.area__lte.label_tag }}
+              {% render_field filter.form.area__lte class="form-control" %}
+            </div>
           </div>
           <button type="submit" class="btn btn-primary">
             <span class="glyphicon glyphicon-search"></span> Filter
