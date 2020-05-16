@@ -137,7 +137,7 @@ def assign(request, form_type, cubic_type, percentage):
                                 try:
                                     assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
                                     assignment.save()
-                                    send_assign_notification(request.user.email, assigned_users, cubics)
+                                    #send_assign_notification(request.user.email, assigned_users, cubics)
                                 except Exception as e:
                                     if str(e).startswith('UNIQUE constraint failed'):
                                         pass
@@ -190,7 +190,7 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
                         for cubic in cubics:
                             assignment = AssignUserCubic(assigner=focal_point, assigned_user=assigned_user, cubic=cubic)
                             assignment.save()
-                            send_assign_notification(request.user.email, [assigned_user], cubics)
+                            #send_assign_notification(request.user.email, [assigned_user], cubics)
                         return redirect('focal_point:assignments')
                     else:
                         return render(request, 'focal_point/viewuserassignments.html',
@@ -271,7 +271,7 @@ def create_request(request):
             new_request = form.save(commit=False)
             new_request.business_group = request.user.business_group
             new_request.save()
-            send_notification(request, new_request)
+            #send_notification(request, new_request)
             return redirect('focal_point:myrequests')
         except ValueError:
             return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs),
@@ -311,8 +311,8 @@ def display_request(request, request_id):
             form = RequestToChangeCubicFocalPointForm(request_copy, instance=user_request)
             orig_request_status = user_request.status
             form.save()
-            if request_copy['status'] != orig_request_status:
-                send_change_status_notification(request, request_copy)
+            #if request_copy['status'] != orig_request_status:
+                #send_change_status_notification(request, request_copy)
             return redirect('focal_point:requests')
         except ValueError:
             return render(request, 'focal_point/viewrequest.html',

@@ -42,9 +42,10 @@ def find_groups_in_floor(floor):
             if cubic.business_group:
                 groups.append(str(cubic.business_group))
     groups_no_dups = list(set(groups))
-    for i in range(len(groups_no_dups)-1):
-        groups_str += (groups_no_dups[i] + ",")
-    groups_str += groups_no_dups[len(groups_no_dups)-1]
+    if len(groups_no_dups) > 0:
+        for i in range(len(groups_no_dups)-1):
+            groups_str += (groups_no_dups[i] + ",")
+        groups_str += groups_no_dups[len(groups_no_dups)-1]
     return groups_str
 
 
@@ -335,8 +336,8 @@ def display_request(request, request_id):
             request_post_copy['destination_date'] = focal_point_request.destination_date
             form = FocalPointRequestSpacePlannerForm(request_post_copy, instance=focal_point_request)
             form.save()
-            if request_post_copy['status'] != orig_request_status:
-                send_change_status_notification(request, request_post_copy)
+            #if request_post_copy['status'] != orig_request_status:
+                #send_change_status_notification(request, request_post_copy)
             return redirect('space_planner:requests')
         except ValueError:
             return render(request, 'space_planner/viewrequest.html',
@@ -382,10 +383,10 @@ def assign_focal_point(request):
                                                                 focal_point=True)[0]
                     old_focal_point.focal_point = False
                     old_focal_point.save()
-                    send_no_longer_focal_point_notification(request.user.email, old_focal_point.email)
+                    #send_no_longer_focal_point_notification(request.user.email, old_focal_point.email)
                 chosen_employee.focal_point = True
                 chosen_employee.save()
-                send_new_focal_point_notification(request.user.email, chosen_employee.email)
+                #send_new_focal_point_notification(request.user.email, chosen_employee.email)
                 return redirect('homepage')
         # except ValueError or IndexError:
         #     return render(request, 'space_planner/assign_focal_point.html',

@@ -73,7 +73,7 @@
    $(function () {
     $('tbody > tr').click(function(){
         var user_id = $(this).attr("user_id")
-        window.location.href = "/focal_point/assignments/".concat(user_id.toString());
+        location.href="https://pc6m9n5jrh.execute-api.us-east-2.amazonaws.com/dev/focal_point/assignments/".concat(user_id.toString());
         });
   });
 </script>

@@ -26,7 +26,7 @@
   $(function () {
     $('tbody > tr').click(function(){
         var request_id = $(this).attr("request_id")
-        window.location.href = "/space_planner/viewrequest/".concat(request_id.toString());
+        window.location.href = "https://pc6m9n5jrh.execute-api.us-east-2.amazonaws.com/dev/space_planner/viewrequest/".concat(request_id.toString());
         });
   });
 </script>
