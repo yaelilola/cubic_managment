@@ -42,9 +42,10 @@ def find_groups_in_floor(floor):
             if cubic.business_group:
                 groups.append(str(cubic.business_group))
     groups_no_dups = list(set(groups))
-    for i in range(len(groups_no_dups)-1):
-        groups_str += (groups_no_dups[i] + ",")
-    groups_str += groups_no_dups[len(groups_no_dups)-1]
+    if len(groups_no_dups) > 0:
+        for i in range(len(groups_no_dups)-1):
+            groups_str += (groups_no_dups[i] + ",")
+        groups_str += groups_no_dups[len(groups_no_dups)-1]
     return groups_str
 
 
