@@ -98,7 +98,6 @@
                     <input type="button" value="Assign spaces" class="btn btn-primary">
                 </a>
         </div>
-
         <div class="row justify-content-center text-center action" >
                 Focal Points For Business Groups
                 <a href="{% url 'space_planner:assignfocalpoint' %}">
@@ -107,6 +106,9 @@
                     <input type="button" value="Assign Focal Point" class="btn btn-primary">
                 </a>
         </div>
+    </div> <!--first row-->
+    <br>
+     <div class="row justify-content-center custom_row">
         <div class="row justify-content-center text-center action" >
                 All Of The Site's Cubics
                 <a href="{% url 'facilities:cubics' %}">
@@ -115,27 +117,25 @@
                     <input type="button" value="Cubics" class="btn btn-primary">
                 </a>
         </div>
-        </div>
-        <br>
-        <div class="row justify-content-center custom_row">
-        <div class="row justify-content-center text-center action" >
-                Facilities Utilization Statistics
-                <a href="{% url 'space_planner:statistics' %}">
-                  <img src="{% static 'img/baseline_house_black_48dp.png' %}" class="img-fluid mb-2">
+         <div class="row justify-content-center text-center action" >
+             Facilities Utilization Statistics
+             <a href="{% url 'space_planner:statistics' %}">
+                 <img src="{% static 'img/baseline_house_black_48dp.png' %}" class="img-fluid mb-2">
                     <br>
                     <input type="button" value="Site Utilization" class="btn btn-primary">
                 </a>
-        </div>
-
-        <div class="row justify-content-center text-center action" >
+         </div>
+         <div class="row justify-content-center text-center action" >
                 There are {{new_positions.count}} new position{{ new_positions.count|pluralize }}
                 <a href="{% url 'space_planner:new_positions' %}">
                   <img src="{% static 'img/baseline_person_add_black_48dp.png' %}" class="img-fluid mb-2">
                     <br>
                     <input type="button" value="New Positions" class="btn btn-primary">
                 </a>
-        </div>
-
+         </div>
+     </div><!--second row-->
+        <br>
+       <div class="row justify-content-center custom_row">
         <div class="row justify-content-center text-center action" >
                 Display Site Properties
                 <a href="{% url 'facilities:campuses' %}">
@@ -152,7 +152,15 @@
                     <input type="button" value="Labs" class="btn btn-primary">
                 </a>
         </div>
-        </div>
+             <div class="row justify-content-center text-center action" >
+                Space Utilization Alerts
+                <a href="{% url 'space_planner:alerts' %}">
+                  <img src="{% static 'img/baseline_notification_important_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="Alerts" class="btn btn-primary">
+                </a>
+            </div>
+        </div><!--third row-->
         {% endif %}
 
 
