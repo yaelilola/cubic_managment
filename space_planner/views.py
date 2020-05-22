@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from CustomRequests.models import FocalPointRequest
 from CustomRequests.forms import FocalPointRequestSpacePlannerForm
 from assign.forms import AssignSpacesToBusinessGroupsForm
-from facilities.models import Cubic, Space, Floor, Campus, Building
+from facilities.models import Cubic, Space, Floor, Campus, Building, Lab
 from custom_user.models import CustomUser, BusinessGroup
 from .forms import ChooseFocalPointForm
 from cubic_managment.decorators import user_is_space_planner
@@ -53,17 +53,17 @@ def get_spaces_with_room(request):
     data = []
     for space in spaces:
         total_space, private_free_space, shared_free_space = get_amount_available_cubics_in_space(space)
-        if (private_free_space > 0 or shared_free_space > 0) and space.type == 'Regular':
+        if private_free_space > 0 or shared_free_space > 0:
             floor = space.floor
             groups_in_floor = find_groups_in_floor(floor)
             building = floor.building
             campus = building.campus
             near_low_density_lab = False
-            low_density_labs = Space.objects.filter(type="Low Density Lab", floor=floor)
+            low_density_labs = Lab.objects.filter(type="Low Density Lab", floor=floor)
             if low_density_labs.exists():
                 near_low_density_lab = True
             near_high_density_lab = False
-            low_density_labs = Space.objects.filter(type="High Density Lab", floor=floor)
+            low_density_labs = Lab.objects.filter(type="High Density Lab", floor=floor)
             if low_density_labs.exists():
                 near_high_density_lab = True
             space_info = {'Campus': campus, 'Building': building, 'Floor': space.floor, 'Id': space.id,

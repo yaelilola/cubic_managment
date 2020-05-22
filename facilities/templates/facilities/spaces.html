@@ -22,7 +22,6 @@
                     <th>Building Id</th>
                     <th>Floor Num</th>
                     <th>Space Id</th>
-                    <th>Space Type</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,9 +40,6 @@
                             <a href="{% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=item.id%}">
                             {{ item.id }}
                             </a>
-                            </td>
-                            <td>
-                            {{ item.type}}
                             </td>
                         </tr>
                 {% endfor %}

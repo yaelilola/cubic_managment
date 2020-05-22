@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from facilities.models import Campus, Building, Floor, Space, Cubic
+from facilities.models import Campus, Building, Floor, Space, Cubic, Lab
 from cubic_managment.decorators import user_is_space_planner
 from space_planner.tables import CubicsTable, CubicsFilter, LabsTable, LabsFilter
 from django_tables2 import RequestConfig
@@ -61,7 +61,7 @@ def display_cubic(request, campus_id, building_id, floor_num, space_id, cubic_id
 def display_all_cubics(request):
     all_cubics = Cubic.objects.all()
     business_groups = BusinessGroup.objects.filter(admin_group=False)
-    spaces = Space.objects.filter(type="Regular")
+    spaces = Space.objects.all()
     cubic_filter = CubicsFilter(request.GET, queryset=all_cubics, business_groups_queryset=business_groups,
                                 spaces_queryset=spaces)
     table = CubicsTable(cubic_filter.qs, template_name="django_tables2/bootstrap.html")
@@ -71,8 +71,7 @@ def display_all_cubics(request):
 
 @user_is_space_planner
 def display_all_labs(request):
-    lab_types = ["Low Density Lab", "High Density Lab"]
-    all_labs = Space.objects.filter(type__in=lab_types)
+    all_labs = Lab.objects.all()
     labs_filter = LabsFilter(request.GET, queryset=all_labs)
     table = LabsTable(labs_filter.qs, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 20, "page": 1}).configure(table)
