@@ -4,7 +4,7 @@ from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 from django.forms import DateInput
 from CustomRequests.models import FocalPointRequest
-from facilities.models import Space
+from facilities.models import Space, Lab
 from statistics import mean
 from facilities.models import Cubic
 
@@ -128,19 +128,18 @@ class CubicsTable(tables.Table):
 class LabsFilter(django_filters.FilterSet):
     area__gte = django_filters.NumberFilter(field_name='area', lookup_expr='gte')
     area__lte = django_filters.NumberFilter(field_name='area', lookup_expr='lte')
-    type = django_filters.ChoiceFilter(choices=(('Low Density Lab', 'Low Density Lab'), ('High Density Lab', 'High Density Lab')))
 
     class Meta:
-        model = Space
-        fields = ['id', 'type', 'floor', 'building', 'campus', 'area']
+        model = Lab
+        fields = ['id', 'type', 'space', 'floor', 'building', 'campus', 'area']
 
 
 class LabsTable(tables.Table):
     area = tables.Column(footer=lambda table: sum(x.area for x in table.data))
     class Meta:
-        model = Space
+        model = Lab
         filterset_class = LabsFilter
-        fields = ['id', 'type', 'floor', 'building', 'campus']
+        fields = ['id', 'type', 'space', 'floor', 'building', 'campus']
 
 
 class AlertsTable(tables.Table):

@@ -4,6 +4,7 @@ from cubic_managment.decorators import user_is_space_planner
 from space_planner.tables import CubicsTable, CubicsFilter, LabsTable, LabsFilter
 from django_tables2 import RequestConfig
 from custom_user.models import BusinessGroup
+from itertools import chain
 
 # Create your views here.
 
@@ -42,7 +43,9 @@ def display_space(request, campus_id, building_id, floor_num, space_id):
     wanted_floor = get_object_or_404(Floor, building=wanted_building, floor_num=int(floor_num))
     wanted_space = get_object_or_404(Space, floor=wanted_floor, id=space_id)
     cubics = Cubic.objects.filter(space=wanted_space)
-    return render(request, 'facilities/cubics.html', {'items': cubics, 'campus_id': campus_id,
+    labs = Lab.objects.filter(space=wanted_space)
+    items = chain(cubics, labs)
+    return render(request, 'facilities/cubics.html', {'items': items, 'campus_id': campus_id,
                                                       'building_id': building_id,
                                                       'floor_num': floor_num, 'space_id': space_id})
 

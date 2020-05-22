@@ -24,7 +24,7 @@ urlpatterns = [
     path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/', facilities_views.display_building, name='building_floors'),
     path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/',
          facilities_views.display_floor, name="floor_spaces"),
-    path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/<str:space_id>/cubics/',
+    path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/<str:space_id>/cubicsandlabs/',
          facilities_views.display_space, name='space_cubics'),
     path('campuses/<str:campus_id>/buildings/<str:building_id>/floors/<int:floor_num>/spaces/<str:space_id>/cubics/<str:cubic_id>/',
          facilities_views.display_cubic, name="cubic"),

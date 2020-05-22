@@ -120,6 +120,7 @@ class Cubic(models.Model):
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE, null=True, blank=True)
     building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(default="Cubic", max_length=MAX_LENGTH)
 
     def __str__(self):
         return self.id
@@ -143,6 +144,8 @@ class Cubic(models.Model):
         self.business_group = business_group
 
 
+
+
 class Lab(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
     type = models.CharField(choices=(('Low Density Lab', 'Low Density Lab'),
@@ -153,6 +156,9 @@ class Lab(models.Model):
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE, null=True, blank=True)
     building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(default="Lab", max_length=MAX_LENGTH)
 
     def __str__(self):
         return self.id
+
+
