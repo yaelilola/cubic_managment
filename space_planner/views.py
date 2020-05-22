@@ -410,7 +410,7 @@ def assign_focal_point(request):
             if request.POST:
                 chosen_business_group_query_set = BusinessGroup.objects.filter(id=request.POST.get('business_group'),
                                                                                admin_group=False)
-                chosen_employee_query_set = CustomUser.objects.filter(email=request.POST.get('employee'))
+                chosen_employee_query_set = CustomUser.objects.filter(employee_number=request.POST.get('employee'))
                 chosen_employee = chosen_employee_query_set[0]  # should be only one
                 old_focal_point_exists = len(CustomUser.objects.filter(business_group=
                                                                        chosen_business_group_query_set[0],

@@ -120,7 +120,7 @@ class Cubic(models.Model):
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE, null=True, blank=True)
     building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE, null=True, blank=True)
-    name = models.CharField(default="Cubic", max_length=MAX_LENGTH)
+    name = models.CharField(default="Cubic", max_length=MAX_LENGTH, null=True, blank=True)
 
     def __str__(self):
         return self.id

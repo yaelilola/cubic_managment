@@ -6,7 +6,7 @@ from django.db import models
 
 
 class AssignPartTimeUserCubicForm(forms.Form):
-    users = forms.ModelMultipleChoiceField(queryset=CustomUser.objects.all(), to_field_name="email")
+    users = forms.ModelMultipleChoiceField(queryset=CustomUser.objects.all(), to_field_name="employee_number")
     cubics = forms.ModelMultipleChoiceField(queryset=Cubic.objects.all())
 
     def __init__(self, users_queryset, cubics_queryset, *args, **kwargs):
@@ -16,7 +16,7 @@ class AssignPartTimeUserCubicForm(forms.Form):
 
 
 class AssignFullTimeUserCubicForm(forms.Form):
-    users = forms.ModelChoiceField(queryset=CustomUser.objects.all(),to_field_name="email")
+    users = forms.ModelChoiceField(queryset=CustomUser.objects.all(),to_field_name="employee_number")
     cubics = forms.ModelChoiceField(queryset=Cubic.objects.all())
 
     def __init__(self, users_queryset, cubics_queryset, *args, **kwargs):

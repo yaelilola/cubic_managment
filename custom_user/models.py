@@ -91,6 +91,7 @@ class CustomUser(AbstractBaseUser):
     REQUIRED_FIELDS = []  # Email & Password are required by default.
 
     employee_number = models.CharField(max_length=MAX_LENGTH, unique=True)  #TODO: unique? think about admins( now they are always 0)
+    full_name = models.CharField(max_length=MAX_LENGTH)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     percentage = models.CharField(choices=(('full_time', 'full_time'), ('part_time', 'part_time')), max_length=MAX_LENGTH,
@@ -102,14 +103,14 @@ class CustomUser(AbstractBaseUser):
 
     def get_full_name(self):
         # The user is identified by their email address
-        return self.email
+        return self.full_name
 
     def get_short_name(self):
         # The user is identified by their email address
-        return self.email
+        return self.full_name
 
     def __str__(self):              # __unicode__ on Python 2
-        return self.email
+        return self.full_name + " "+self.email
 
     def has_perm(self, perm, obj=None):
         """Does the user have a specific permission?"""

@@ -29,7 +29,7 @@
         {% if user.focal_point%}
             <div class="row justify-content-center mb-3">
               <div class="col-md-9 text-center">
-                <h1 class="helloHeader" class="font-weight-bold">Hello {{user.email}}!</h1>
+                <h1 class="helloHeader" class="font-weight-bold">Hello {{user.full_name}}!</h1>
               </div>
             </div>
             <br>
@@ -76,7 +76,7 @@
         {% if user.space_planner %}
             <div class="row justify-content-center mb-3">
               <div class="col-md-9 text-center">
-                <h1 class="helloHeader" class="font-weight-bold">Hello {{user.email}}!</h1>
+                <h1 class="helloHeader" class="font-weight-bold">Hello {{user.full_name}}!</h1>
               </div>
             </div>
             <br>
@@ -165,7 +165,7 @@
 
 
          {% if not user.focal_point and not user.space_planner%}
-      <h1 class="helloHeader">Hello {{user.email}}!</h1>
+      <h1 class="helloHeader">Hello {{user.full_name}}!</h1>
         <br>
         <br>
         <h4>Business Group</h4>
