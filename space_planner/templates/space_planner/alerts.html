@@ -1,0 +1,55 @@
+{% extends 'custom_user/base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+    <style>
+         .Header{
+            margin-top:20px;
+            text-align: center;
+            }
+          p{
+            text-align:center;
+          }
+    </style>
+    <body>
+
+    <h1 class="Header">Alerts</h1>
+    <div>
+          <p>
+        This tables shows for each business group the amount of New Positions which were <br>created more than to months ago and the amount of the available cubics.
+          <br>
+        Red marks: the current amount of available cubics is low, so new cubics should be assigned to the business group.
+    </p>
+    </div>
+    <br>
+    {% render_table table %}
+    <script>
+  function GreenYellowRed(value) {
+  value--;
+
+  var r,g,b;
+
+  if (value < 50) {
+    // green to yellow
+    r = Math.floor(255 * (value / 50));
+    g = 255;
+
+  } else {
+    // yellow to red
+    r = 255;
+    g = Math.floor(255 * ((50-value%50) / 50));
+  }
+  b = 0;
+
+  return r + "," + g + "," + b;
+}
+
+   $(function () {
+    $('.utilization').each(function(){
+        var utilization = parseInt($(this).text());
+        var rgb = GreenYellowRed(utilization);
+        $(this).css('background-color', "rgb(" + rgb + ")");
+        });
+  });
+</script>
+{% endblock %}

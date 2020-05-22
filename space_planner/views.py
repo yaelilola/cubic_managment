@@ -7,21 +7,58 @@ from custom_user.models import CustomUser, BusinessGroup
 from .forms import ChooseFocalPointForm
 from cubic_managment.decorators import user_is_space_planner
 from assign.models import AssignUserCubic
-from .tables import CampusTable, BuildingTable, FloorTable, NewPositionTable, FocalPointRequestsTable, SpacesTable
+from .tables import CampusTable, BuildingTable, FloorTable, NewPositionTable, FocalPointRequestsTable, SpacesTable, AlertsTable
 from django_tables2 import RequestConfig
 from recruit.models import NewPosition
 from .filters import PositionFilter, RequestsFilter
 from django.core.mail import send_mail
-from focal_point.views import is_cubic_available
+from focal_point.views import get_available_cubics
+from datetime import date
+from django.utils.timezone import now
+from dateutil.relativedelta import relativedelta
 
 #space planner actions
 @user_is_space_planner
 def simulations(request):
     pass
 
+
+def two_months_ago():
+    today = date.today()
+    return today - relativedelta(months=2)
+
 @user_is_space_planner
 def get_alerts(request):
-    pass
+    if request.method == 'GET':
+        data = []
+        wanted_business_groups = BusinessGroup.objects.filter(admin_group=False)
+        for bg in wanted_business_groups:
+            bg_free_shared_cubics_amount = len(get_available_cubics(bg,1,'shared'))
+            bg_free_private_cubics_amount = len(get_available_cubics(bg))
+            # searches new position that were created at least to month ago, so should be applied soon
+            bg_full_time_new_positions_amount = len(NewPosition.objects.filter(business_group=bg, percentage="full_time",
+                                                                               creation_date__lte=two_months_ago()))
+            bg_part_time_new_positions_amount = len(NewPosition.objects.filter(business_group=bg, percentage="part_time",
+                                                                               creation_date__lte=two_months_ago()))
+            bg_info = {'Business_Group': str(bg), 'Full_Time_New_Positions_Amount':bg_full_time_new_positions_amount,
+                       'Part_Time_New_Positions_Amount': bg_part_time_new_positions_amount,
+                       'Available_Private_Cubics':bg_free_private_cubics_amount,
+                       'Available_Shared_Cubics':bg_free_shared_cubics_amount}
+            if bg_free_private_cubics_amount == 0:
+                bg_info.update({'Full_Time_Cubics_Expected_Utilization': 100})
+            else:
+                bg_info.update(
+                    {'Full_Time_Cubics_Expected_Utilization':
+                     bg_full_time_new_positions_amount*100 / bg_free_private_cubics_amount})
+            if bg_free_shared_cubics_amount == 0:
+                bg_info.update({'Part_Time_Cubics_Expected_Utilization': 100})
+            else:
+                bg_info.update({'Part_Time_Cubics_Expected_Utilization':
+                                    bg_part_time_new_positions_amount*100 / bg_free_shared_cubics_amount})
+            data.append(bg_info)
+        table = AlertsTable(data, template_name="django_tables2/bootstrap.html")
+        RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
+        return render(request, 'space_planner/alerts.html', {'table': table})
 
 def get_business_group_requests(request):
     wanted_business_groups = BusinessGroup.objects.filter(admin_group=False)
@@ -42,9 +79,10 @@ def find_groups_in_floor(floor):
             if cubic.business_group:
                 groups.append(str(cubic.business_group))
     groups_no_dups = list(set(groups))
-    for i in range(len(groups_no_dups)-1):
-        groups_str += (groups_no_dups[i] + ",")
-    groups_str += groups_no_dups[len(groups_no_dups)-1]
+    if len(groups_no_dups) > 0:
+        for i in range(len(groups_no_dups)-1):
+            groups_str += (groups_no_dups[i] + ",")
+        groups_str += groups_no_dups[len(groups_no_dups)-1]
     return groups_str
 
 

@@ -124,6 +124,7 @@ class CubicsTable(tables.Table):
         filterset_class = CubicsFilter
         fields = ['id', 'type', 'space', 'business_group', 'floor', 'building', 'campus']
 
+
 class LabsFilter(django_filters.FilterSet):
     area__gte = django_filters.NumberFilter(field_name='area', lookup_expr='gte')
     area__lte = django_filters.NumberFilter(field_name='area', lookup_expr='lte')
@@ -133,6 +134,7 @@ class LabsFilter(django_filters.FilterSet):
         model = Space
         fields = ['id', 'type', 'floor', 'building', 'campus', 'area']
 
+
 class LabsTable(tables.Table):
     area = tables.Column(footer=lambda table: sum(x.area for x in table.data))
     class Meta:
@@ -140,6 +142,17 @@ class LabsTable(tables.Table):
         filterset_class = LabsFilter
         fields = ['id', 'type', 'floor', 'building', 'campus']
 
+
+class AlertsTable(tables.Table):
+    Business_Group = tables.Column(orderable=True)
+    Full_Time_New_Positions_Amount = tables.Column(orderable=True)
+    Available_Private_Cubics = tables.Column(orderable=True)
+    Full_Time_Cubics_Expected_Utilization = ColumnWithName(verbose_name='Full Time Cubics Expected Utilization(%)',
+                                                           orderable=True, attrs={"td": {"class": "utilization"}})
+    Part_Time_New_Positions_Amount = tables.Column(orderable=True)
+    Available_Shared_Cubics = tables.Column(orderable=True)
+    Part_Time_Cubics_Expected_Utilization = ColumnWithName(verbose_name='Part Time Cubics Expected Utilization(%)',
+                                                           orderable=True, attrs={"td": {"class": "utilization"}})
 
 
 
