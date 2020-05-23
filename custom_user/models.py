@@ -90,7 +90,7 @@ class CustomUser(AbstractBaseUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # Email & Password are required by default.
 
-    employee_number = models.CharField(max_length=MAX_LENGTH, unique=True)  #TODO: unique? think about admins( now they are always 0)
+    employee_number = models.CharField(max_length=MAX_LENGTH, unique=True, primary_key=True)  #TODO: unique? think about admins( now they are always 0)
     full_name = models.CharField(max_length=MAX_LENGTH)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)

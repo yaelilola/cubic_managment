@@ -32,7 +32,7 @@
           </div>
     </div>
 
-    <form  style='display: none;' method="POST" action="{% url 'focal_point:delete_all_user_assignments' curr_user.id %}">
+    <form  style='display: none;' method="POST" action="{% url 'focal_point:delete_all_user_assignments' curr_user.employee_number %}">
     {% csrf_token %}
         <button id="delete" type="submit">Delete All Assignments for user</button>
     </form>

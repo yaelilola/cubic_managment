@@ -110,12 +110,12 @@ def send_assign_notification(focal_point_email, assigned_users, cubics):
 
 def assign(request, form_type, cubic_type, percentage):
     #TODO - add assignment logic: should we use ajax, or check in backend?
-    focal_point = get_object_or_404(CustomUser, id=request.user.id, focal_point=True)
+    # focal_point = get_object_or_404(CustomUser, id=request.user.id, focal_point=True)
     business_group = request.user.business_group
     users_queryset = CustomUser.objects.filter(business_group=business_group, percentage=percentage)
     if percentage == 'full_time':
-        full_not_assigned_time_users_id = [user.id for user in users_queryset if len(AssignUserCubic.objects.filter(assigned_user=user)) == 0]
-        users_queryset = CustomUser.objects.filter(id__in=full_not_assigned_time_users_id)
+        full_not_assigned_time_users_id = [user.employee_number for user in users_queryset if len(AssignUserCubic.objects.filter(assigned_user=user)) == 0]
+        users_queryset = CustomUser.objects.filter(employee_number__in=full_not_assigned_time_users_id)
     cubics_queryset = get_available_cubics(business_group, 1, cubic_type)
     if request.method == 'GET':
         return render(request, 'focal_point/assign.html',
@@ -135,7 +135,7 @@ def assign(request, form_type, cubic_type, percentage):
                         for user in assigned_users:
                             for cubic in cubics:
                                 try:
-                                    assignment = AssignUserCubic(assigner=focal_point, assigned_user=user, cubic=cubic)
+                                    assignment = AssignUserCubic(assigned_user=user, cubic=cubic)
                                     assignment.save()
                                     send_assign_notification(request.user.email, assigned_users, cubics)
                                 except Exception as e:
@@ -188,7 +188,7 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
                         for assignment in AssignUserCubic.objects.filter(assigned_user=assigned_user):
                             assignment.delete()
                         for cubic in cubics:
-                            assignment = AssignUserCubic(assigner=focal_point, assigned_user=assigned_user, cubic=cubic)
+                            assignment = AssignUserCubic(assigned_user=assigned_user, cubic=cubic)
                             assignment.save()
                             send_assign_notification(request.user.email, [assigned_user], cubics)
                         return redirect('focal_point:assignments')
@@ -213,7 +213,7 @@ def view_all_user_assignments(request,user_id):
     wanted_user = CustomUser.objects.filter(pk=user_id)[0]
     wanted_user_assignments = AssignUserCubic.objects.filter(assigned_user=wanted_user)
     current_cubics = [assignment.cubic for assignment in wanted_user_assignments]
-    focal_point = CustomUser.objects.filter(id=request.user.id, focal_point=True, business_group=wanted_user.business_group)[0]
+    focal_point = CustomUser.objects.filter(employee_number=request.user.employee_number, focal_point=True, business_group=wanted_user.business_group)[0]
     cubic_type = 'shared' if wanted_user.percentage == 'part_time' else 'private'
     return edit_assignments_for_user(request, user_id, focal_point, wanted_user, current_cubics, cubic_type)
 
