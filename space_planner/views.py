@@ -110,7 +110,7 @@ def get_spaces_with_room(request):
                           'Groups_Nearby': groups_in_floor}
             data.append(space_info)
     table = SpacesTable(data, template_name="django_tables2/bootstrap.html")
-    RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
+    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
     return table
 
 
@@ -129,6 +129,7 @@ def assign_space(request):
                 business_group_id = request.POST.get("chosen_business_group")
                 business_group = BusinessGroup.objects.get(id=business_group_id)
                 spaces_ids = request.POST.getlist("selection")
+                print(spaces_ids)
                 if not spaces_ids:
                     return render(request, 'space_planner/assignspace.html',
                                   {'error': 'Use must choose a space', 'table': spaces_table,
@@ -174,16 +175,23 @@ def get_amount_available_cubics_in_space(space):
     total_space = 0
     private_free_space = 0
     shared_free_space = 0
-    cubics = Cubic.objects.filter(space=space)
-    for cubic in cubics:
-        if cubic.type == 'private':
-            total_space += 1
-            if cubic.business_group is None:
-                private_free_space += 1
-        if cubic.type == 'shared':
-            total_space += 2
-            if cubic.business_group is None:
-                shared_free_space += 2
+    private_cubics = Cubic.objects.filter(space=space, type='private')
+    total_space += len(private_cubics)
+    shared_cubics = Cubic.objects.filter(space=space, type='shared')
+    total_space += 2*len(shared_cubics)
+    free_private_cubics = private_cubics.filter(business_group__isnull=True)
+    private_free_space += len(free_private_cubics)
+    free_shared_cubics = shared_cubics.filter(business_group__isnull=True)
+    shared_free_space += 2*len(free_shared_cubics)
+    # for cubic in cubics:
+    #     if cubic.type == 'private':
+    #         total_space += 1
+    #         if cubic.business_group is None:
+    #             private_free_space += 1
+    #     if cubic.type == 'shared':
+    #         total_space += 2
+    #         if cubic.business_group is None:
+    #             shared_free_space += 2
     return total_space, private_free_space, shared_free_space
 
 

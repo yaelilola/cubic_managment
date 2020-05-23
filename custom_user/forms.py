@@ -4,13 +4,7 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from functools import partial
-
-# class CustomUserSignUpForm(UserCreationForm):
-#     class Meta:
-#         model = CustomUser
-#         fields = ('employee_number', 'password', 'type', 'start_date', 'end_date', 'percentage', 'group')
-#
-
+from dal import autocomplete
 
 
 class CustomUserSignUpForm(forms.ModelForm):
@@ -94,7 +88,9 @@ class UserAdminChangeForm(forms.ModelForm):
 
 
 class SearchUserCubicForm(forms.Form):
-    user = forms.ModelChoiceField(CustomUser.objects.all(), to_field_name="employee_number")
+    user = forms.ModelChoiceField(CustomUser.objects.all(), to_field_name="employee_number",
+                                  widget=autocomplete.ModelSelect2(url='custom_user:customuser-autocomplete',
+                                                                   attrs={'data-placeholder': 'Type the user name ...','data-html': True}))
 
     def __init__(self, users_query_set, *args, **kwargs):
         super(SearchUserCubicForm, self).__init__(*args, **kwargs)

@@ -3,7 +3,7 @@
 {% block content %}
 
 <body>
-{{ error }}
+
 <style>
    .Header{
             margin-top:20px;
@@ -19,6 +19,9 @@ label {
         line-height: 1.5;
         height: calc(1.5em + .75rem + 2px);
         }
+        #error{
+         text-align: center;
+        }
 </style>
 <h1 class="Header">Create A Request</h1>
  <div class="row justify-content-center mt-5">
@@ -30,6 +33,7 @@ label {
             </form>
           </div>
  </div>
+<p id="error"> {{ error }}</p>
 <script>
     var now = Date.now();
     $(function () {

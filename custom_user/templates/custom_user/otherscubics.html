@@ -1,5 +1,5 @@
 {% extends 'custom_user/base.html' %}
-
+{% load static %}
 {% block content %}
 <body>
 <style>
@@ -31,7 +31,7 @@
       </div>
 </div>
     {% if assignments%}
-    <h2 class="helloHeader">Assigements for: {{assignments.0}}</h2>
+    <h2 class="helloHeader">Assignments for: {{assignments.0.assigned_user}}</h2>
     <table class="table table-bordered">
                 <thead>
                   <tr>
@@ -53,6 +53,11 @@
     {% else %}
         <p class="helloHeader">{{ error }}</p>
     {% endif %}
-</body>
 
+
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+
+{{ form.media }}
+
+</body>
 {% endblock %}

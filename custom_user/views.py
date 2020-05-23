@@ -14,6 +14,9 @@ import datetime
 from django.core.mail import send_mail
 from recruit.models import NewPosition
 
+from dal import autocomplete
+from django.utils.html import format_html
+
 def homepage(request):
     if request.user.is_authenticated:
         assignments = AssignUserCubic.objects.filter(assigned_user=request.user)
@@ -214,6 +217,20 @@ def delete_request(request, request_id):
         return redirect('custom_user:requests')
 
 
+class CustomUserAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated:
+            return CustomUser.objects.none()
 
+        qs = CustomUser.objects.filter(admin=False)
+
+        if self.q:
+            qs = qs.filter(full_name__icontains=self.q,admin=False)
+
+        return qs
+
+    def get_result_label(self, item):
+        return format_html('<p>{} {}</p>', item.full_name, item.email)
 
 

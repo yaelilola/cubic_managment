@@ -1,8 +1,6 @@
-import xlrd
 import pandas as pd
 import sqlite3
 from sqlite3 import IntegrityError
-from passlib.hash import pbkdf2_sha256
 from django.contrib.auth.hashers import make_password
 
 def findnth(haystack, needle, n):
@@ -44,7 +42,13 @@ def add_space_id(space_details_sheet):
     space_details_sheet['Space_ID'] = space_ids
     return space_details_sheet
 
-def get_cubics(space_details_sheet):
+
+def get_cubics(space_details_sheet, personnel_directory_sheet):
+    personnel_directory_sheet['id'] = personnel_directory_sheet['Building ID'] + "-" + \
+                                            personnel_directory_sheet['Floor'] + "-" + personnel_directory_sheet[
+                                                'Space']
+    ps_df = personnel_directory_sheet[['Group', 'id']].dropna()
+    ps_df = ps_df.drop_duplicates(subset='id')
     space_details_sheet = add_space_id(space_details_sheet)
     df = space_details_sheet[space_details_sheet['Current Use Space Class'].isin(['Cube'])]
     df.loc[df['Capacity'] > 1, 'Capacity'] = 'shared'
@@ -54,7 +58,12 @@ def get_cubics(space_details_sheet):
         .rename(columns={'City': 'campus_id', 'Building ID': 'building_id', 'Space_ID': 'space_id',
                          'Area (SF)': 'area', 'Bar Code': 'id', 'Capacity': 'type'})
     df['name'] = 'Cubic'
-    return df
+    joined = df.join(ps_df.set_index('id'), on='id')
+    joined = joined[['campus_id', 'name', 'building_id', 'floor_id', 'space_id', 'id', 'type', 'area', 'Group']].\
+        rename(columns={'Group': 'business_group_id'})
+    # joined = joined.reset_index(drop=True)
+    print(joined)
+    return joined
 
 def get_labs(space_details_sheet):
     space_details_sheet = add_space_id(space_details_sheet)
@@ -73,7 +82,9 @@ def write_to_sqlite(table_name, df, conn):
     try:
         df.to_sql(table_name, conn, if_exists='append', index=False, chunksize=1)
     except IntegrityError as e:
+        print("exception")
         print(e)
+        pass
 
 
 def parse_campuses(space_details_sheet, conn):
@@ -92,20 +103,20 @@ def parse_space(space_details_sheet, conn):
     df = get_spaces(space_details_sheet)
     write_to_sqlite('facilities_space', df, conn)
 
-def parse_cubic(space_details_sheet, conn):
-    df = get_cubics(space_details_sheet)
+def parse_cubic(space_details_sheet, personnel_directory_sheet, conn):
+    df = get_cubics(space_details_sheet, personnel_directory_sheet)
     write_to_sqlite('facilities_cubic', df, conn)
 
 def parse_lab(space_details_sheet, conn):
     df = get_labs(space_details_sheet)
     write_to_sqlite('facilities_lab', df, conn)
 
-def parse_facilities(space_details_sheet,conn):
+def parse_facilities(space_details_sheet, personnel_directory_sheet, conn):
     parse_campuses(space_details_sheet, conn)
     parse_building(space_details_sheet, conn)
     parse_floor(space_details_sheet, conn)
     parse_space(space_details_sheet, conn)
-    parse_cubic(space_details_sheet, conn)
+    parse_cubic(space_details_sheet, personnel_directory_sheet, conn)
     parse_lab(space_details_sheet, conn)
 
 def parse_users(personnel_directory_sheet,conn):
@@ -168,9 +179,9 @@ def parse2():
     db_file = r"C:\Users\owner\Desktop\uni\Sem8\industrial\parse_xlsx\db.sqlite3"
     xl = pd.ExcelFile(loc)
     space_details_sheet = xl.parse('Space Details (Raw)')
-    conn = sqlite3.connect(db_file)
-    parse_facilities(space_details_sheet, conn)
     personnel_directory_sheet = xl.parse('Personnel Directory (Raw)')
+    conn = sqlite3.connect(db_file)
+    parse_facilities(space_details_sheet, personnel_directory_sheet, conn)
     parse_users(personnel_directory_sheet, conn)
     parse_business_groups(personnel_directory_sheet, conn)
     parse_assign_user_cubic(personnel_directory_sheet, conn)
