@@ -4,6 +4,9 @@ from facilities.models import Cubic, Space
 from django import forms
 from django.db import models
 
+from dal import autocomplete
+
+
 
 class AssignPartTimeUserCubicForm(forms.Form):
     users = forms.ModelMultipleChoiceField(queryset=CustomUser.objects.all(), to_field_name="employee_number")
@@ -16,7 +19,8 @@ class AssignPartTimeUserCubicForm(forms.Form):
 
 
 class AssignFullTimeUserCubicForm(forms.Form):
-    users = forms.ModelChoiceField(queryset=CustomUser.objects.all(),to_field_name="employee_number")
+    users = forms.ModelChoiceField(queryset=CustomUser.objects.all(),to_field_name="employee_number",widget=autocomplete.ModelSelect2(url='custom_user:customuser-autocomplete',
+                                                                   attrs={'data-placeholder': 'Type the user name ...','data-html': True}))
     cubics = forms.ModelChoiceField(queryset=Cubic.objects.all())
 
     def __init__(self, users_queryset, cubics_queryset, *args, **kwargs):

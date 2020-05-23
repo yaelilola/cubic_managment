@@ -424,20 +424,26 @@ def assign_focal_point(request):
                 chosen_business_group_query_set = BusinessGroup.objects.filter(id=request.POST.get('business_group'),
                                                                                admin_group=False)
                 chosen_employee_query_set = CustomUser.objects.filter(employee_number=request.POST.get('employee'))
-                chosen_employee = chosen_employee_query_set[0]  # should be only one
-                old_focal_point_exists = len(CustomUser.objects.filter(business_group=
-                                                                       chosen_business_group_query_set[0],
-                                                                       focal_point=True)) > 0
-                if old_focal_point_exists:
-                    old_focal_point = CustomUser.objects.filter(business_group=chosen_business_group_query_set[0],
-                                                                focal_point=True)[0]
-                    old_focal_point.focal_point = False
-                    old_focal_point.save()
-                    send_no_longer_focal_point_notification(request.user.email, old_focal_point.email)
-                chosen_employee.focal_point = True
-                chosen_employee.save()
-                send_new_focal_point_notification(request.user.email, chosen_employee.email)
-                return redirect('homepage')
+                print(chosen_employee_query_set)
+                print(chosen_business_group_query_set)
+                if len(chosen_business_group_query_set) == 0 or len(chosen_employee_query_set) == 0: #cant submit form with at least one empty field
+                    return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm(),
+                                                                                     'error': 'please fill all forms'})
+                else:
+                    chosen_employee = chosen_employee_query_set[0]  # should be only one
+                    old_focal_point_exists = len(CustomUser.objects.filter(business_group=
+                                                                           chosen_business_group_query_set[0],
+                                                                           focal_point=True)) > 0
+                    if old_focal_point_exists:
+                        old_focal_point = CustomUser.objects.filter(business_group=chosen_business_group_query_set[0],
+                                                                    focal_point=True)[0]
+                        old_focal_point.focal_point = False
+                        old_focal_point.save()
+                        send_no_longer_focal_point_notification(request.user.email, old_focal_point.email)
+                    chosen_employee.focal_point = True
+                    chosen_employee.save()
+                    send_new_focal_point_notification(request.user.email, chosen_employee.email)
+                    return redirect('homepage')
         # except ValueError or IndexError:
         #     return render(request, 'space_planner/assign_focal_point.html',
         #                   {'form': ChooseFocalPointForm(), 'error': 'Bad info'})

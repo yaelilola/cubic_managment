@@ -218,12 +218,14 @@ def delete_request(request, request_id):
 
 
 class CustomUserAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self):
+    def get_queryset(self,qs_aux=None):
         # Don't forget to filter out results depending on the visitor !
         if not self.request.user.is_authenticated:
             return CustomUser.objects.none()
 
         qs = CustomUser.objects.filter(admin=False)
+        if(qs_aux):
+            qs=qs_aux
 
         if self.q:
             qs = qs.filter(full_name__icontains=self.q,admin=False)
