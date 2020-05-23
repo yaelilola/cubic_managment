@@ -45,13 +45,13 @@ def get_alerts(request):
                        'Available_Private_Cubics':bg_free_private_cubics_amount,
                        'Available_Shared_Cubics':bg_free_shared_cubics_amount}
             if bg_free_private_cubics_amount == 0:
-                bg_info.update({'Full_Time_Cubics_Expected_Utilization': 100})
+                bg_info.update({'Full_Time_Cubics_Expected_Utilization': 200})
             else:
                 bg_info.update(
                     {'Full_Time_Cubics_Expected_Utilization':
                      bg_full_time_new_positions_amount*100 / bg_free_private_cubics_amount})
             if bg_free_shared_cubics_amount == 0:
-                bg_info.update({'Part_Time_Cubics_Expected_Utilization': 100})
+                bg_info.update({'Part_Time_Cubics_Expected_Utilization': 200})
             else:
                 bg_info.update({'Part_Time_Cubics_Expected_Utilization':
                                     bg_part_time_new_positions_amount*100 / bg_free_shared_cubics_amount})
@@ -245,7 +245,7 @@ def get_data_for_statistics():
                 total_floor_space, floor_occupied_space = get_floor_utilization(floor)
                 floor_info = {'Campus': campus, 'Building': building, 'Floor': floor,
                               'Total_Space': total_floor_space, 'Occupied': floor_occupied_space,
-                              'Utilization': float((floor_occupied_space * 100)) / total_floor_space}
+                              'Utilization': 200 if total_floor_space == 0 else float((floor_occupied_space * 100)) / total_floor_space}
                 data.append(floor_info)
     return data
 
@@ -266,7 +266,7 @@ def get_campus_statistics():
         campus_space, campus_utilization = get_campus_utilization(campus)
         campus_info = {'Campus': campus,
                       'Capacity': campus_space, 'Office_EEs': campus_utilization,
-                      'Utilization': float((campus_utilization * 100)) / campus_space}
+                      'Utilization': 200 if campus_space == 0 else float((campus_utilization * 100)) / campus_space}
         data.append(campus_info)
     return data
 
@@ -277,7 +277,7 @@ def get_building_statistics(campus):
         building_space, building_utilization = get_building_utilization(building)
         building_info = {'Building': building, 'Campus': campus,
                       'Capacity': building_space, 'Office_EEs': building_utilization,
-                      'Utilization': float((building_utilization * 100)) / building_space}
+                      'Utilization': 200 if building_space == 0 else float((building_utilization * 100)) / building_space}
         data.append(building_info)
     return data
 

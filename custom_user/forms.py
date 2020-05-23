@@ -24,7 +24,7 @@ class CustomUserSignUpForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ('email', 'employee_number', 'focal_point', 'space_planner', 'percentage', 'business_group',
-                  'start_date', 'end_date')
+                  'start_date', 'end_date','full_name')
         widgets = {
             'start_date': forms.DateInput(attrs={'class': 'datepicker', 'id': 'id_start_date'}),
             'end_date': forms.DateInput(attrs={'class': 'datepicker', 'id': 'id_end_date'})
