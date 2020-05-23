@@ -51,14 +51,15 @@ class Building(models.Model):
         return self.id
 
 class Floor(models.Model):
-    floor_num = models.IntegerField()
+    id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
+    floor_num = models.CharField(max_length=MAX_LENGTH)
     building = models.ForeignKey(Building, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (("floor_num", "building"),)
 
     def __str__(self):
-        return str(self.floor_num)
+        return str(self.id)
 
     def get_amount_of_free_cubics_of_space(self, space):
         pass
@@ -81,9 +82,6 @@ class Floor(models.Model):
 
 class Space(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
-    # type = models.CharField(choices=(('Cube', 'Cube'), ('Low Density Lab', 'Low Density Lab'),
-    #                                  ('High Density Lab', 'High Density Lab')),
-    #                         max_length=MAX_LENGTH)
     floor = models.ForeignKey(Floor, on_delete=models.CASCADE)
     building = models.ForeignKey(Building, on_delete=models.CASCADE, null=True, blank=True)
     campus = models.ForeignKey(Campus, on_delete=models.CASCADE, null=True, blank=True)

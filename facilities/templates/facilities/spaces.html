@@ -8,7 +8,7 @@
      }
 </style>
 <body>
-<h1 class="Header">Displaying spaces in campus {{campus_id}}, building {{building_id}}, floor number {{floor_num}}</h1>
+<h1 class="Header">Displaying spaces in campus {{campus_id}}, building {{building_id}}, floor  {{floor_id}}</h1>
     <h4 class="Header">Back to
         <a href="{% url 'facilities:building_floors' campus_id=campus_id building_id=building_id%}">
             {% url 'facilities:building_floors' campus_id=campus_id building_id=building_id%}
@@ -20,7 +20,7 @@
                 <tr>
                     <th>Campus Id</th>
                     <th>Building Id</th>
-                    <th>Floor Num</th>
+                    <th>Floor Id</th>
                     <th>Space Id</th>
                 </tr>
             </thead>
@@ -37,7 +37,7 @@
                             {{ item.floor}}
                             </td>
                             <td>
-                            <a href="{% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_num=floor_num space_id=item.id%}">
+                            <a href="{% url 'facilities:space_cubics' campus_id=campus_id building_id=building_id floor_id=floor_id space_id=item.id%}">
                             {{ item.id }}
                             </a>
                             </td>

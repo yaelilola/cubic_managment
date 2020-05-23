@@ -22,6 +22,7 @@ def get_buildings(space_details_sheet):
 def get_floors(space_details_sheet):
     df = (space_details_sheet[['Building ID', 'Floor Name']]).drop_duplicates().\
         rename(columns={"Floor Name": "floor_num", "Building ID": "building_id"})
+    df['id'] = df['building_id'] + "-" + df['floor_num']
     return df
 
 def get_spaces(space_details_sheet):
@@ -29,8 +30,9 @@ def get_spaces(space_details_sheet):
     df = space_details_sheet[space_details_sheet['Current Use Space Class']
         .isin(['Cube', 'Low Density Lab', 'High Density Lab'])]
     df = (df[['City', 'Building ID', 'Space_ID', 'Area (SF)', 'Floor Name']]).drop_duplicates()
-    df = df.groupby(['City', 'Building ID', 'Space_ID', 'Floor Name'], as_index=False).sum()
-    df = df.rename(columns={'City': 'campus_id', 'Building ID': 'building_id', 'Space_ID': 'id', 'Floor Name': 'floor_id',
+    df['floor_id'] = df['Building ID'] + "-" + df['Floor Name']
+    df = df.groupby(['City', 'Building ID', 'Space_ID', 'floor_id'], as_index=False).sum()
+    df = df.rename(columns={'City': 'campus_id', 'Building ID': 'building_id', 'Space_ID': 'id',
                        'Area (SF)': 'area'})
     return df
 
@@ -47,18 +49,21 @@ def get_cubics(space_details_sheet):
     df = space_details_sheet[space_details_sheet['Current Use Space Class'].isin(['Cube'])]
     df.loc[df['Capacity'] > 1, 'Capacity'] = 'shared'
     df.loc[df['Capacity'] == 1, 'Capacity'] = 'private'
-    df = df[['City', 'Building ID', 'Floor Name', 'Space_ID', 'Bar Code', 'Capacity', 'Area (SF)']]\
+    df['floor_id'] = df['Building ID'] + "-" + df['Floor Name']
+    df = df[['City', 'Building ID', 'floor_id', 'Space_ID', 'Bar Code', 'Capacity', 'Area (SF)']]\
         .rename(columns={'City': 'campus_id', 'Building ID': 'building_id', 'Space_ID': 'space_id',
-                         'Floor Name': 'floor_id', 'Area (SF)': 'area', 'Bar Code': 'id', 'Capacity': 'type'})
+                         'Area (SF)': 'area', 'Bar Code': 'id', 'Capacity': 'type'})
     df['name'] = 'Cubic'
     return df
 
 def get_labs(space_details_sheet):
     space_details_sheet = add_space_id(space_details_sheet)
-    df = space_details_sheet[space_details_sheet['Current Use Space Class'].isin(['Low Density Lab', 'High Density Lab'])]
-    df = df[['City', 'Building ID', 'Floor Name', 'Space_ID', 'Bar Code', 'Current Use Space Class', 'Area (SF)']]\
+    df = space_details_sheet[space_details_sheet['Current Use Space Class']
+        .isin(['Low Density Lab', 'High Density Lab'])]
+    df['floor_id'] = df['Building ID'] + "-" + df['Floor Name']
+    df = df[['City', 'Building ID', 'floor_id', 'Space_ID', 'Bar Code', 'Current Use Space Class', 'Area (SF)']]\
         .rename(columns={'City': 'campus_id', 'Building ID': 'building_id', 'Space_ID': 'space_id',
-                         'Floor Name': 'floor_id', 'Area (SF)': 'area', 'Bar Code': 'id',
+                         'Area (SF)': 'area', 'Bar Code': 'id',
                          'Current Use Space Class': 'type'})
     df['name'] = 'Lab'
     return df
@@ -109,6 +114,7 @@ def parse_users(personnel_directory_sheet,conn):
     df = personnel_directory_sheet[
         ['WWID', 'full_name', 'Employee Type', 'Active Start Date', 'Group', 'Email Address']]\
         .fillna(value={'Employee Type': 'R'})
+    df = df.head(10)
     passwords = []
     for emp_num in df['WWID'].tolist():
         #hashed = pbkdf2_sha256.using(rounds=180000, salt_size=12).hash(str(emp_num))

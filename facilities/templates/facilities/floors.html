@@ -20,7 +20,7 @@
                 <tr>
                     <th>Campus Id</th>
                     <th>Building Id</th>
-                    <th>Floor Num</th>
+                    <th>Floor id</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,8 +33,8 @@
                             {{ item.building.id }}
                             </td>
                             <td>
-                            <a href="{% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_num=item.floor_num %}">
-                            {{ item.floor_num }}
+                            <a href="{% url 'facilities:floor_spaces' campus_id=campus_id building_id=building_id floor_id=item.id %}">
+                            {{ item.id }}
                             </a>
                             </td>
                         </tr>

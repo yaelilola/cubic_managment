@@ -287,9 +287,14 @@ def get_floor_statistics(building):
     data = []
     for floor in floors:
         floor_space, floor_utilization = get_floor_utilization(floor)
-        floor_info = {'Floor': floor, 'Building': '', 'Campus': '',
-                      'Capacity': floor_space, 'Office_EEs': floor_utilization,
-                      'Utilization': float((floor_utilization * 100)) / floor_space}
+        if floor_space == 0:
+            floor_info = {'Floor': floor, 'Building': '', 'Campus': '',
+                          'Capacity': floor_space, 'Office_EEs': floor_utilization,
+                          'Utilization': 200}
+        else:
+            floor_info = {'Floor': floor, 'Building': '', 'Campus': '',
+                          'Capacity': floor_space, 'Office_EEs': floor_utilization,
+                          'Utilization': float((floor_utilization * 100)) / floor_space}
         data.append(floor_info)
     return data
 
