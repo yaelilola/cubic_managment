@@ -8,6 +8,7 @@ class ChooseFocalPointForm(forms.Form):
     business_group = forms.ModelChoiceField(queryset=BusinessGroup.objects.filter(admin_group=False))
     employee = forms.ModelChoiceField(queryset=CustomUser.objects.filter(admin=False),widget=autocomplete.ModelSelect2(url='custom_user:customuser-autocomplete',
                                                                    attrs={'data-placeholder': 'Type the user name ...','data-html': True}))
+    # employee = forms.ModelChoiceField(queryset=CustomUser.objects.filter(admin=False))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -11,7 +11,7 @@ from CustomRequests.models import RequestToChangeCubic, FocalPointRequest
 from facilities.models import Cubic
 from cubic_managment.decorators import user_is_request_author
 import datetime
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
 from recruit.models import NewPosition
 
 from dal import autocomplete
@@ -116,7 +116,7 @@ def send_notification(request, request_content):
                   "The wanted cubic is : {wanted_cubic} \n " \
                   "The reason is: {reason}".format(username=request.user.email, wanted_cubic=request_content.cubic,
                                                    reason=request_content.reason)
-        send_mail(subject, content, sender_mail, [receiver_mail])
+        # send_mail(subject, content, sender_mail, [receiver_mail])
     except:
         pass
 

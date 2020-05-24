@@ -125,7 +125,7 @@ def parse_users(personnel_directory_sheet,conn):
     df = personnel_directory_sheet[
         ['WWID', 'full_name', 'Employee Type', 'Active Start Date', 'Group', 'Email Address']]\
         .fillna(value={'Employee Type': 'R'})
-    df = df.head(10)
+   # df = df.head(100)
     passwords = []
     for emp_num in df['WWID'].tolist():
         #hashed = pbkdf2_sha256.using(rounds=180000, salt_size=12).hash(str(emp_num))

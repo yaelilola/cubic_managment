@@ -9,7 +9,7 @@ from facilities.models import Cubic
 from cubic_managment.decorators import user_is_focal_point, user_is_focal_point_request_author, \
     user_in_focal_point_group, request_user_in_focal_point_group
 import datetime
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
 from .tables import UserRequestsTable, AssignmentsTable, AssignmentsFilter
 from django_tables2 import RequestConfig
 from space_planner.tables import NewPositionTable
@@ -105,7 +105,7 @@ def send_assign_notification(focal_point_email, assigned_users, cubics):
         + str(floor) + "\\" \
         + str(space) + "\\" \
         + str(cubics[0]) + "\n"
-    send_mail(subject, content, sender_mail, assigned_users)
+    # send_mail(subject, content, sender_mail, assigned_users)
 
 
 def assign(request, form_type, cubic_type, percentage):
@@ -125,27 +125,41 @@ def assign(request, form_type, cubic_type, percentage):
         try:
             form = form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
             if request.POST:
-                if form.is_valid():
-                    assigned_users = form.cleaned_data.get("users")
-                    cubics = form.cleaned_data.get("cubics")
-                    if cubic_type == 'private':
-                        cubics = [cubics]
-                        assigned_users = [assigned_users]
-                    if all_assignments_are_okay(business_group, assigned_users, cubics, cubic_type):
-                        for user in assigned_users:
-                            for cubic in cubics:
-                                try:
-                                    assignment = AssignUserCubic(assigned_user=user, cubic=cubic)
-                                    assignment.save()
-                                    send_assign_notification(request.user.email, assigned_users, cubics)
-                                except Exception as e:
-                                    if str(e).startswith('UNIQUE constraint failed'):
-                                        pass
-                    else:
-                        return render(request, 'focal_point/assign.html',
-                                      {'form': form_type(users_queryset=users_queryset,
-                                                                           cubics_queryset=cubics_queryset),
-                                       'error': 'There is not enough place in the selected cubics'})
+
+                assigned_users = request.POST.get("users")
+                print(assigned_users)
+                cubics = request.POST.get("cubics")
+                print(cubics)
+                if cubic_type == 'private':
+                    cubics = [cubics]
+                    assigned_users = [assigned_users]
+                assigned_users = CustomUser.objects.filter(employee_number__in=assigned_users)
+                cubics = Cubic.objects.filter(id__in=cubics)
+                # assigned_users = form.cleaned_data.get("users")
+                # cubics = form.cleaned_data.get("cubics")
+                # assigned_users_query_set = BusinessGroup.objects.filter(id=request.POST.get('business_group'),
+                #                                                                admin_group=False)
+                # chosen_employee_query_set = CustomUser.objects.filter(employee_number=request.POST.get('employee'))
+                # if len(chosen_business_group_query_set) == 0 or len(
+                #         chosen_employee_query_set) == 0:  # cant submit form with at least one empty field
+                #     return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm(),
+                #                                                                      'error': 'please fill all forms'})
+                #todo - complete the check if the form was empty
+                if all_assignments_are_okay(business_group, assigned_users, cubics, cubic_type):
+                    for user in assigned_users:
+                        for cubic in cubics:
+                            try:
+                                assignment = AssignUserCubic(assigned_user=user, cubic=cubic)
+                                assignment.save()
+                                send_assign_notification(request.user.email, assigned_users, cubics)
+                            except Exception as e:
+                                if str(e).startswith('UNIQUE constraint failed'):
+                                    pass
+                else:
+                    return render(request, 'focal_point/assign.html',
+                                  {'form': form_type(users_queryset=users_queryset,
+                                                                       cubics_queryset=cubics_queryset),
+                                   'error': 'There is not enough place in the selected cubics'})
             return redirect('focal_point:assignments')
         except ValueError:
             return render(request, 'focal_point/assign.html',
@@ -246,7 +260,7 @@ def send_notification(request, request_content):
     if request_content.destination_date:
         content += "The due date for the request is {due_date}. \n".format(due_date=request_content.destination_date)
     content += "Thank you."
-    send_mail(subject, content, sender_mail, receiver_mail)
+    # send_mail(subject, content, sender_mail, receiver_mail)
 
 
 @user_is_focal_point
@@ -292,9 +306,9 @@ def send_change_status_notification(request, request_content):
     receiver_mail = (request_content['user']).email
     subject = "Request to change cubic status update"
     content = "{focal_point} changed your request status to '{status}'".format(focal_point=focal_point, status=request_content['status'])
-    send_mail(subject, content,
-              sender_mail,
-              [receiver_mail])
+    # send_mail(subject, content,
+    #           sender_mail,
+    #           [receiver_mail])
 
 @request_user_in_focal_point_group
 @user_is_focal_point
