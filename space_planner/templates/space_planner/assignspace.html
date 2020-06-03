@@ -21,7 +21,7 @@
 <h1 class="Header">Assign spaces to business groups</h1>
 <br>
 <form method="post" id="ChooseBusinessGroupForm" action="{% url 'space_planner:assign'%}"
-      data-requests-url="{% url 'space_planner:ajax_load_requests' %}" novalidate>
+      data-requests-url="{% url 'space_planner:ajax_load_requests' %}" data-campuses-url="{% url 'space_planner:ajax_load_campus_spaces' %}"  novalidate>
     <h4>Business Groups:</h4>
     <select id="business_group" name="chosen_business_group">
             <option value="illegal">----------</option>
@@ -30,12 +30,26 @@
         {% endfor %}
 
     </select>
+    <select id="campus" name="chosen_campus">
+            <option value="illegal">----------</option>
+        {% for campus in campuses %}
+            <option value="{{campus.id}}">{{campus.id}}</option>
+        {% endfor %}
+
+    </select>
+    <select id="building" name="chosen_building">
+            <option value="illegal">----------</option>
+        {% for campus in campuses %}
+            <option value="{{campus.id}}">{{campus.id}}</option>
+        {% endfor %}
+
+    </select>
     <br>
     <br>
     {% csrf_token %}
     <h4>Spaces with room</h4>
     <br>
-    {% render_table table %}
+    <div id="avail_spaces_in_campus"></div>
     <h6 id="error" style="visibility:hidden">You must choose a business group in order to submit</h6>
     <button input="submit" disabled id="submit-btn" class="btn btn-primary">Submit</button>
     {{ error }}
@@ -68,6 +82,22 @@
             $("#error").css('visibility', 'visible');
             $("#business_group_requests").html("");
             $("#submit-btn").prop('disabled', true);
+      }
+    });
+
+    $("#campus").change(function () {
+      var url = $("#ChooseBusinessGroupForm").attr("data-campuses-url");
+      var campus = $(this).val();
+      if (campus.localeCompare("illegal") !== 0){
+          $.ajax({
+              url: url,
+              data: {
+                'campus': campus
+              },
+              success: function (data) {
+                $("#avail_spaces_in_campus").html(data);
+              }
+            });
       }
     });
 

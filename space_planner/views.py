@@ -108,8 +108,8 @@ def find_groups_in_floor(floor):
     return groups_str
 
 
-def get_spaces_with_room(request):
-    spaces = Space.objects.all()
+def get_spaces_with_room(request, campus):
+    spaces = Space.objects.filter(campus=campus)
     data = []
     for space in spaces:
         total_space, private_free_space, shared_free_space = get_amount_available_cubics_in_space(space)
@@ -138,13 +138,15 @@ def get_spaces_with_room(request):
 
 @user_is_space_planner
 def assign_space(request):
-    #TODO: add logic
     business_groups = BusinessGroup.objects.filter(admin_group=False)
-    spaces_table = get_spaces_with_room(request)
+    data = Space.objects.none()
+    spaces_table = SpacesTable(data, template_name="django_tables2/bootstrap.html")
+    # spaces_table = get_spaces_with_room(request)
+    campuses = Campus.objects.all()
     if request.method == 'GET':
         requests_table, requests_filter = get_business_group_requests(request)
         return render(request, 'space_planner/assignspace.html',
-                      {'table': spaces_table, 'business_groups': business_groups})
+                      {'business_groups': business_groups, 'campuses': campuses, 'table': spaces_table})
     else:
         try:
             if request.POST:
@@ -191,6 +193,13 @@ def load_requests(request):
         RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
         return render(request, 'space_planner/focal_point_request_info.html', {'table': table,
                                                                                'business_group': chosen_business_group})
+
+@user_is_space_planner
+def load_spaces(request):
+    chosen_campus = request.GET.get('campus')
+    print(chosen_campus)
+    avail_spaces = get_spaces_with_room(request, chosen_campus)
+    return render(request, 'space_planner/focal_point_request_info.html', {'table': avail_spaces})
 
 
 def get_amount_available_cubics_in_space(space):

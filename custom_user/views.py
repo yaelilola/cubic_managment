@@ -219,19 +219,24 @@ def delete_request(request, request_id):
 
 
 class CustomUserAutocomplete(autocomplete.Select2QuerySetView):
-    def get_queryset(self,qs_aux=None):
+    print(autocomplete.Select2QuerySetView)
+    def get_queryset(self, qs_aux=None):
         # Don't forget to filter out results depending on the visitor !
         if not self.request.user.is_authenticated:
             return CustomUser.objects.none()
 
         qs = CustomUser.objects.filter(admin=False)
-        if(qs_aux):
-            qs=qs_aux
+        if qs_aux:
+            qs = qs_aux
+
+        print(self.forwarded)
+
 
         if self.q:
-            qs = qs.filter(full_name__icontains=self.q,admin=False)
+            qs = qs.filter(full_name__icontains=self.q, admin=False)
 
         return qs
+
 
     def get_result_label(self, item):
         return format_html('<p>{} {}</p>', item.full_name, item.email)

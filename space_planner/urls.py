@@ -32,5 +32,6 @@ urlpatterns = [
          name='get_floor_table'),
     path('new_positions/', space_planner_views.display_new_positions, name='new_positions'),
     path('ajax/load-requests/', space_planner_views.load_requests, name='ajax_load_requests'),
+    path('ajax/load-spaces/', space_planner_views.load_spaces, name='ajax_load_campus_spaces'),
     path('alerts/', space_planner_views.get_alerts, name='alerts')
 ]

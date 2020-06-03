@@ -28,5 +28,5 @@ urlpatterns = [
     path('requests/', custom_user_views.display_requests, name='requests'),
     path('viewrequest/<int:request_id>', custom_user_views.display_request, name='viewrequest'),
     path('viewrequest/<int:request_id>/delete', custom_user_views.delete_request, name='deleterequest'),
-    path('customuser-autocomplete/', CustomUserAutocomplete.as_view(), name='customuser-autocomplete'),
+    path('customuser-autocomplete/', CustomUserAutocomplete.as_view(create_field='business_group'), name='customuser-autocomplete'),
 ]

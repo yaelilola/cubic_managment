@@ -47,8 +47,7 @@ class AssignPartTimeUserCubicForm(forms.Form):
 
 
 class AssignFullTimeUserCubicForm(forms.Form):
-    users = forms.ModelChoiceField(queryset=CustomUser.objects.all(), to_field_name="employee_number", widget=autocomplete.ModelSelect2(url='custom_user:customuser-autocomplete',
-                                                                   attrs={'data-placeholder': 'Type the user name ...','data-html': True}))
+    users = forms.ModelChoiceField(queryset=CustomUser.objects.none())
     cubics = forms.ModelChoiceField(queryset=Cubic.objects.none())
 
     def __init__(self, users_queryset, business_group, *args, **kwargs):
