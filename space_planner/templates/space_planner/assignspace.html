@@ -21,7 +21,8 @@
 <h1 class="Header">Assign spaces to business groups</h1>
 <br>
 <form method="post" id="ChooseBusinessGroupForm" action="{% url 'space_planner:assign'%}"
-      data-requests-url="{% url 'space_planner:ajax_load_requests' %}" data-campuses-url="{% url 'space_planner:ajax_load_campus_spaces' %}"  novalidate>
+      data-requests-url="{% url 'space_planner:ajax_load_requests' %}" data-campuses-url="{% url 'space_planner:ajax_load_campus_buildings' %}"
+      data-floors-url="{% url 'space_planner:ajax_load_campus_buildings_floors' %}" data-spaces-url="{% url 'space_planner:ajax_load_floor_spaces' %}" novalidate>
     <h4>Business Groups:</h4>
     <select id="business_group" name="chosen_business_group">
             <option value="illegal">----------</option>
@@ -30,6 +31,7 @@
         {% endfor %}
 
     </select>
+    <h4>Campuses:</h4>
     <select id="campus" name="chosen_campus">
             <option value="illegal">----------</option>
         {% for campus in campuses %}
@@ -37,12 +39,13 @@
         {% endfor %}
 
     </select>
+    <h4>Buildings:</h4>
     <select id="building" name="chosen_building">
-            <option value="illegal">----------</option>
-        {% for campus in campuses %}
-            <option value="{{campus.id}}">{{campus.id}}</option>
-        {% endfor %}
-
+          <option value="0">----------</option>
+    </select>
+     <h4>Floors:</h4>
+    <select id="floor" name="chosen_floor">
+          <option value="0">----------</option>
     </select>
     <br>
     <br>
@@ -87,17 +90,63 @@
 
     $("#campus").change(function () {
       var url = $("#ChooseBusinessGroupForm").attr("data-campuses-url");
+        $("#floor").html("<option value='0'>---------</option>");
       var campus = $(this).val();
-      if (campus.localeCompare("illegal") !== 0){
-          $.ajax({
-              url: url,
-              data: {
-                'campus': campus
-              },
-              success: function (data) {
-                $("#avail_spaces_in_campus").html(data);
-              }
-            });
+      if (campus == 0) { //Not selected
+        $("#building").html("<option value='0'>---------</option>");
+      } else {
+        $("#avail_spaces_in_campus").html("");
+        // disable the city select while the ajax request
+        $.ajax({
+          url: url,
+          data: {
+            'campus': campus
+          },
+          success: function (data) {
+            $("#building").html(data);
+          }
+        });
+      }
+    });
+
+    $("#building").change(function () {
+      var url = $("#ChooseBusinessGroupForm").attr("data-floors-url");
+      var building = $(this).val();
+      if (building == 0) { //Not selected
+        $("#floor").html("<option value='0'>---------</option>");
+      } else {
+        $("#avail_spaces_in_campus").html("");
+        // disable the city select while the ajax request
+        $.ajax({
+          url: url,
+          data: {
+            'building': building
+          },
+          success: function (data) {
+            $("#floor").html(data);
+          }
+        });
+      }
+    });
+
+    $("#floor").change(function () {
+      var url = $("#ChooseBusinessGroupForm").attr("data-spaces-url");
+      var floor = $(this).val();
+      if (floor != 0) { //Not selected
+       $("#avail_spaces_in_campus").html("");
+        $("#campus").prop('disabled',true);
+        $("#building").prop('disabled',true);
+        $.ajax({
+          url: url,
+          data: {
+            'floor': floor
+          },
+          success: function (data) {
+           $("#campus").removeAttr("disabled");
+            $("#building").removeAttr("disabled");
+            $("#avail_spaces_in_campus").html(data);
+          }
+        });
       }
     });
 

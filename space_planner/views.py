@@ -108,8 +108,8 @@ def find_groups_in_floor(floor):
     return groups_str
 
 
-def get_spaces_with_room(request, campus):
-    spaces = Space.objects.filter(campus=campus)
+def get_spaces_with_room(request, floor):
+    spaces = Space.objects.filter(floor=floor)
     data = []
     for space in spaces:
         total_space, private_free_space, shared_free_space = get_amount_available_cubics_in_space(space)
@@ -196,11 +196,25 @@ def load_requests(request):
 
 @user_is_space_planner
 def load_spaces(request):
-    chosen_campus = request.GET.get('campus')
-    print(chosen_campus)
-    avail_spaces = get_spaces_with_room(request, chosen_campus)
+    chosen_floor = request.GET.get('floor')
+    print(chosen_floor)
+    avail_spaces = get_spaces_with_room(request, chosen_floor)
     return render(request, 'space_planner/focal_point_request_info.html', {'table': avail_spaces})
 
+
+
+@user_is_space_planner
+def load_campus_buildings(request):
+    chosen_campus = request.GET.get('campus')
+    buildings = Building.objects.filter(campus=chosen_campus)
+    return render(request, 'space_planner/buildings_dropdown_list_options.html', {'buildings': buildings})
+
+@user_is_space_planner
+def load_campus_buildings_floors(request):
+    chosen_building = request.GET.get('building')
+    print('here in load campus ')
+    floors = Floor.objects.filter(building=chosen_building)
+    return render(request, 'space_planner/floors_dropdown_list_options.html', {'floors': floors})
 
 def get_amount_available_cubics_in_space(space):
     total_space = 0
