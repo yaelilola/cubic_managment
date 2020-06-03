@@ -12,7 +12,7 @@ from django_tables2 import RequestConfig
 from recruit.models import NewPosition
 from .filters import PositionFilter, RequestsFilter
 # from django.core.mail import send_mail
-from focal_point.views import get_available_cubics
+from focal_point.views import get_available_cubics_as_list
 from datetime import date
 from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta
@@ -27,23 +27,45 @@ def two_months_ago():
     today = date.today()
     return today - relativedelta(months=2)
 
+
+def get_amount_of_positions(bg, percentage):
+    business_group_new_positions = NewPosition.objects.filter(business_group=bg)
+    if percentage == 'full_time':
+        if len(business_group_new_positions) > 0:
+            return business_group_new_positions[0].college_graduate_internal_and_external + \
+                   business_group_new_positions[0].experienced_internal_and_external +\
+                   business_group_new_positions[0].intel_contract_employee_internal_and_external +\
+                   business_group_new_positions[0].technical_graduate_internal_and_external + \
+                   business_group_new_positions[0].college_graduate_internal_only + \
+                   business_group_new_positions[0].experienced_internal_only + \
+                   business_group_new_positions[0].intel_contract_employee_internal_only + \
+                   business_group_new_positions[0].technical_graduate_internal_only
+        else:
+            return 0
+    #looking for part time positions
+    else:
+        if len(business_group_new_positions) > 0:
+            return business_group_new_positions[0].student_intern_internal_and_external + \
+                   business_group_new_positions[0].student_intern_internal_only
+        else:
+            return 0
+
+
 @user_is_space_planner
 def get_alerts(request):
     if request.method == 'GET':
         data = []
         wanted_business_groups = BusinessGroup.objects.filter(admin_group=False)
         for bg in wanted_business_groups:
-            bg_free_shared_cubics_amount = len(get_available_cubics(bg,1,'shared'))
-            bg_free_private_cubics_amount = len(get_available_cubics(bg))
-            # searches new position that were created at least to month ago, so should be applied soon
-            bg_full_time_new_positions_amount = len(NewPosition.objects.filter(business_group=bg, percentage="full_time",
-                                                                               creation_date__lte=two_months_ago()))
-            bg_part_time_new_positions_amount = len(NewPosition.objects.filter(business_group=bg, percentage="part_time",
-                                                                               creation_date__lte=two_months_ago()))
-            bg_info = {'Business_Group': str(bg), 'Full_Time_New_Positions_Amount':bg_full_time_new_positions_amount,
+            bg_free_shared_cubics_amount = len(get_available_cubics_as_list(bg, 1, 'shared'))
+            bg_free_private_cubics_amount = len(get_available_cubics_as_list(bg))
+            # searches all new position
+            bg_full_time_new_positions_amount = get_amount_of_positions(bg, 'full_time')
+            bg_part_time_new_positions_amount = get_amount_of_positions(bg, 'part_time')
+            bg_info = {'Business_Group': str(bg), 'Full_Time_New_Positions_Amount': bg_full_time_new_positions_amount,
                        'Part_Time_New_Positions_Amount': bg_part_time_new_positions_amount,
-                       'Available_Private_Cubics':bg_free_private_cubics_amount,
-                       'Available_Shared_Cubics':bg_free_shared_cubics_amount}
+                       'Available_Private_Cubics': bg_free_private_cubics_amount,
+                       'Available_Shared_Cubics': bg_free_shared_cubics_amount}
             if bg_free_private_cubics_amount == 0:
                 bg_info.update({'Full_Time_Cubics_Expected_Utilization': 200})
             else:
@@ -54,10 +76,10 @@ def get_alerts(request):
                 bg_info.update({'Part_Time_Cubics_Expected_Utilization': 200})
             else:
                 bg_info.update({'Part_Time_Cubics_Expected_Utilization':
-                                    bg_part_time_new_positions_amount*100 / bg_free_shared_cubics_amount})
+                                    bg_part_time_new_positions_amount * 100 / bg_free_shared_cubics_amount})
             data.append(bg_info)
         table = AlertsTable(data, template_name="django_tables2/bootstrap.html")
-        RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
+        RequestConfig(request, paginate={"per_page": 30, "page": 1}).configure(table)
         return render(request, 'space_planner/alerts.html', {'table': table})
 
 def get_business_group_requests(request):

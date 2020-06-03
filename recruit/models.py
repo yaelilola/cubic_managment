@@ -5,10 +5,15 @@ MAX_LENGTH = 100
 
 
 class NewPosition(models.Model):
-    name = models.CharField(max_length=MAX_LENGTH, blank=True)
-    percentage = models.CharField(choices=(('full_time', 'full_time'), ('part_time', 'part_time')), max_length=MAX_LENGTH)
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE)
-    creation_date = models.DateField(default=now)
-
-    def __str__(self):
-        return self.name
+    creation_date = models.DateField(default=now, null=True, blank=True)
+    college_graduate_internal_and_external = models.IntegerField()
+    experienced_internal_and_external = models.IntegerField()
+    intel_contract_employee_internal_and_external = models.IntegerField()
+    student_intern_internal_and_external = models.IntegerField()
+    technical_graduate_internal_and_external = models.IntegerField()
+    college_graduate_internal_only = models.IntegerField()
+    experienced_internal_only = models.IntegerField()
+    intel_contract_employee_internal_only = models.IntegerField()
+    student_intern_internal_only = models.IntegerField()
+    technical_graduate_internal_only = models.IntegerField()

@@ -26,7 +26,7 @@ def get_floors(space_details_sheet):
 def get_spaces(space_details_sheet):
     space_details_sheet = add_space_id(space_details_sheet)
     df = space_details_sheet[space_details_sheet['Current Use Space Class']
-        .isin(['Cube', 'Low Density Lab', 'High Density Lab'])]
+        .isin(['Cube', '120', 'AWS', 'Bench', 'Low Density Lab', 'High Density Lab'])]
     df = (df[['City', 'Building ID', 'Space_ID', 'Area (SF)', 'Floor Name']]).drop_duplicates()
     df['floor_id'] = df['Building ID'] + "-" + df['Floor Name']
     df = df.groupby(['City', 'Building ID', 'Space_ID', 'floor_id'], as_index=False).sum()
@@ -42,27 +42,31 @@ def add_space_id(space_details_sheet):
     space_details_sheet['Space_ID'] = space_ids
     return space_details_sheet
 
-
+"""
+Parsing the xslx files in order to get the data for the cubic model.
+We need both the space_detail_sheet and the personnel_directory sheet so we could get the business group that the cubic 
+is assigned to. 
+"""
 def get_cubics(space_details_sheet, personnel_directory_sheet):
     personnel_directory_sheet['id'] = personnel_directory_sheet['Building ID'] + "-" + \
-                                            personnel_directory_sheet['Floor'] + "-" + personnel_directory_sheet[
-                                                'Space']
+                                            personnel_directory_sheet['Floor'] + "-" + \
+                                      personnel_directory_sheet['Space Label']
     ps_df = personnel_directory_sheet[['Group', 'id']].dropna()
     ps_df = ps_df.drop_duplicates(subset='id')
     space_details_sheet = add_space_id(space_details_sheet)
-    df = space_details_sheet[space_details_sheet['Current Use Space Class'].isin(['Cube'])]
+    df = space_details_sheet[space_details_sheet['Current Use Space Class'].isin(['Cube', '120', 'AWS', 'Bench'])]
     df.loc[df['Capacity'] > 1, 'Capacity'] = 'shared'
     df.loc[df['Capacity'] == 1, 'Capacity'] = 'private'
     df['floor_id'] = df['Building ID'] + "-" + df['Floor Name']
-    df = df[['City', 'Building ID', 'floor_id', 'Space_ID', 'Bar Code', 'Capacity', 'Area (SF)']]\
+    df['id'] = df['floor_id'] + "-" + df['Space Label']
+    df = df[['City', 'Building ID', 'floor_id', 'Space_ID', 'id', 'Capacity', 'Area (SF)']]\
         .rename(columns={'City': 'campus_id', 'Building ID': 'building_id', 'Space_ID': 'space_id',
-                         'Area (SF)': 'area', 'Bar Code': 'id', 'Capacity': 'type'})
+                         'Area (SF)': 'area', 'Capacity': 'type'})
     df['name'] = 'Cubic'
     joined = df.join(ps_df.set_index('id'), on='id')
     joined = joined[['campus_id', 'name', 'building_id', 'floor_id', 'space_id', 'id', 'type', 'area', 'Group']].\
-        rename(columns={'Group': 'business_group_id'})
+        rename(columns={'Group': 'business_group_id'}).drop_duplicates(subset='id').dropna(subset=['id'])
     # joined = joined.reset_index(drop=True)
-    print(joined)
     return joined
 
 def get_labs(space_details_sheet):
@@ -70,10 +74,11 @@ def get_labs(space_details_sheet):
     df = space_details_sheet[space_details_sheet['Current Use Space Class']
         .isin(['Low Density Lab', 'High Density Lab'])]
     df['floor_id'] = df['Building ID'] + "-" + df['Floor Name']
-    df = df[['City', 'Building ID', 'floor_id', 'Space_ID', 'Bar Code', 'Current Use Space Class', 'Area (SF)']]\
+    df['id'] = df['floor_id'] + df['Space Label']
+    df = df[['City', 'Building ID', 'floor_id', 'Space_ID', 'id', 'Current Use Space Class', 'Area (SF)']]\
         .rename(columns={'City': 'campus_id', 'Building ID': 'building_id', 'Space_ID': 'space_id',
-                         'Area (SF)': 'area', 'Bar Code': 'id',
-                         'Current Use Space Class': 'type'})
+                         'Area (SF)': 'area', 'Current Use Space Class': 'type'}).drop_duplicates(subset='id')\
+        .dropna(subset=['id'])
     df['name'] = 'Lab'
     return df
 
@@ -122,13 +127,13 @@ def parse_facilities(space_details_sheet, personnel_directory_sheet, conn):
 def parse_users(personnel_directory_sheet,conn):
     personnel_directory_sheet['full_name'] = personnel_directory_sheet['First Name'] + " " + \
                                              personnel_directory_sheet['Last Name']
-    df = personnel_directory_sheet[
-        ['WWID', 'full_name', 'Employee Type', 'Active Start Date', 'Group', 'Email Address']]\
+    pds = personnel_directory_sheet.rename(columns={'Badge Type': 'BadgeType'})
+    pds = pds.query('BadgeType == "EMP"')
+    df = pds[['WWID', 'full_name', 'Employee Type', 'Active Start Date', 'Group', 'Email Address']]\
         .fillna(value={'Employee Type': 'R'})
-   # df = df.head(100)
+    df = df.head(10)
     passwords = []
     for emp_num in df['WWID'].tolist():
-        #hashed = pbkdf2_sha256.using(rounds=180000, salt_size=12).hash(str(emp_num))
         hashed = make_password(str(emp_num))
         passwords.append(hashed)
         print(emp_num)
@@ -137,7 +142,7 @@ def parse_users(personnel_directory_sheet,conn):
     df = df.rename(columns={'WWID': 'employee_number', 'Employee Type': 'percentage', 'Active Start Date': 'start_date',
                      'Group': 'business_group_id', 'Email Address': 'email'})
     df.email.fillna("NA_" + df.employee_number.astype(str) + "@intel.com", inplace=True)
-    df.business_group_id.fillna("Other", inplace=True)
+    df.dropna(subset=['business_group_id'])
     df = df.replace({'percentage': r'^R$'}, {'percentage': 'full_time'}, regex=True)\
         .replace({'percentage': r'^S$'}, {'percentage': 'part_time'}, regex=True)\
         .replace({'percentage': r'^I$'}, {'percentage': 'part_time'}, regex=True)
@@ -156,37 +161,46 @@ def parse_business_groups(personnel_directory_sheet, conn):
     write_to_sqlite('custom_user_businessgroup', df, conn)
 
 def parse_assign_user_cubic(personnel_directory_sheet, conn):
-    personnel_directory_sheet['cubic_id'] = personnel_directory_sheet['Building ID'] + "-" + \
-                                         personnel_directory_sheet['Floor'] + "-" + personnel_directory_sheet['Space']
-    df = personnel_directory_sheet.rename(columns={'Email Address': 'email'})
-    # df.email.fillna("NA_" + df.WWID.astype(str) + "@intel.com", inplace=True)
-    # df['assigned_user_id'] = df['First Name'] + " " + df['Last Name'] + " " + df['email']
+    df = personnel_directory_sheet.rename(columns={'Full Cubic': 'cubic_id'})
+    df = df[df.cubic_id != '--']
     df['assigned_user_id'] = df['WWID']
     df = df[['cubic_id', 'assigned_user_id']].dropna()
     write_to_sqlite('assign_assignusercubic', df, conn)
 
-def parse_new_positions(fdo_sheet, conn):
-    df = fdo_sheet.replace({'EE Type': r'^R$'}, {'EE Type': 'full_time'}, regex=True)\
-        .replace({'EE Type': r'^S$'}, {'EE Type': 'part_time'}, regex=True)
-    df = df[['Job Type', 'EE Type', 'Start Date', 'Group']].\
-        rename(columns={'Job Type': 'name', 'EE Type': 'percentage', 'Group': 'business_group_id',
-                        'Start Date': 'creation_date'})
-    df['creation_date'] = df['creation_date'].dt.date
+def parse_new_positions(israel_positions, conn):
+    israel_positions = israel_positions[
+        ['Org Level 4', 'College Graduate', 'Experienced', 'Intel Contract Employee', 'Student / Intern',
+         'Technical Graduate', 'College Graduate.1', 'Experienced.1', 'Intel Contract Employee.1', 'Student / Intern.1',
+         'Technical Graduate.1']]
+    israel_positions = israel_positions.rename(columns={'Org Level 4': 'business_group_id',
+                                                        'College Graduate': 'college_graduate_internal_and_external',
+                                                        'College Graduate.1': 'college_graduate_internal_only',
+                                                        'Experienced': 'experienced_internal_and_external',
+                                                        'Experienced.1': 'experienced_internal_only',
+                                                        'Intel Contract Employee': 'intel_contract_employee_internal_and_external',
+                                                        'Intel Contract Employee.1': 'intel_contract_employee_internal_only',
+                                                        'Student / Intern': 'student_intern_internal_and_external',
+                                                        'Student / Intern.1': 'student_intern_internal_only',
+                                                        'Technical Graduate': 'technical_graduate_internal_and_external',
+                                                        'Technical Graduate.1': 'technical_graduate_internal_only'})
+    df = israel_positions.groupby(['business_group_id'], as_index=False).sum()
     write_to_sqlite('recruit_newposition', df, conn)
 
 def parse2():
     loc = (r"C:\Users\owner\Desktop\uni\Sem8\industrial\parse_xlsx\ISR Planning V2.2.xlsx")
+    loc2 = (r"C:\Users\owner\Desktop\uni\Sem8\industrial\parse_xlsx\Open_Positions.xlsx")
     db_file = r"C:\Users\owner\Desktop\uni\Sem8\industrial\parse_xlsx\db.sqlite3"
     xl = pd.ExcelFile(loc)
+    xl2 = pd.ExcelFile(loc2)
     space_details_sheet = xl.parse('Space Details (Raw)')
     personnel_directory_sheet = xl.parse('Personnel Directory (Raw)')
+    israel_positions = xl2.parse('GER and GAM Open Positions').query('Country == "Israel"')
     conn = sqlite3.connect(db_file)
     parse_facilities(space_details_sheet, personnel_directory_sheet, conn)
     parse_users(personnel_directory_sheet, conn)
     parse_business_groups(personnel_directory_sheet, conn)
     parse_assign_user_cubic(personnel_directory_sheet, conn)
-    fdo_sheet = xl.parse('FDO')
-    parse_new_positions(fdo_sheet, conn)
+    parse_new_positions(israel_positions, conn)
     conn.close()
 
 

@@ -47,6 +47,15 @@ def is_cubic_available(cubic, person_amount=1):
             return False
 
 
+def get_available_cubics_as_list(business_group, person_amount=1, cubic_type='private'):
+    cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
+    avail_cubics = []
+    for cubic in cubics_queryset_aux:
+        if is_cubic_available(cubic, person_amount)is True:
+            avail_cubics.append(cubic)
+    return avail_cubics
+
+
 def get_available_cubics(business_group, person_amount=1, cubic_type='private'):
     cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
     cubics_queryset = cubics_queryset_aux
@@ -54,6 +63,7 @@ def get_available_cubics(business_group, person_amount=1, cubic_type='private'):
         if is_cubic_available(cubic, person_amount)is False:
             cubics_queryset = cubics_queryset.exclude(id=cubic.id)
     return cubics_queryset
+
 
 
 def all_assignments_are_okay(business_group,assigned_users, cubics, cubic_type='private'):
