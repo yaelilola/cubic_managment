@@ -65,7 +65,8 @@ def signupuser(request):
                                                           start_date=datetime.datetime.strptime(request.POST['start_date'], "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST['start_date'] != '' else None,
                                                           end_date=datetime.datetime.strptime(request.POST['end_date'], "%d/%m/%Y").strftime("%Y-%m-%d")if request.POST['end_date'] != '' else None,
                                                           business_group=BusinessGroup(request.POST['business_group']),
-                                                          password=request.POST['password'],)
+                                                          password=request.POST['password'],
+                                                          full_name=request.POST['full_name'])
                     #TODO - add start date and end date handling
                     user.save()
                     login(request, user)

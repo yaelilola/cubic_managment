@@ -17,7 +17,7 @@ class BusinessGroup(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, employee_number, percentage, business_group, focal_point=False, space_planner=False,
+    def create_user(self, email, employee_number, percentage, business_group, full_name, focal_point=False, space_planner=False,
                     start_date=None, end_date=None, password=None):
         """
         Creates and saves a User with the given email and password.
@@ -33,7 +33,8 @@ class UserManager(BaseUserManager):
             percentage=percentage,
             business_group=business_group,
             focal_point=focal_point,
-            space_planner=space_planner
+            space_planner=space_planner,
+            full_name=full_name,
         )
 
         user.set_password(password)

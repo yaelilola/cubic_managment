@@ -129,22 +129,24 @@ def assign(request, form_type, cubic_type, percentage):
     cubics_queryset = get_available_cubics(business_group, 1, cubic_type)
     if request.method == 'GET':
         return render(request, 'focal_point/assign.html',
-                      {'form': form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset)})
+                      {'form': form_type(users_queryset=users_queryset, business_group=business_group)})
     else:
 
         try:
-            form = form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
+            # form = form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
             if request.POST:
-
-                assigned_users = request.POST.get("users")
+                print(request.POST)
+                assigned_users = request.POST.getlist('users')
                 print(assigned_users)
-                cubics = request.POST.get("cubics")
+                cubics = request.POST.getlist('cubics')
                 print(cubics)
                 if cubic_type == 'private':
                     cubics = [cubics]
                     assigned_users = [assigned_users]
                 assigned_users = CustomUser.objects.filter(employee_number__in=assigned_users)
+                print(assigned_users)
                 cubics = Cubic.objects.filter(id__in=cubics)
+                print(cubics)
                 # assigned_users = form.cleaned_data.get("users")
                 # cubics = form.cleaned_data.get("cubics")
                 # assigned_users_query_set = BusinessGroup.objects.filter(id=request.POST.get('business_group'),
@@ -160,6 +162,7 @@ def assign(request, form_type, cubic_type, percentage):
                         for cubic in cubics:
                             try:
                                 assignment = AssignUserCubic(assigned_user=user, cubic=cubic)
+                                print("here163")
                                 assignment.save()
                                 send_assign_notification(request.user.email, assigned_users, cubics)
                             except Exception as e:
