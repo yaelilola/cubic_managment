@@ -41,7 +41,7 @@ def is_cubic_available(cubic, person_amount=1):
             return False
     else:
     #should be shared
-        if len(AssignUserCubic.objects.filter(cubic=cubic))+person_amount <= 2:
+        if len(AssignUserCubic.objects.filter(cubic=cubic))+person_amount <= cubic.capacity:
             return True
         else:
             return False
@@ -135,27 +135,21 @@ def assign(request, form_type, cubic_type, percentage):
         try:
             # form = form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
             if request.POST:
-                print(request.POST)
+                # print(request.POST)
                 assigned_users = request.POST.getlist('users')
-                print(assigned_users)
+                # print(assigned_users)
                 cubics = request.POST.getlist('cubics')
-                print(cubics)
+                # print(cubics)
                 if cubic_type == 'private':
-                    cubics = [cubics]
-                    assigned_users = [assigned_users]
+                    # cubics = [cubics]
+                    # assigned_users = [assigned_users]
+                    cubics = cubics
+                    assigned_users = assigned_users
+                print(assigned_users)
                 assigned_users = CustomUser.objects.filter(employee_number__in=assigned_users)
                 print(assigned_users)
                 cubics = Cubic.objects.filter(id__in=cubics)
                 print(cubics)
-                # assigned_users = form.cleaned_data.get("users")
-                # cubics = form.cleaned_data.get("cubics")
-                # assigned_users_query_set = BusinessGroup.objects.filter(id=request.POST.get('business_group'),
-                #                                                                admin_group=False)
-                # chosen_employee_query_set = CustomUser.objects.filter(employee_number=request.POST.get('employee'))
-                # if len(chosen_business_group_query_set) == 0 or len(
-                #         chosen_employee_query_set) == 0:  # cant submit form with at least one empty field
-                #     return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm(),
-                #                                                                      'error': 'please fill all forms'})
                 #todo - complete the check if the form was empty
                 if all_assignments_are_okay(business_group, assigned_users, cubics, cubic_type):
                     for user in assigned_users:
@@ -170,13 +164,12 @@ def assign(request, form_type, cubic_type, percentage):
                                     pass
                 else:
                     return render(request, 'focal_point/assign.html',
-                                  {'form': form_type(users_queryset=users_queryset,
-                                                                       cubics_queryset=cubics_queryset),
+                                  {'form': form_type(users_queryset=users_queryset, business_group=business_group),
                                    'error': 'There is not enough place in the selected cubics'})
             return redirect('focal_point:assignments')
         except ValueError:
             return render(request, 'focal_point/assign.html',
-                          {'form': form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset), 'error': 'Bad data passed in'})
+                          {'form': form_type(users_queryset=users_queryset, business_group=business_group), 'error': 'Bad data passed in'})
 
 
 
@@ -194,13 +187,13 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
     cubics_queryset = Cubic.objects.filter(id__in=(available_cubics_ids + current_cubics_ids))
     if request.method == 'GET':
         form =form_type(users_queryset=CustomUser.objects.filter(pk=user_id)
-                                           ,cubics_queryset=cubics_queryset,
+                                           , business_group=business_group,
                                            initial={'cubics': current_cubics,'users': wanted_user})
         return render(request, 'focal_point/viewuserassignments.html', {'curr_user': wanted_user, 'form': form})
     else:
         try:
-            form = form_type(users_queryset=CustomUser.objects.filter(pk=user_id),
-                                               cubics_queryset=cubics_queryset, data=request.POST or None)
+            form = form_type(users_queryset=CustomUser.objects.filter(pk=user_id), business_group=business_group,
+                             data=request.POST or None)
 
             if request.POST:
                 if form.is_valid():
@@ -226,7 +219,7 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
                     return render(request, 'focal_point/viewuserassignments.html',
                                   {'curr_user': wanted_user,'form': form})
         except ValueError:
-            form = form_type(users_queryset=CustomUser.objects.filter(pk=user_id), cubics_queryset=cubics_queryset,data=request.POST or None)
+            form = form_type(users_queryset=CustomUser.objects.filter(pk=user_id), business_group=business_group, data=request.POST or None)
             return render(request, 'focal_point/viewuserassignments.html',
                           {'curr_user': wanted_user, 'error': 'Bad info', 'form': form})
 

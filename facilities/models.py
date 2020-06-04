@@ -112,6 +112,7 @@ class Space(models.Model):
 class Cubic(models.Model):
     id = models.CharField(primary_key=True, max_length=MAX_LENGTH)
     type = models.CharField(choices=(('shared', 'shared'), ('private', 'private')), max_length=MAX_LENGTH)
+    capacity = models.PositiveIntegerField(default=1)
     space = models.ForeignKey(Space, on_delete=models.CASCADE)
     business_group = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, null=True, blank=True)
     area = models.DecimalField(decimal_places=5, max_digits=10)

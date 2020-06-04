@@ -197,7 +197,6 @@ def load_requests(request):
 @user_is_space_planner
 def load_spaces(request):
     chosen_floor = request.GET.get('floor')
-    print(chosen_floor)
     avail_spaces = get_spaces_with_room(request, chosen_floor)
     return render(request, 'space_planner/focal_point_request_info.html', {'table': avail_spaces})
 
@@ -212,7 +211,6 @@ def load_campus_buildings(request):
 @user_is_space_planner
 def load_campus_buildings_floors(request):
     chosen_building = request.GET.get('building')
-    print('here in load campus ')
     floors = Floor.objects.filter(building=chosen_building)
     return render(request, 'space_planner/floors_dropdown_list_options.html', {'floors': floors})
 
@@ -223,20 +221,13 @@ def get_amount_available_cubics_in_space(space):
     private_cubics = Cubic.objects.filter(space=space, type='private')
     total_space += len(private_cubics)
     shared_cubics = Cubic.objects.filter(space=space, type='shared')
-    total_space += 2*len(shared_cubics)
+    for cubic in shared_cubics:
+        total_space += cubic.capacity
     free_private_cubics = private_cubics.filter(business_group__isnull=True)
     private_free_space += len(free_private_cubics)
     free_shared_cubics = shared_cubics.filter(business_group__isnull=True)
-    shared_free_space += 2*len(free_shared_cubics)
-    # for cubic in cubics:
-    #     if cubic.type == 'private':
-    #         total_space += 1
-    #         if cubic.business_group is None:
-    #             private_free_space += 1
-    #     if cubic.type == 'shared':
-    #         total_space += 2
-    #         if cubic.business_group is None:
-    #             shared_free_space += 2
+    for cubic in free_shared_cubics:
+        shared_free_space += cubic.capacity
     return total_space, private_free_space, shared_free_space
 
 
@@ -254,14 +245,13 @@ def get_space_utilization(space):
             else:
                 private_space += 1
         if cubic.type == 'shared':
-            total_space += 2
-            if len(AssignUserCubic.objects.filter(cubic=cubic)) == 1:
-                occupied_space += 1
-                shared_space += 1
-            elif len(AssignUserCubic.objects.filter(cubic=cubic)) == 2:
-                occupied_space += 2
-            else:
-                shared_space += 2
+            total_space += cubic.capacity
+            cubic_assignments_amount = len(AssignUserCubic.objects.filter(cubic=cubic))
+            if cubic_assignments_amount < cubics.capacity:
+                occupied_space += cubic_assignments_amount
+                shared_space += (cubics.capacity-cubic_assignments_amount)
+            elif cubic_assignments_amount == cubics.capacity:
+                occupied_space += cubics.capacity
     return total_space, occupied_space, private_space, shared_space
 
 
