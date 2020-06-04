@@ -7,7 +7,8 @@ from custom_user.models import CustomUser, BusinessGroup
 from .forms import ChooseFocalPointForm
 from cubic_managment.decorators import user_is_space_planner
 from assign.models import AssignUserCubic
-from .tables import CampusTable, BuildingTable, FloorTable, NewPositionTable, FocalPointRequestsTable, SpacesTable, AlertsTable
+from .tables import CampusTable, CampusTable_no_mean, BuildingTable, BuildingTable_no_mean, FloorTable, \
+    FloorTable_no_mean, NewPositionTable, FocalPointRequestsTable, SpacesTable, AlertsTable
 from django_tables2 import RequestConfig
 from recruit.models import NewPosition
 from .filters import PositionFilter, RequestsFilter
@@ -344,7 +345,10 @@ def get_floor_statistics(building):
 @user_is_space_planner
 def get_building_table(request, campus_id):
     data = get_building_statistics(campus_id)
-    table = BuildingTable(data, template_name="django_tables2/bootstrap.html")
+    if len(data)>0:
+        table = BuildingTable(data, template_name="django_tables2/bootstrap.html")
+    else:
+        table = BuildingTable_no_mean(data, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
     return render(request, 'space_planner/building_statistics.html', {'table': table, 'campus_id': campus_id})
 
@@ -354,7 +358,10 @@ def get_floor_table(request, campus_id, building_id):
     building = get_object_or_404(Building, id=building_id)
     campus = building.campus
     path = str(campus) + "/" + str(building_id)
-    table = FloorTable(data, template_name="django_tables2/bootstrap.html")
+    if len(data)>0:
+        table = FloorTable(data, template_name="django_tables2/bootstrap.html")
+    else:
+        table = FloorTable_no_mean(data, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
     return render(request, 'space_planner/floor_statistics.html', {'table': table, 'campus_id': campus_id,
                                                                    'building_id': building_id})
@@ -363,7 +370,10 @@ def get_floor_table(request, campus_id, building_id):
 @user_is_space_planner
 def get_statistics(request):
     data = get_campus_statistics()
-    table = CampusTable(data, template_name="django_tables2/bootstrap.html")
+    if len(data)>0:
+        table = CampusTable(data, template_name="django_tables2/bootstrap.html")
+    else:
+        table = CampusTable_no_mean(data, template_name="django_tables2/bootstrap.html")
     RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
     return render(request, 'space_planner/campus_statistics.html', {'table': table})
 

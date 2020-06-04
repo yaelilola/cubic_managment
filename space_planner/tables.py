@@ -23,8 +23,14 @@ class CampusTable(tables.Table):
     Office_EEs = ColumnWithName(verbose_name="Office_EEs (taken cubics)",orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
     Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
                                  footer=lambda table: mean(x["Utilization"] for x in table.data))
-    #Utilization = tables.Column(orderable=True, attrs={"td": {"class": "utilization"}})
 
+class CampusTable_no_mean(tables.Table):
+    Campus = tables.Column(orderable=True,
+                           linkify={"viewname": "space_planner:get_building_table", "args": [tables.A("Campus__pk")]},
+                           empty_values=(), footer='Total:')
+    Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
+    Office_EEs = ColumnWithName(verbose_name="Office_EEs (taken cubics)",orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}})
 
 class BuildingTable(tables.Table):
     Campus = tables.Column(visible=False)
@@ -38,6 +44,17 @@ class BuildingTable(tables.Table):
     Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
                                  footer=lambda table: mean(x["Utilization"] for x in table.data))
 
+class BuildingTable_no_mean(tables.Table):
+    Campus = tables.Column(visible=False)
+    Building = tables.Column(orderable=True, empty_values=(), footer='Total:',
+                             linkify={"viewname": "space_planner:get_floor_table",
+                                      "args": [tables.A('Campus'), tables.A('Building')]})
+
+    Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
+    Office_EEs = ColumnWithName(verbose_name="Office_EEs (taken cubics)", orderable=True,
+                                footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}})
+
 
 class FloorTable(tables.Table):
     Floor = tables.Column(orderable=True, empty_values=(), footer='Total:')
@@ -46,6 +63,14 @@ class FloorTable(tables.Table):
                                 footer=lambda table: sum(x["Office_EEs"] for x in table.data))
     Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
                                  footer=lambda table: mean(x["Utilization"] for x in table.data))
+
+class FloorTable_no_mean(tables.Table):
+    Floor = tables.Column(orderable=True, empty_values=(), footer='Total:')
+    Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
+    Office_EEs = ColumnWithName(verbose_name="Office_EEs (taken cubics)", orderable=True,
+                                footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True,
+                                 attrs={"td": {"class": "utilization"}})
 
 
 class NameTable(tables.Table):
