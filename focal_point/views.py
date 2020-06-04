@@ -294,6 +294,11 @@ def create_request(request):
             request_copy['near_low_density_lab'] = True if request.POST.get('near_low_density_lab', False) == 'on' else False
             request_copy['near_high_density_lab'] = True if request.POST.get('near_high_density_lab', False) == 'on' else False
             request_copy['destination_date'] = datetime.datetime.strptime(request.POST.get('destination_date', ''), "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST.get('destination_date') != '' else None
+
+            request_copy['full_time_employees_amount'] = 0 if request.POST.get('full_time_employees_amount') == '' else request.POST.get('full_time_employees_amount')
+            request_copy['part_time_employees_amount'] = 0 if request.POST.get(
+                'part_time_employees_amount') == '' else request.POST.get('part_time_employees_amount')
+
             if request.POST.get('business_group_near_by') != '':
                 request_copy['business_group_near_by'] = BusinessGroup.objects.filter(id=request.POST.get('business_group_near_by'))[0]
             else:
@@ -302,22 +307,31 @@ def create_request(request):
                 request_copy['campus'] = Campus.objects.filter(id=request.POST.get('campus'))[0]
             else:
                 request_copy['campus'] = None
-            if request.POST.get('building') != '0':
+            if request.POST.get('building') != '0' and request.POST.get('building') != '':
                 request_copy['building'] = Building.objects.filter(id=request.POST.get('building'))[0]
                 print(request_copy['building'])
             else:
                 request_copy['building'] = None
-            if request.POST.get('floor') != '0':
+            if request.POST.get('floor') != '0' and request.POST.get('floor') != '':
                 request_copy['floor'] = Floor.objects.filter(id=request.POST.get('floor'))[0]
                 print(request_copy['floor'])
             else:
                 request_copy['floor'] = None
-            print(request_copy)
-            form = FocalPointRequestForm(request_copy, business_group_qs=qs)
-            print(form.is_valid())
-            new_request = form.save(commit=False)
-            new_request.business_group = request.user.business_group
-            new_request.save()
+            # form = FocalPointRequestForm(request_copy, business_group_qs=qs) // form was not working- maybe because of the added ajax.
+            # new_request = form.save(commit=False)
+            new_request = FocalPointRequest.objects.create(business_group=request.user.business_group,
+                                                           full_time_employees_amount=request_copy['full_time_employees_amount'],
+                                                           part_time_employees_amount=request_copy[
+                                                               'part_time_employees_amount'],
+                                                           business_group_near_by=request_copy['business_group_near_by'],
+                                                           campus=request_copy['campus'],
+                                                           building=request_copy['building'],
+                                                           floor=request_copy['floor'],
+                                                           near_low_density_lab=request_copy['near_low_density_lab'],
+                                                           near_high_density_lab=request_copy['near_high_density_lab'],
+                                                           destination_date=request_copy['destination_date'])
+            # new_request.business_group = request.user.business_group
+            # new_request.save()
             send_notification(request, new_request)
             return redirect('focal_point:myrequests')
         except ValueError:
