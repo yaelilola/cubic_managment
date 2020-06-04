@@ -25,10 +25,6 @@
             height: 200px;
         }
 
-        #focal_point_items{
-        margin-bottom: 200px;
-        }
-
     </style>
         {% if user.focal_point%}
             <div class="row justify-content-center mb-3">
@@ -38,7 +34,6 @@
             </div>
             <br>
             <br>
-        <div class="row justify-content-center custom_row" id="focal_point_items">
             <div class="row justify-content-center custom_row">
                 <div class="row justify-content-center text-center action" >
                 You have {{un_read_requests.count}} unread message{{ un_read_requests.count|pluralize }}
@@ -68,24 +63,25 @@
                  </div>
             </div> <!--first row-->
             <br>
+            <br>
             <div class="row justify-content-center custom_row">
-            <div class="row justify-content-center text-center action" >
-                Previous assignments
-                <a href="{% url 'focal_point:assignments' %}">
-                  <img src="{% static 'img/baseline_create_black_48dp.png' %}" class="img-fluid mb-2">
-                    <br>
-                    <input type="button" value="Assignments" class="btn btn-primary">
-                </a>
-             </div>
+                <div class="row justify-content-center text-center action" >
+                    Previous assignments
+                    <a href="{% url 'focal_point:assignments' %}">
+                      <img src="{% static 'img/baseline_create_black_48dp.png' %}" class="img-fluid mb-2">
+                        <br>
+                        <input type="button" value="Assignments" class="btn btn-primary">
+                    </a>
+                 </div>
 
-             <div class="row justify-content-center text-center action" >
-                Business Group Floor Statistics
-                <a href="{% url 'focal_point:bg_floor_statistics' %}">
-                   <img src="{% static 'img/baseline_house_black_48dp.png' %}" class="img-fluid mb-2">
-                    <br>
-                    <input type="button" value="Statistics" class="btn btn-primary">
-                </a>
-             </div>
+                 <div class="row justify-content-center text-center action" >
+                    Business Group Floor Statistics
+                    <a href="{% url 'focal_point:bg_floor_statistics' %}">
+                       <img src="{% static 'img/baseline_house_black_48dp.png' %}" class="img-fluid mb-2">
+                        <br>
+                        <input type="button" value="Statistics" class="btn btn-primary">
+                    </a>
+                 </div>
             </div><!--second row-->
 </div>
         {% endif %}
