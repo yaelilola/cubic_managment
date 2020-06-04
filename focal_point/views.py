@@ -12,8 +12,9 @@ import datetime
 # from django.core.mail import send_mail
 from .tables import UserRequestsTable, AssignmentsTable, AssignmentsFilter
 from django_tables2 import RequestConfig
-from space_planner.tables import NewPositionTable
+from space_planner.tables import NewPositionTable, FloorTable_no_mean, FloorTable
 from space_planner.filters import PositionFilter
+from space_planner.views import get_floor_utilization
 
 # Create your views here.
 #foacl point actions
@@ -429,3 +430,33 @@ def delete_request(request, request_id):
     if request.method == 'POST':
         curr_request.delete()
         return redirect('focal_point:myrequests')
+
+
+def get_focal_point_floors(focal_point_business_group):
+    floors = [cubic.floor for cubic in Cubic.objects.filter(business_group=focal_point_business_group)]
+    floors_set = set(floors)
+    return list(floors_set)
+
+
+def get_focal_point_floors_statistics(focal_point_business_group):
+    floors = get_focal_point_floors(focal_point_business_group)
+    data = []
+    for floor in floors:
+        total_floor_space, floor_occupied_space = get_floor_utilization(floor,focal_point_business_group)
+        floor_info = {'Floor': floor,
+                      'Capacity': total_floor_space, 'Office_EEs': floor_occupied_space,
+                      'Utilization': 200 if total_floor_space == 0 else float(
+                          (floor_occupied_space * 100)) / total_floor_space}
+        data.append(floor_info)
+    return data
+
+@user_is_focal_point
+def get_floor_statistics(request):
+    data = get_focal_point_floors_statistics(request.user.business_group)
+    if len(data)>0:
+        table = FloorTable(data, template_name="django_tables2/bootstrap.html")
+    else:
+        table = FloorTable_no_mean(data, template_name="django_tables2/bootstrap.html")
+    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    return render(request, 'focal_point/floor_statistics.html', {'table': table})
+

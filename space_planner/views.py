@@ -13,7 +13,6 @@ from django_tables2 import RequestConfig
 from recruit.models import NewPosition
 from .filters import PositionFilter, RequestsFilter
 # from django.core.mail import send_mail
-from focal_point.views import get_available_cubics_as_list
 from datetime import date
 from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta
@@ -232,12 +231,15 @@ def get_amount_available_cubics_in_space(space):
     return total_space, private_free_space, shared_free_space
 
 
-def get_space_utilization(space):
+def get_space_utilization(space, business_group=None):
     total_space = 0
     occupied_space = 0
     private_space = 0
     shared_space = 0
-    cubics = Cubic.objects.filter(space=space)
+    if business_group is None: #space planner purpose
+        cubics = Cubic.objects.filter(space=space)
+    else:
+        cubics = Cubic.objects.filter(space=space, business_group=business_group)
     for cubic in cubics:
         if cubic.type == 'private':
             total_space += 1
@@ -257,12 +259,12 @@ def get_space_utilization(space):
 
 
 
-def get_floor_utilization(floor):
+def get_floor_utilization(floor,business_group=None):
     spaces = Space.objects.filter(floor=floor)
     total_space = 0
     occupied_space = 0
     for space in spaces:
-        space_total_space, space_occupied_space, private_space, shared_space = get_space_utilization(space)
+        space_total_space, space_occupied_space, private_space, shared_space = get_space_utilization(space,business_group)
         total_space += space_total_space
         occupied_space += space_occupied_space
     return total_space, occupied_space
@@ -502,3 +504,18 @@ def load_employees(request):
 
 
 
+def cubic_avail_places(cubic):
+    assignments_amount = len(AssignUserCubic.objects.filter(cubic=cubic))
+    # if its non positive its not available
+    return cubic.capacity-assignments_amount
+
+
+def get_available_cubics_as_list(business_group, person_amount=1, cubic_type='private'):
+    cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
+    # avail_cubics = []
+    avail_cubics = 0
+    for cubic in cubics_queryset_aux:
+        cubic_left_capacity = cubic_avail_places(cubic)
+        if cubic_left_capacity >= person_amount:
+            avail_cubics += cubic_left_capacity
+    return avail_cubics

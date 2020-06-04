@@ -25,6 +25,10 @@
             height: 200px;
         }
 
+        #focal_point_items{
+        margin-bottom: 200px;
+        }
+
     </style>
         {% if user.focal_point%}
             <div class="row justify-content-center mb-3">
@@ -34,34 +38,37 @@
             </div>
             <br>
             <br>
-        <div class="row justify-content-center custom_row">
-            <div class="row justify-content-center text-center action" >
+        <div class="row justify-content-center custom_row" id="focal_point_items">
+            <div class="row justify-content-center custom_row">
+                <div class="row justify-content-center text-center action" >
                 You have {{un_read_requests.count}} unread message{{ un_read_requests.count|pluralize }}
                 <a href="{% url 'focal_point:requests' %}">
                   <img src="{% static 'img/baseline_how_to_vote_black_48dp.png' %}" class="img-fluid mb-2">
                     <br>
                     <input type="button" value="User Requests" class="btn btn-primary">
                 </a>
-             </div>
+                </div>
 
-            <div class="row justify-content-center text-center action" >
-                All new positions
-                <a href="{% url 'focal_point:newpositions' %}">
-                  <img src="{% static 'img/baseline_person_add_black_48dp.png' %}" class="img-fluid mb-2">
-                    <br>
-                    <input type="button" value="New Positions" class="btn btn-primary">
-                </a>
-             </div>
+                <div class="row justify-content-center text-center action" >
+                    All new positions
+                    <a href="{% url 'focal_point:newpositions' %}">
+                      <img src="{% static 'img/baseline_person_add_black_48dp.png' %}" class="img-fluid mb-2">
+                        <br>
+                        <input type="button" value="New Positions" class="btn btn-primary">
+                    </a>
+                 </div>
 
-            <div class="row justify-content-center text-center action" >
-                My requests to the space planner
-                <a href="{% url 'focal_point:myrequests' %}">
-                  <img src="{% static 'img/baseline_send_black_48dp.png' %}" class="img-fluid mb-2">
-                    <br>
-                    <input type="button" value="My Requests" class="btn btn-primary">
-                </a>
-             </div>
-
+                <div class="row justify-content-center text-center action" >
+                    My requests to the space planner
+                    <a href="{% url 'focal_point:myrequests' %}">
+                      <img src="{% static 'img/baseline_send_black_48dp.png' %}" class="img-fluid mb-2">
+                        <br>
+                        <input type="button" value="My Requests" class="btn btn-primary">
+                    </a>
+                 </div>
+            </div> <!--first row-->
+            <br>
+            <div class="row justify-content-center custom_row">
             <div class="row justify-content-center text-center action" >
                 Previous assignments
                 <a href="{% url 'focal_point:assignments' %}">
@@ -70,9 +77,18 @@
                     <input type="button" value="Assignments" class="btn btn-primary">
                 </a>
              </div>
+
+             <div class="row justify-content-center text-center action" >
+                Business Group Floor Statistics
+                <a href="{% url 'focal_point:bg_floor_statistics' %}">
+                   <img src="{% static 'img/baseline_house_black_48dp.png' %}" class="img-fluid mb-2">
+                    <br>
+                    <input type="button" value="Statistics" class="btn btn-primary">
+                </a>
+             </div>
+            </div><!--second row-->
 </div>
         {% endif %}
-
         {% if user.space_planner %}
             <div class="row justify-content-center mb-3">
               <div class="col-md-9 text-center">
