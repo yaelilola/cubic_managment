@@ -92,9 +92,9 @@ class SearchUserCubicForm(forms.Form):
                                   widget=autocomplete.ModelSelect2(url='custom_user:customuser-autocomplete',
                                                                    attrs={'data-placeholder': 'Type the user name ...','data-html': True}))
 
-    def __init__(self, users_query_set, *args, **kwargs):
-        super(SearchUserCubicForm, self).__init__(*args, **kwargs)
-        self.fields['user'].queryset = users_query_set
+    # def __init__(self, users_query_set, *args, **kwargs):
+    #     super(SearchUserCubicForm, self).__init__(*args, **kwargs)
+    #     self.fields['user'].queryset = users_query_set
 
 
 

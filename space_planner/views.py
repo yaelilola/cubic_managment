@@ -57,8 +57,8 @@ def get_alerts(request):
         data = []
         wanted_business_groups = BusinessGroup.objects.filter(admin_group=False)
         for bg in wanted_business_groups:
-            bg_free_shared_cubics_amount = len(get_available_cubics_as_list(bg, 1, 'shared'))
-            bg_free_private_cubics_amount = len(get_available_cubics_as_list(bg))
+            bg_free_shared_cubics_amount = get_available_cubics_as_list(bg, 1, 'shared')
+            bg_free_private_cubics_amount = get_available_cubics_as_list(bg)
             # searches all new position
             bg_full_time_new_positions_amount = get_amount_of_positions(bg, 'full_time')
             bg_part_time_new_positions_amount = get_amount_of_positions(bg, 'part_time')
@@ -247,11 +247,11 @@ def get_space_utilization(space):
         if cubic.type == 'shared':
             total_space += cubic.capacity
             cubic_assignments_amount = len(AssignUserCubic.objects.filter(cubic=cubic))
-            if cubic_assignments_amount < cubics.capacity:
+            if cubic_assignments_amount < cubic.capacity:
                 occupied_space += cubic_assignments_amount
-                shared_space += (cubics.capacity-cubic_assignments_amount)
-            elif cubic_assignments_amount == cubics.capacity:
-                occupied_space += cubics.capacity
+                shared_space += (cubic.capacity-cubic_assignments_amount)
+            elif cubic_assignments_amount == cubic.capacity:
+                occupied_space += cubic.capacity
     return total_space, occupied_space, private_space, shared_space
 
 

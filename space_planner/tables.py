@@ -20,7 +20,7 @@ class CampusTable(tables.Table):
                            linkify={"viewname": "space_planner:get_building_table", "args": [tables.A("Campus__pk")]},
                            empty_values=(), footer='Total:')
     Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
-    Office_EEs = tables.Column(orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Office_EEs = ColumnWithName(verbose_name="Office_EEs (taken cubics)",orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
     Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
                                  footer=lambda table: mean(x["Utilization"] for x in table.data))
     #Utilization = tables.Column(orderable=True, attrs={"td": {"class": "utilization"}})
@@ -33,7 +33,8 @@ class BuildingTable(tables.Table):
                                       "args": [tables.A('Campus'), tables.A('Building')]})
 
     Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
-    Office_EEs = tables.Column(orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Office_EEs = ColumnWithName(verbose_name="Office_EEs (taken cubics)", orderable=True,
+                                footer=lambda table: sum(x["Office_EEs"] for x in table.data))
     Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
                                  footer=lambda table: mean(x["Utilization"] for x in table.data))
 
@@ -41,7 +42,8 @@ class BuildingTable(tables.Table):
 class FloorTable(tables.Table):
     Floor = tables.Column(orderable=True, empty_values=(), footer='Total:')
     Capacity = tables.Column(orderable=True, footer=lambda table: sum(x["Capacity"] for x in table.data))
-    Office_EEs = tables.Column(orderable=True, footer=lambda table: sum(x["Office_EEs"] for x in table.data))
+    Office_EEs = ColumnWithName(verbose_name="Office_EEs (taken cubics)", orderable=True,
+                                footer=lambda table: sum(x["Office_EEs"] for x in table.data))
     Utilization = ColumnWithName(verbose_name="Utilization(%)", orderable=True, attrs={"td": {"class": "utilization"}},
                                  footer=lambda table: mean(x["Utilization"] for x in table.data))
 
@@ -113,14 +115,14 @@ class CubicsFilter(django_filters.FilterSet):
 
     class Meta:
         model = Cubic
-        fields = ['id', 'type', 'space', 'business_group', 'area', 'floor', 'building', 'campus']
+        fields = ['id', 'type', 'space', 'business_group', 'area', 'floor', 'building', 'campus','capacity']
 
 class CubicsTable(tables.Table):
     area = tables.Column(footer=lambda table: sum(x.area for x in table.data))
     class Meta:
         model = Cubic
         filterset_class = CubicsFilter
-        fields = ['id', 'type', 'space', 'business_group', 'floor', 'building', 'campus']
+        fields = ['id', 'type', 'space', 'business_group', 'floor', 'building', 'campus','capacity']
 
 
 class LabsFilter(django_filters.FilterSet):

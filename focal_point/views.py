@@ -33,26 +33,20 @@ def view_assignments(request):
     return render(request, 'focal_point/assignments.html', {'table': table,'filter': assignments_filter})
 
 
-def is_cubic_available(cubic, person_amount=1):
-    if cubic.type == 'private':
-        if len(AssignUserCubic.objects.filter(cubic=cubic)) < 1 and person_amount == 1:
-            return True
-        else:
-            return False
-    else:
-    #should be shared
-        if len(AssignUserCubic.objects.filter(cubic=cubic))+person_amount <= cubic.capacity:
-            return True
-        else:
-            return False
+def cubic_avail_places(cubic):
+    assignments_amount = len(AssignUserCubic.objects.filter(cubic=cubic))
+    # if its non positive its not available
+    return cubic.capacity-assignments_amount
 
 
 def get_available_cubics_as_list(business_group, person_amount=1, cubic_type='private'):
     cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
-    avail_cubics = []
+    # avail_cubics = []
+    avail_cubics = 0
     for cubic in cubics_queryset_aux:
-        if is_cubic_available(cubic, person_amount)is True:
-            avail_cubics.append(cubic)
+        cubic_left_capacity = cubic_avail_places(cubic)
+        if cubic_left_capacity >= person_amount:
+            avail_cubics += cubic_left_capacity
     return avail_cubics
 
 
@@ -60,7 +54,7 @@ def get_available_cubics(business_group, person_amount=1, cubic_type='private'):
     cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
     cubics_queryset = cubics_queryset_aux
     for cubic in cubics_queryset_aux:
-        if is_cubic_available(cubic, person_amount)is False:
+        if cubic_avail_places(cubic) < person_amount:
             cubics_queryset = cubics_queryset.exclude(id=cubic.id)
     return cubics_queryset
 
