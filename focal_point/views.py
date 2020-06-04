@@ -129,7 +129,7 @@ def assign(request, form_type, cubic_type, percentage):
     cubics_queryset = get_available_cubics(business_group, 1, cubic_type)
     if request.method == 'GET':
         return render(request, 'focal_point/assign.html',
-                      {'form': form_type(users_queryset=users_queryset, business_group=business_group)})
+                      {'form': form_type(users_queryset=users_queryset,user_current_cubic=[], business_group=business_group)})
     else:
 
         try:
@@ -164,12 +164,13 @@ def assign(request, form_type, cubic_type, percentage):
                                     pass
                 else:
                     return render(request, 'focal_point/assign.html',
-                                  {'form': form_type(users_queryset=users_queryset, business_group=business_group),
+                                  {'form': form_type(users_queryset=users_queryset, user_current_cubic=[],
+                                                     business_group=business_group),
                                    'error': 'There is not enough place in the selected cubics'})
             return redirect('focal_point:assignments')
         except ValueError:
             return render(request, 'focal_point/assign.html',
-                          {'form': form_type(users_queryset=users_queryset, business_group=business_group), 'error': 'Bad data passed in'})
+                          {'form': form_type(users_queryset=users_queryset, user_current_cubic=[], business_group=business_group), 'error': 'Bad data passed in'})
 
 
 
@@ -186,15 +187,16 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
     current_cubics_ids = [cubic.id for cubic in current_cubics]
     cubics_queryset = Cubic.objects.filter(id__in=(available_cubics_ids + current_cubics_ids))
     if request.method == 'GET':
-        form =form_type(users_queryset=CustomUser.objects.filter(pk=user_id)
+        form =form_type(users_queryset=CustomUser.objects.filter(pk=user_id),
+                                            user_current_cubic=current_cubics_ids
                                            , business_group=business_group,
                                            initial={'cubics': current_cubics,'users': wanted_user})
         return render(request, 'focal_point/viewuserassignments.html', {'curr_user': wanted_user, 'form': form})
     else:
         try:
             form = form_type(users_queryset=CustomUser.objects.filter(pk=user_id), business_group=business_group,
+                             user_current_cubic=current_cubics_ids,
                              data=request.POST or None)
-
             if request.POST:
                 if form.is_valid():
                     assigned_user = form.cleaned_data.get("users")
@@ -219,7 +221,8 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
                     return render(request, 'focal_point/viewuserassignments.html',
                                   {'curr_user': wanted_user,'form': form})
         except ValueError:
-            form = form_type(users_queryset=CustomUser.objects.filter(pk=user_id), business_group=business_group, data=request.POST or None)
+            form = form_type(users_queryset=CustomUser.objects.filter(pk=user_id), business_group=business_group,
+                             user_current_cubic=current_cubics_ids, data=request.POST or None)
             return render(request, 'focal_point/viewuserassignments.html',
                           {'curr_user': wanted_user, 'error': 'Bad info', 'form': form})
 

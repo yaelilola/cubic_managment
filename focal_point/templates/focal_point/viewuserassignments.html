@@ -22,7 +22,7 @@
     <div class="row justify-content-center mt-5">
         <br>
           <div class="col-md-5">
-               <form method="POST">
+               <form method="POST" id="updateForm">
                 {% csrf_token %}
                      {{form.as_table}}
                  <button type="submit" class="btn btn-primary" id="updateButton">Update</button>
@@ -40,7 +40,7 @@
         $( document ).ready(function() {
             $('#updateButton').prop('disabled', false);
             $('#updateButton').click(function() {
-             $('div > form').submit();
+             $('#updateForm').submit();
             $(this).prop('disabled', true);
             });
         });
