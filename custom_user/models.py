@@ -53,6 +53,7 @@ class UserManager(BaseUserManager):
             employee_number=employee_number,
             percentage='full_time',
             business_group=business_group,
+            full_name='staff'
         )
         user.staff = True
         user.save(using=self._db)
@@ -70,6 +71,7 @@ class UserManager(BaseUserManager):
             employee_number=get_random_string(length=MAX_LENGTH),
             percentage='full_time',
             business_group=business_group,
+            full_name='admin'
         )
         user.staff = True
         user.admin = True

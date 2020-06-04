@@ -14,6 +14,10 @@
       tfoot{
             background-color: #53b2cf;
        }
+       select{
+       margin-left: 2px;
+       margin-right: 10px;
+       }
 
     </style>
 
@@ -23,30 +27,30 @@
 <form method="post" id="ChooseBusinessGroupForm" action="{% url 'space_planner:assign'%}"
       data-requests-url="{% url 'space_planner:ajax_load_requests' %}" data-campuses-url="{% url 'space_planner:ajax_load_campus_buildings' %}"
       data-floors-url="{% url 'space_planner:ajax_load_campus_buildings_floors' %}" data-spaces-url="{% url 'space_planner:ajax_load_floor_spaces' %}" novalidate>
-    <h4>Business Groups:</h4>
-    <select id="business_group" name="chosen_business_group">
-            <option value="illegal">----------</option>
-        {% for bg in business_groups %}
-            <option value="{{bg.id}}">{{bg.id}}</option>
-        {% endfor %}
-
-    </select>
-    <h4>Campuses:</h4>
-    <select id="campus" name="chosen_campus">
-            <option value="illegal">----------</option>
-        {% for campus in campuses %}
-            <option value="{{campus.id}}">{{campus.id}}</option>
-        {% endfor %}
-
-    </select>
-    <h4>Buildings:</h4>
-    <select id="building" name="chosen_building">
-          <option value="0">----------</option>
-    </select>
-     <h4>Floors:</h4>
-    <select id="floor" name="chosen_floor">
-          <option value="0">----------</option>
-    </select>
+    <div class="row justify-content-center">
+             <h4>Business Groups:</h4>
+             <select id="business_group" name="chosen_business_group">
+                <option value="illegal">----------</option>
+            {% for bg in business_groups %}
+                <option value="{{bg.id}}">{{bg.id}}</option>
+            {% endfor %}
+            </select>
+            <h4>Campuses:</h4>
+            <select id="campus" name="chosen_campus">
+                <option value="illegal">----------</option>
+            {% for campus in campuses %}
+                <option value="{{campus.id}}">{{campus.id}}</option>
+            {% endfor %}
+             </select>
+             <h4>Buildings:</h4>
+             <select id="building" name="chosen_building">
+              <option value="0">----------</option>
+             </select>
+             <h4>Floors:</h4>
+            <select id="floor" name="chosen_floor">
+              <option value="0">----------</option>
+            </select>
+    </div>
     <br>
     <br>
     {% csrf_token %}
@@ -64,6 +68,43 @@
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>
+
+        function update_sum() {
+        var sum_private = 0;
+        var sum_shared = 0;
+        var low_density = "✘";
+        var high_density = "✘";
+        var business_groups = [];
+        // loop over each checkbox within <tbody>
+        $('tbody input[type=checkbox]').each(function () {
+            // if the checkbox is checked
+            if ($(this).is(':checked')) {
+                sum_private += parseInt($(this).parents('tr').find('.free_private').html());
+                sum_shared += parseInt($(this).parents('tr').find('.free_shared').html());
+                var is_true_low = $(this).parents('tr').find('.low_density').html();
+                var is_true_high = $(this).parents('tr').find('.high_density').html();
+                if (is_true_low.includes("true")){
+                    low_density = "✔";
+                }
+                if (is_true_high.includes("true")){
+                    high_density = "✔";
+                }
+                var business_groups_in_space = $(this).parents('tr').find('.business_groups').html().split(",");
+                for (var i = 0; i < business_groups_in_space.length; i++){
+                        business_groups.push(business_groups_in_space[i]);
+                }
+            }
+        });
+        var uniqueNames = [];
+        $.each(business_groups, function(i, el){
+            if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
+        });
+        $('tfoot .free_private').html(sum_private);
+        $('tfoot .free_shared').html(sum_shared);
+        $('tfoot .low_density').html(low_density);
+        $('tfoot .high_density').html(high_density);
+        $('tfoot .business_groups').html(uniqueNames.join(" , "));
+    }
       $("#business_group").change(function () {
       var url = $("#ChooseBusinessGroupForm").attr("data-requests-url");
       var businessGroup = $(this).val();
@@ -145,56 +186,21 @@
            $("#campus").removeAttr("disabled");
             $("#building").removeAttr("disabled");
             $("#avail_spaces_in_campus").html(data);
+            // update the sum initially.
+            update_sum();
+             $('tbody input[type=checkbox]').on('change', update_sum);
           }
         });
       }
     });
 
-    $(function () {
-
-    function update_sum() {
-        var sum_private = 0;
-        var sum_shared = 0;
-        var low_density = "✘";
-        var high_density = "✘";
-        var business_groups = [];
-        // loop over each checkbox within <tbody>
-        $('tbody input[type=checkbox]').each(function () {
-            // if the checkbox is checked
-            if ($(this).is(':checked')) {
-                sum_private += parseInt($(this).parents('tr').find('.free_private').html());
-                sum_shared += parseInt($(this).parents('tr').find('.free_shared').html());
-                var is_true_low = $(this).parents('tr').find('.low_density').html();
-                var is_true_high = $(this).parents('tr').find('.high_density').html();
-                if (is_true_low.includes("true")){
-                    low_density = "✔";
-                }
-                if (is_true_high.includes("true")){
-                    high_density = "✔";
-                }
-                var business_groups_in_space = $(this).parents('tr').find('.business_groups').html().split(",");
-                for (var i = 0; i < business_groups_in_space.length; i++){
-                        business_groups.push(business_groups_in_space[i]);
-                }
-            }
-        });
-        var uniqueNames = [];
-        $.each(business_groups, function(i, el){
-            if($.inArray(el, uniqueNames) === -1) uniqueNames.push(el);
-        });
-        $('tfoot .free_private').html(sum_private);
-        $('tfoot .free_shared').html(sum_shared);
-        $('tfoot .low_density').html(low_density);
-        $('tfoot .high_density').html(high_density);
-        $('tfoot .business_groups').html(uniqueNames.join(" , "));
+    function toggle(source) {
+     $('thead input[type=checkbox]').on('change', update_sum);
+    checkboxes = document.getElementsByName('selection');
+    for(var i in checkboxes)
+        checkboxes[i].checked = source.checked;
     }
 
-    // update the sum after each change
-    $('tbody input[type=checkbox]').on('change', update_sum);
-
-    // update the sum initially.
-    update_sum();
-});
   </script>
 
 {%endblock%}

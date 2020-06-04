@@ -156,7 +156,7 @@ def assign_space(request):
                 print(spaces_ids)
                 if not spaces_ids:
                     return render(request, 'space_planner/assignspace.html',
-                                  {'error': 'Use must choose a space', 'table': spaces_table,
+                                  {'error': 'must choose a space','campuses': campuses, 'table': spaces_table,
                                    'business_groups': business_groups})
                 else:
                     spaces = Space.objects.filter(id__in=spaces_ids)

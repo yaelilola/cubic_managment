@@ -90,10 +90,8 @@ class CheckBoxColumnWithName(tables.CheckBoxColumn):
         return self.verbose_name
 
 class SpacesTable(tables.Table):
-    #template = '<input type="checkbox" name="Chosen"/>'
-    #Chosen = tables.TemplateColumn(template)
-    #selection = tables.CheckBoxColumn(accessor='Id')
-    selection = CheckBoxColumnWithName(verbose_name="Chosen", accessor="Id", empty_values=(), footer='Total:')
+    selection = tables.CheckBoxColumn(accessor="Id", attrs={"th__input": {"onclick": "toggle(this)"}}, orderable=False,
+                                      empty_values=(), footer='Total:')
     Campus = tables.Column(orderable=True)
     Building = tables.Column(orderable=True)
     Floor = tables.Column(orderable=True)
