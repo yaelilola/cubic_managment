@@ -54,11 +54,11 @@
     <br>
     <br>
     {% csrf_token %}
-    <h4>Spaces with room</h4>
+    <h4 style="display: none" id="spaces-with-room">Spaces with room</h4>
     <br>
     <div id="avail_spaces_in_campus"></div>
-    <h6 id="error" style="visibility:hidden">You must choose a business group in order to submit</h6>
-    <button input="submit" disabled id="submit-btn" class="btn btn-primary">Submit</button>
+    <h6 id="error" style="display: none">You must choose a business group in order to submit</h6>
+    <button input="submit" disabled id="submit-btn" class="btn btn-primary" style="display: none">Submit</button>
     {{ error }}
 </form>
 
@@ -189,6 +189,8 @@
             // update the sum initially.
             update_sum();
              $('tbody input[type=checkbox]').on('change', update_sum);
+              $("#spaces-with-room").css('display', 'block');
+               $("#submit-btn").css('display','block');
           }
         });
       }
