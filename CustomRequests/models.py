@@ -1,6 +1,6 @@
 from django.db import models
 from custom_user.models import CustomUser, BusinessGroup
-from facilities.models import Cubic, Space
+from facilities.models import Cubic, Space , Building, Floor, Campus
 from django.utils.timezone import now
 MAX_LENGTH = 100
 
@@ -24,6 +24,9 @@ class FocalPointRequest(models.Model):
     part_time_employees_amount = models.PositiveIntegerField(blank=True, null=True)
     business_group_near_by = models.ForeignKey(BusinessGroup, on_delete=models.CASCADE, related_name='+',
                                                blank=True, null=True)
+    campus = models.ForeignKey(Campus, on_delete=models.CASCADE, related_name='+', blank=True, null=True)
+    building = models.ForeignKey(Building, on_delete=models.CASCADE, related_name='+', blank=True, null=True)
+    floor = models.ForeignKey(Floor, on_delete=models.CASCADE, related_name='+', blank=True, null=True)
     near_low_density_lab = models.BooleanField(default=False)
     near_high_density_lab = models.BooleanField(default=False)
     # near_lab = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='+',null=True,blank=True)

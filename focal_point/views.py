@@ -5,7 +5,7 @@ from assign.forms import AssignPartTimeUserCubicForm, AssignFullTimeUserCubicFor
 from assign.models import AssignUserCubic
 from recruit.models import NewPosition
 from custom_user.models import CustomUser, BusinessGroup
-from facilities.models import Cubic
+from facilities.models import Cubic, Campus, Building, Floor
 from cubic_managment.decorators import user_is_focal_point, user_is_focal_point_request_author, \
     user_in_focal_point_group, request_user_in_focal_point_group
 import datetime
@@ -294,7 +294,27 @@ def create_request(request):
             request_copy['near_low_density_lab'] = True if request.POST.get('near_low_density_lab', False) == 'on' else False
             request_copy['near_high_density_lab'] = True if request.POST.get('near_high_density_lab', False) == 'on' else False
             request_copy['destination_date'] = datetime.datetime.strptime(request.POST.get('destination_date', ''), "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST.get('destination_date') != '' else None
+            if request.POST.get('business_group_near_by') != '':
+                request_copy['business_group_near_by'] = BusinessGroup.objects.filter(id=request.POST.get('business_group_near_by'))[0]
+            else:
+                request_copy['campus'] = None
+            if request.POST.get('campus') != '':
+                request_copy['campus'] = Campus.objects.filter(id=request.POST.get('campus'))[0]
+            else:
+                request_copy['campus'] = None
+            if request.POST.get('building') != '0':
+                request_copy['building'] = Building.objects.filter(id=request.POST.get('building'))[0]
+                print(request_copy['building'])
+            else:
+                request_copy['building'] = None
+            if request.POST.get('floor') != '0':
+                request_copy['floor'] = Floor.objects.filter(id=request.POST.get('floor'))[0]
+                print(request_copy['floor'])
+            else:
+                request_copy['floor'] = None
+            print(request_copy)
             form = FocalPointRequestForm(request_copy, business_group_qs=qs)
+            print(form.is_valid())
             new_request = form.save(commit=False)
             new_request.business_group = request.user.business_group
             new_request.save()
