@@ -53,19 +53,20 @@ def get_cubics(space_details_sheet, personnel_directory_sheet):
                                       personnel_directory_sheet['Space Label']
     ps_df = personnel_directory_sheet[['Group', 'id']].dropna()
     ps_df = ps_df.drop_duplicates(subset='id')
+    ps_df = ps_df.rename(columns={"Group": "business_group_id"})
     space_details_sheet = add_space_id(space_details_sheet)
     df = space_details_sheet[space_details_sheet['Current Use Space Class'].isin(['Cube', '120', 'AWS', 'Bench'])]
-    df.loc[df['Capacity'] > 1, 'Capacity'] = 'shared'
-    df.loc[df['Capacity'] == 1, 'Capacity'] = 'private'
+    df['type'] = df['Capacity']
+    df.loc[df['type'] > 1, 'type'] = 'shared'
+    df.loc[df['type'] == 1, 'type'] = 'private'
     df['floor_id'] = df['Building ID'] + "-" + df['Floor Name']
     df['id'] = df['floor_id'] + "-" + df['Space Label']
-    df = df[['City', 'Building ID', 'floor_id', 'Space_ID', 'id', 'Capacity', 'Area (SF)']]\
+    df = df[['City', 'Building ID', 'floor_id', 'Space_ID', 'id', 'Capacity', 'Area (SF)', 'type']]\
         .rename(columns={'City': 'campus_id', 'Building ID': 'building_id', 'Space_ID': 'space_id',
-                         'Area (SF)': 'area', 'Capacity': 'type'})
+                         'Area (SF)': 'area', 'Capacity': 'capacity'})
     df['name'] = 'Cubic'
     joined = df.join(ps_df.set_index('id'), on='id')
-    joined = joined[['campus_id', 'name', 'building_id', 'floor_id', 'space_id', 'id', 'type', 'area', 'Group']].\
-        rename(columns={'Group': 'business_group_id'}).drop_duplicates(subset='id').dropna(subset=['id'])
+    joined = joined.drop_duplicates(subset='id').dropna(subset=['id'])
     # joined = joined.reset_index(drop=True)
     return joined
 
@@ -125,23 +126,30 @@ def parse_facilities(space_details_sheet, personnel_directory_sheet, conn):
     parse_lab(space_details_sheet, conn)
 
 def parse_users(personnel_directory_sheet,conn):
-    personnel_directory_sheet['full_name'] = personnel_directory_sheet['First Name'] + " " + \
-                                             personnel_directory_sheet['Last Name']
+    # personnel_directory_sheet['full_name'] = personnel_directory_sheet['First Name'] + " " + \
+    #                                          personnel_directory_sheet['Last Name']
+    #The line above is the real full name. The line below is the encrypted data for RDS.
+    personnel_directory_sheet['full_name'] = personnel_directory_sheet['employee_number']
     pds = personnel_directory_sheet.rename(columns={'Badge Type': 'BadgeType'})
     pds = pds.query('BadgeType == "EMP"')
-    df = pds[['WWID', 'full_name', 'Employee Type', 'Active Start Date', 'Group', 'Email Address']]\
-        .fillna(value={'Employee Type': 'R'})
-    df = df.head(10)
+    # df = df.rename(columns={'WWID': 'employee_number', 'Employee Type': 'percentage', 'Active Start Date': 'start_date',
+    #                  'Group': 'business_group_id', 'Email Address': 'email'})
+    # df.email.fillna("NA_" + df.employee_number.astype(str) + "@intel.com", inplace=True)
+    # The line above is the real full name. The line below is the encrypted data for RDS.
+    df = pds.rename(columns={'Employee Type': 'percentage', 'Active Start Date': 'start_date',
+                            'Group': 'business_group_id'})
+    # df = pds[['WWID', 'full_name', 'Employee Type', 'Active Start Date', 'Group', 'Email Address']].fillna(value={'Employee Type': 'R'})
+    # The line above is the real full name. The line below is the encrypted data for RDS.
+    df = df[['employee_number', 'full_name', 'percentage', 'start_date', 'business_group_id', 'email']].fillna(value={'Employee Type': 'R'})
+    df = df.head(100)
     passwords = []
-    for emp_num in df['WWID'].tolist():
+    for emp_num in df['employee_number'].tolist():
         hashed = make_password(str(emp_num))
         passwords.append(hashed)
         print(emp_num)
         print(hashed)
     df['password'] = passwords
-    df = df.rename(columns={'WWID': 'employee_number', 'Employee Type': 'percentage', 'Active Start Date': 'start_date',
-                     'Group': 'business_group_id', 'Email Address': 'email'})
-    df.email.fillna("NA_" + df.employee_number.astype(str) + "@intel.com", inplace=True)
+
     df.dropna(subset=['business_group_id'])
     df = df.replace({'percentage': r'^R$'}, {'percentage': 'full_time'}, regex=True)\
         .replace({'percentage': r'^S$'}, {'percentage': 'part_time'}, regex=True)\
@@ -194,6 +202,9 @@ def parse2():
     xl2 = pd.ExcelFile(loc2)
     space_details_sheet = xl.parse('Space Details (Raw)')
     personnel_directory_sheet = xl.parse('Personnel Directory (Raw)')
+    # We didn't want to upload the real employee number to the db. So, we "encrypted" it.
+    personnel_directory_sheet['employee_number'] = (personnel_directory_sheet['WWID'] * 7).mod(15485863)
+    personnel_directory_sheet['email'] = personnel_directory_sheet['employee_number'].astype(str) + "@intel.com"
     israel_positions = xl2.parse('GER and GAM Open Positions').query('Country == "Israel"')
     conn = sqlite3.connect(db_file)
     parse_facilities(space_details_sheet, personnel_directory_sheet, conn)
