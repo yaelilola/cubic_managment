@@ -20,6 +20,8 @@
           <div class="col-md-5">
         <form method="POST" autocomplete="on">
              <h1 class="Header">Assign Users</h1>
+            <br>
+            <h6>{{message}}</h6>
                  {% csrf_token %}
                  {{ form.as_p }}
             <button type="submit" class="btn btn-primary">Save</button>

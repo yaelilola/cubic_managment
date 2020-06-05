@@ -28,7 +28,7 @@ def get_available_cubics(business_group, user_current_cubic, person_amount=1, cu
         if is_cubic_available(cubic, person_amount)is True:
             avail_cubics.append(cubic)
     limited_cubics = user_current_cubic
-    limited_cubics = (avail_cubics[:(999-len(user_current_cubic))])
+    limited_cubics = (avail_cubics[:(999-len(user_current_cubic)-1)])
     limited_cubics_ids = [cubic.id for cubic in limited_cubics]
     limited_cubics_ids += user_current_cubic
     cubics_queryset = Cubic.objects.filter(id__in=limited_cubics_ids)

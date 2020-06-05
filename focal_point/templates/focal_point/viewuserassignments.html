@@ -22,6 +22,8 @@
     <div class="row justify-content-center mt-5">
         <br>
           <div class="col-md-5">
+               <h6>This form displays the user's current cubics and other available cubics.</h6>
+              <br>
                <form method="POST" id="updateForm">
                 {% csrf_token %}
                      {{form.as_table}}

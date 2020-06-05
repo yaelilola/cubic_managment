@@ -52,13 +52,21 @@ def get_available_cubics_as_list(business_group, person_amount=1, cubic_type='pr
 
 
 def get_available_cubics(business_group, person_amount=1, cubic_type='private'):
-    cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
-    cubics_queryset = cubics_queryset_aux
+    # cubics_queryset_aux = Cubic.objects.filter(business_group=business_group, type=cubic_type)
+    # cubics_queryset = cubics_queryset_aux
+    # for cubic in cubics_queryset_aux:
+    #     if cubic_avail_places(cubic) < person_amount:
+    #         cubics_queryset = cubics_queryset.exclude(id=cubic.id)
+    # return cubics_queryset
+    cubics_queryset_aux = list(Cubic.objects.filter(business_group=business_group, type=cubic_type))
+    avail_cubics = []
     for cubic in cubics_queryset_aux:
-        if cubic_avail_places(cubic) < person_amount:
-            cubics_queryset = cubics_queryset.exclude(id=cubic.id)
+        if cubic_avail_places(cubic) >= person_amount:
+            avail_cubics.append(cubic)
+    limited_cubics = (avail_cubics[:999])
+    limited_cubics_ids = [cubic.id for cubic in limited_cubics]
+    cubics_queryset = Cubic.objects.filter(id__in=limited_cubics_ids)
     return cubics_queryset
-
 
 
 def all_assignments_are_okay(business_group,assigned_users, cubics, cubic_type='private'):
@@ -119,39 +127,36 @@ def assign(request, form_type, cubic_type, percentage):
     business_group = request.user.business_group
     users_queryset = CustomUser.objects.filter(business_group=business_group, percentage=percentage)
     if percentage == 'full_time':
+        message = 'This form displays full time employees which have no assignments yet and available private cubics.'
         full_not_assigned_time_users_id = [user.employee_number for user in users_queryset if len(AssignUserCubic.objects.filter(assigned_user=user)) == 0]
         users_queryset = CustomUser.objects.filter(employee_number__in=full_not_assigned_time_users_id)
-    cubics_queryset = get_available_cubics(business_group, 1, cubic_type)
+    else:
+        message = 'This form displays part time employees and available shared cubics.'
+    # cubics_queryset = get_available_cubics(business_group, 1, cubic_type)
     if request.method == 'GET':
         return render(request, 'focal_point/assign.html',
-                      {'form': form_type(users_queryset=users_queryset,user_current_cubic=[], business_group=business_group)})
+                      {'form': form_type(users_queryset=users_queryset, user_current_cubic=[],
+                                         business_group=business_group), 'message': message})
     else:
 
         try:
             # form = form_type(users_queryset=users_queryset, cubics_queryset=cubics_queryset, data=request.POST or None)
             if request.POST:
-                # print(request.POST)
                 assigned_users = request.POST.getlist('users')
-                # print(assigned_users)
                 cubics = request.POST.getlist('cubics')
-                # print(cubics)
                 if cubic_type == 'private':
                     # cubics = [cubics]
                     # assigned_users = [assigned_users]
                     cubics = cubics
                     assigned_users = assigned_users
-                print(assigned_users)
                 assigned_users = CustomUser.objects.filter(employee_number__in=assigned_users)
-                print(assigned_users)
                 cubics = Cubic.objects.filter(id__in=cubics)
-                print(cubics)
                 #todo - complete the check if the form was empty
                 if all_assignments_are_okay(business_group, assigned_users, cubics, cubic_type):
                     for user in assigned_users:
                         for cubic in cubics:
                             try:
                                 assignment = AssignUserCubic(assigned_user=user, cubic=cubic)
-                                print("here163")
                                 assignment.save()
                                 send_assign_notification(request.user.email, assigned_users, cubics)
                             except Exception as e:
@@ -160,12 +165,13 @@ def assign(request, form_type, cubic_type, percentage):
                 else:
                     return render(request, 'focal_point/assign.html',
                                   {'form': form_type(users_queryset=users_queryset, user_current_cubic=[],
-                                                     business_group=business_group),
+                                                     business_group=business_group),'message': message,
                                    'error': 'There is not enough place in the selected cubics'})
             return redirect('focal_point:assignments')
         except ValueError:
             return render(request, 'focal_point/assign.html',
-                          {'form': form_type(users_queryset=users_queryset, user_current_cubic=[], business_group=business_group), 'error': 'Bad data passed in'})
+                          {'form': form_type(users_queryset=users_queryset, user_current_cubic=[], business_group=business_group),
+                           'message': message, 'error': 'Bad data passed in'})
 
 
 
@@ -176,10 +182,11 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
     else:
         form_type = AssignFullTimeUserCubicForm
     business_group = request.user.business_group
+    current_cubics_ids = [cubic.id for cubic in current_cubics]
     available_cubics = get_available_cubics(business_group, 1, cubic_type)
     available_cubics_ids = [cubic.id for cubic in available_cubics]
     # TODO: we assumed that if the user is full time, it has only one assignment
-    current_cubics_ids = [cubic.id for cubic in current_cubics]
+
     cubics_queryset = Cubic.objects.filter(id__in=(available_cubics_ids + current_cubics_ids))
     if request.method == 'GET':
         form =form_type(users_queryset=CustomUser.objects.filter(pk=user_id),
@@ -274,7 +281,7 @@ def create_request(request):
     if request.method == 'GET':
         return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs)})
     else:
-        try:
+        # try:
             if ((request.POST.get('full_time_employees_amount') == '' or request.POST.get('full_time_employees_amount') == '0')
                     and (request.POST.get('part_time_employees_amount') == '' or request.POST.get('part_time_employees_amount') == '0')
                     and (request.POST.get('business_group_near_by') == '')):
@@ -293,7 +300,7 @@ def create_request(request):
             if request.POST.get('business_group_near_by') != '':
                 request_copy['business_group_near_by'] = BusinessGroup.objects.filter(id=request.POST.get('business_group_near_by'))[0]
             else:
-                request_copy['campus'] = None
+                request_copy['business_group_near_by'] = None
             if request.POST.get('campus') != '':
                 request_copy['campus'] = Campus.objects.filter(id=request.POST.get('campus'))[0]
             else:
@@ -325,9 +332,9 @@ def create_request(request):
             # new_request.save()
             send_notification(request, new_request)
             return redirect('focal_point:myrequests')
-        except ValueError:
-            return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs),
-                                                                    'error': 'Bad data passed in'})
+        # except ValueError:
+        #     return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs),
+        #                                                             'error': 'Bad data passed in'})
 
 @user_is_focal_point
 def display_requests(request):
