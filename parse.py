@@ -2,6 +2,13 @@ import pandas as pd
 import sqlite3
 from sqlite3 import IntegrityError
 from django.contrib.auth.hashers import make_password
+from sqlalchemy import create_engine
+
+POSTGRES_ADDRESS = 'cubicmangmentv2.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com'
+POSTGRES_PORT = '5432'
+POSTGRES_USERNAME = 'postgres'
+POSTGRES_PASSWORD = 'yaelamit234313'
+POSTGRES_DBNAME = 'cubicmangmentv2'
 
 def findnth(haystack, needle, n):
     parts= haystack.split(needle, n+1)
@@ -206,7 +213,9 @@ def parse2():
     personnel_directory_sheet['employee_number'] = (personnel_directory_sheet['WWID'] * 7).mod(15485863)
     personnel_directory_sheet['email'] = personnel_directory_sheet['employee_number'].astype(str) + "@intel.com"
     israel_positions = xl2.parse('GER and GAM Open Positions').query('Country == "Israel"')
-    conn = sqlite3.connect(db_file)
+    postgres_str = ('postgresql://{username}:{password}@{ipaddress}:{port}/{dbname}').format(username=POSTGRES_USERNAME, password=POSTGRES_PASSWORD,ipaddress=POSTGRES_ADDRESS, port=POSTGRES_PORT, dbname=POSTGRES_DBNAME)
+    conn = create_engine(postgres_str)
+    # conn = sqlite3.connect(db_file)
     parse_facilities(space_details_sheet, personnel_directory_sheet, conn)
     parse_users(personnel_directory_sheet, conn)
     parse_business_groups(personnel_directory_sheet, conn)
