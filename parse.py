@@ -56,6 +56,7 @@ We need both the space_detail_sheet and the personnel_directory sheet so we coul
 is assigned to. 
 """
 def get_cubics(space_details_sheet, personnel_directory_sheet):
+    print('get cubics')
     personnel_directory_sheet['id'] = personnel_directory_sheet['Building ID'] + "-" + \
                                             personnel_directory_sheet['Floor'] + "-" + \
                                       personnel_directory_sheet['Space Label']
@@ -76,9 +77,11 @@ def get_cubics(space_details_sheet, personnel_directory_sheet):
     joined = df.join(ps_df.set_index('id'), on='id')
     joined = joined.drop_duplicates(subset='id').dropna(subset=['id'])
     # joined = joined.reset_index(drop=True)
+    print('finish get cubics')
     return joined
 
 def get_labs(space_details_sheet):
+    print('get labs')
     space_details_sheet = add_space_id(space_details_sheet)
     df = space_details_sheet[space_details_sheet['Current Use Space Class']
         .isin(['Low Density Lab', 'High Density Lab'])]
@@ -89,6 +92,7 @@ def get_labs(space_details_sheet):
                          'Area (SF)': 'area', 'Current Use Space Class': 'type'}).drop_duplicates(subset='id')\
         .dropna(subset=['id'])
     df['name'] = 'Lab'
+    print('finish get labs')
     return df
 
 
@@ -102,38 +106,53 @@ def write_to_sqlite(table_name, df, conn):
 
 
 def parse_campuses(space_details_sheet, conn):
+    print('parse campuses')
     df = get_campuses(space_details_sheet)
     write_to_sqlite('facilities_campus', df, conn)
+    print('parse after campuses')
 
 def parse_building(space_details_sheet, conn):
+    print('parse building')
     df = get_buildings(space_details_sheet)
     write_to_sqlite('facilities_building', df, conn)
+    print('parse after building')
 
 def parse_floor(space_details_sheet, conn):
+    print('parse floor')
     df = get_floors(space_details_sheet)
     write_to_sqlite('facilities_floor', df, conn)
+    print('parse after floor')
 
 def parse_space(space_details_sheet, conn):
+    print('parse space')
     df = get_spaces(space_details_sheet)
     write_to_sqlite('facilities_space', df, conn)
+    print('after space')
 
 def parse_cubic(space_details_sheet, personnel_directory_sheet, conn):
+    print('parse cubic')
     df = get_cubics(space_details_sheet, personnel_directory_sheet)
     write_to_sqlite('facilities_cubic', df, conn)
+    print('after parse cubic')
 
 def parse_lab(space_details_sheet, conn):
+    print('labs')
     df = get_labs(space_details_sheet)
     write_to_sqlite('facilities_lab', df, conn)
+    print('after labs')
 
 def parse_facilities(space_details_sheet, personnel_directory_sheet, conn):
+    print('parse facilities')
     parse_campuses(space_details_sheet, conn)
     parse_building(space_details_sheet, conn)
     parse_floor(space_details_sheet, conn)
     parse_space(space_details_sheet, conn)
     parse_cubic(space_details_sheet, personnel_directory_sheet, conn)
     parse_lab(space_details_sheet, conn)
+    print('after parse facilities')
 
 def parse_users(personnel_directory_sheet,conn):
+    print('parse users')
     # personnel_directory_sheet['full_name'] = personnel_directory_sheet['First Name'] + " " + \
     #                                          personnel_directory_sheet['Last Name']
     #The line above is the real full name. The line below is the encrypted data for RDS.
@@ -169,21 +188,27 @@ def parse_users(personnel_directory_sheet,conn):
     df['space_planner'] = False
     df['start_date'] = df['start_date'].dt.date
     write_to_sqlite('custom_user_customuser', df, conn)
+    print('end parse users')
 
 def parse_business_groups(personnel_directory_sheet, conn):
+    print('parse business groups')
     personnel_directory_sheet.Group.fillna("Other", inplace=True)
     df = personnel_directory_sheet[['Group']].drop_duplicates().rename(columns={'Group': 'id'})
     df['admin_group'] = False
     write_to_sqlite('custom_user_businessgroup', df, conn)
+    print('after parse bg')
 
 def parse_assign_user_cubic(personnel_directory_sheet, conn):
+    print('in assign user cubic')
     df = personnel_directory_sheet.rename(columns={'Full Cubic': 'cubic_id'})
     df = df[df.cubic_id != '--']
     df['assigned_user_id'] = df['WWID']
     df = df[['cubic_id', 'assigned_user_id']].dropna()
     write_to_sqlite('assign_assignusercubic', df, conn)
+    print('finish assign user cubic')
 
 def parse_new_positions(israel_positions, conn):
+    print('in new positions')
     israel_positions = israel_positions[
         ['Org Level 4', 'College Graduate', 'Experienced', 'Intel Contract Employee', 'Student / Intern',
          'Technical Graduate', 'College Graduate.1', 'Experienced.1', 'Intel Contract Employee.1', 'Student / Intern.1',
@@ -201,6 +226,7 @@ def parse_new_positions(israel_positions, conn):
                                                         'Technical Graduate.1': 'technical_graduate_internal_only'})
     df = israel_positions.groupby(['business_group_id'], as_index=False).sum()
     write_to_sqlite('recruit_newposition', df, conn)
+    print('after parse new positions')
 
 def parse2():
     loc = (r"C:\Users\Lenovo\Documents\spring2020\234313\ISR Planning V2.2.xlsx")
