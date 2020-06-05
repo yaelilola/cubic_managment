@@ -4,13 +4,7 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from functools import partial
-
-# class CustomUserSignUpForm(UserCreationForm):
-#     class Meta:
-#         model = CustomUser
-#         fields = ('employee_number', 'password', 'type', 'start_date', 'end_date', 'percentage', 'group')
-#
-
+from dal import autocomplete
 
 
 class CustomUserSignUpForm(forms.ModelForm):
@@ -24,7 +18,7 @@ class CustomUserSignUpForm(forms.ModelForm):
     class Meta:
         model = CustomUser
         fields = ('email', 'employee_number', 'focal_point', 'space_planner', 'percentage', 'business_group',
-                  'start_date', 'end_date')
+                  'start_date', 'end_date','full_name')
         widgets = {
             'start_date': forms.DateInput(attrs={'class': 'datepicker', 'id': 'id_start_date'}),
             'end_date': forms.DateInput(attrs={'class': 'datepicker', 'id': 'id_end_date'})
@@ -94,11 +88,13 @@ class UserAdminChangeForm(forms.ModelForm):
 
 
 class SearchUserCubicForm(forms.Form):
-    user = forms.ModelChoiceField(CustomUser.objects.all(), to_field_name="email")
+    user = forms.ModelChoiceField(CustomUser.objects.all(), to_field_name="employee_number",
+                                  widget=autocomplete.ModelSelect2(url='custom_user:customuser-autocomplete',
+                                                                   attrs={'data-placeholder': 'Type the user name ...','data-html': True}))
 
-    def __init__(self, users_query_set, *args, **kwargs):
-        super(SearchUserCubicForm, self).__init__(*args, **kwargs)
-        self.fields['user'].queryset = users_query_set
+    # def __init__(self, users_query_set, *args, **kwargs):
+    #     super(SearchUserCubicForm, self).__init__(*args, **kwargs)
+    #     self.fields['user'].queryset = users_query_set
 
 
 

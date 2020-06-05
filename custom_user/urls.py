@@ -14,8 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,reverse
+from django.conf.urls import url
 from custom_user import views as custom_user_views
+from custom_user.views import CustomUserAutocomplete
 
 app_name = 'custom_user'
 
@@ -25,5 +27,6 @@ urlpatterns = [
     path('createrequest', custom_user_views.ask_to_change_cubic, name='createrequest'),
     path('requests/', custom_user_views.display_requests, name='requests'),
     path('viewrequest/<int:request_id>', custom_user_views.display_request, name='viewrequest'),
-    path('viewrequest/<int:request_id>/delete', custom_user_views.delete_request, name='deleterequest')
+    path('viewrequest/<int:request_id>/delete', custom_user_views.delete_request, name='deleterequest'),
+    path('customuser-autocomplete/', CustomUserAutocomplete.as_view(create_field='business_group'), name='customuser-autocomplete'),
 ]

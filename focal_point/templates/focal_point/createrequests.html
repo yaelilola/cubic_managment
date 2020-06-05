@@ -3,7 +3,7 @@
 {% block content %}
 
 <body>
-{{ error }}
+
 <style>
    .Header{
             margin-top:20px;
@@ -19,17 +19,29 @@ label {
         line-height: 1.5;
         height: calc(1.5em + .75rem + 2px);
         }
+        #error{
+         text-align: center;
+        }
+        #errorWrapper{
+         text-align: center;
+        }
 </style>
 <h1 class="Header">Create A Request</h1>
  <div class="row justify-content-center mt-5">
           <div class="col-md-5">
-            <form method="POST">
+            <form id="RequestForm" method="POST" data-campuses-url="{% url 'space_planner:ajax_load_campus_buildings' %}"
+      data-floors-url="{% url 'space_planner:ajax_load_campus_buildings_floors' %}">
                 {% csrf_token %}
                 {{ form.as_p }}
+                {{ form.errors }}
+{{ form.non_field_errors }}
                 <button type="submit" class="btn btn-primary">Save</button>
             </form>
           </div>
  </div>
+<div id="errorWrapper">
+    <p id="error"> {{ error|linebreaks }}</p>
+</div>
 <script>
     var now = Date.now();
     $(function () {
@@ -37,7 +49,50 @@ label {
       format:'dd/mm/yyyy',
       startDate:now,
     });
+     $("#id_building").html("<option value='0'>---------</option>");
+      $("#id_floor").html("<option value='0'>---------</option>");
   });
+
+    $("#id_campus").change(function () {
+      var url = $("#RequestForm").attr("data-campuses-url");
+        $("#floor").html("<option value='0'>---------</option>");
+      var campus = $(this).val();
+      if (campus == 0) { //Not selected
+        $("#id_building").html("<option value='0'>---------</option>");
+         $("#id_floor").html("<option value='0'>---------</option>");
+      } else {
+        // disable the city select while the ajax request
+        $.ajax({
+          url: url,
+          data: {
+            'campus': campus
+          },
+          success: function (data) {
+            $("#id_building").html(data);
+            $("#id_floor").html("<option value='0'>---------</option>");
+          }
+        });
+      }
+    });
+
+    $("#id_building").change(function () {
+      var url = $("#RequestForm").attr("data-floors-url");
+      var building = $(this).val();
+      if (building == 0) { //Not selected
+        $("#floor").html("<option value='0'>---------</option>");
+      } else {
+        // disable the city select while the ajax request
+        $.ajax({
+          url: url,
+          data: {
+            'building': building
+          },
+          success: function (data) {
+            $("#id_floor").html(data);
+          }
+        });
+      }
+    });
 </script>
 
 </body>

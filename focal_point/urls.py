@@ -37,5 +37,7 @@ urlpatterns = [
     path('assignments/<int:user_id>/delete', focal_point_views.delete_all_user_assignments,
          name='delete_all_user_assignments'),
     path('newpositions', focal_point_views.display_new_positions, name='newpositions'),
+    path('floorstatistics', focal_point_views.get_floor_statistics, name='bg_floor_statistics'),
+
 
 ]

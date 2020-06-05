@@ -19,12 +19,11 @@ class AssignmentsFilter(django_filters.FilterSet):
     def __init__(self, *args, users_queryset,cubics_queryset, **kwargs):
         super(AssignmentsFilter, self).__init__(*args, **kwargs)
         self.filters['assigned_user'].queryset = users_queryset
-        self.filters['assigner'].queryset = CustomUser.objects.filter(admin=False)
         self.filters['cubic'].queryset = cubics_queryset
 
     class Meta:
         model = AssignUserCubic
-        fields = ['assigner', 'assigned_user', 'cubic']
+        fields = ['assigned_user', 'cubic']
 
 
 class AssignmentsTable(tables.Table):

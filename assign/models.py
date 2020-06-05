@@ -7,15 +7,12 @@ from django.utils import timezone
 
 
 class AssignUserCubic(models.Model):
-    assigner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='+')  #TODO: type should be focal point or higher?
     time = models.DateField(null=True, blank=True, default=timezone.now())
-    assigned_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='+')
+    assigned_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     cubic = models.ForeignKey(Cubic, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (("assigned_user", "cubic"),)
 
-    def __str__(self):
-        return self.assigned_user.__str__()
 
 

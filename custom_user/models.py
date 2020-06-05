@@ -17,7 +17,7 @@ class BusinessGroup(models.Model):
 
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, employee_number, percentage, business_group, focal_point=False, space_planner=False,
+    def create_user(self, email, employee_number, percentage, business_group, full_name, focal_point=False, space_planner=False,
                     start_date=None, end_date=None, password=None):
         """
         Creates and saves a User with the given email and password.
@@ -33,7 +33,8 @@ class UserManager(BaseUserManager):
             percentage=percentage,
             business_group=business_group,
             focal_point=focal_point,
-            space_planner=space_planner
+            space_planner=space_planner,
+            full_name=full_name,
         )
 
         user.set_password(password)
@@ -52,6 +53,7 @@ class UserManager(BaseUserManager):
             employee_number=employee_number,
             percentage='full_time',
             business_group=business_group,
+            full_name='staff'
         )
         user.staff = True
         user.save(using=self._db)
@@ -69,6 +71,7 @@ class UserManager(BaseUserManager):
             employee_number=get_random_string(length=MAX_LENGTH),
             percentage='full_time',
             business_group=business_group,
+            full_name='admin'
         )
         user.staff = True
         user.admin = True
@@ -90,7 +93,8 @@ class CustomUser(AbstractBaseUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []  # Email & Password are required by default.
 
-    employee_number = models.CharField(max_length=MAX_LENGTH, unique=True)  #TODO: unique? think about admins( now they are always 0)
+    employee_number = models.CharField(max_length=MAX_LENGTH, unique=True, primary_key=True)  #TODO: unique? think about admins( now they are always 0)
+    full_name = models.CharField(max_length=MAX_LENGTH)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
     percentage = models.CharField(choices=(('full_time', 'full_time'), ('part_time', 'part_time')), max_length=MAX_LENGTH,
@@ -102,14 +106,14 @@ class CustomUser(AbstractBaseUser):
 
     def get_full_name(self):
         # The user is identified by their email address
-        return self.email
+        return self.full_name
 
     def get_short_name(self):
         # The user is identified by their email address
-        return self.email
+        return self.full_name
 
     def __str__(self):              # __unicode__ on Python 2
-        return self.email
+        return self.full_name + " "+self.email
 
     def has_perm(self, perm, obj=None):
         """Does the user have a specific permission?"""

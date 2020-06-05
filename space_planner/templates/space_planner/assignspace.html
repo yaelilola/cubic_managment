@@ -14,6 +14,10 @@
       tfoot{
             background-color: #53b2cf;
        }
+       select{
+       margin-left: 2px;
+       margin-right: 10px;
+       }
 
     </style>
 
@@ -21,23 +25,40 @@
 <h1 class="Header">Assign spaces to business groups</h1>
 <br>
 <form method="post" id="ChooseBusinessGroupForm" action="{% url 'space_planner:assign'%}"
-      data-requests-url="{% url 'space_planner:ajax_load_requests' %}" novalidate>
-    <h4>Business Groups:</h4>
-    <select id="business_group" name="chosen_business_group">
-            <option value="illegal">----------</option>
-        {% for bg in business_groups %}
-            <option value="{{bg.id}}">{{bg.id}}</option>
-        {% endfor %}
-
-    </select>
+      data-requests-url="{% url 'space_planner:ajax_load_requests' %}" data-campuses-url="{% url 'space_planner:ajax_load_campus_buildings' %}"
+      data-floors-url="{% url 'space_planner:ajax_load_campus_buildings_floors' %}" data-spaces-url="{% url 'space_planner:ajax_load_floor_spaces' %}" novalidate>
+    <div class="row justify-content-center">
+             <h4>Business Groups:</h4>
+             <select id="business_group" name="chosen_business_group">
+                <option value="illegal">----------</option>
+            {% for bg in business_groups %}
+                <option value="{{bg.id}}">{{bg.id}}</option>
+            {% endfor %}
+            </select>
+            <h4>Campuses:</h4>
+            <select id="campus" name="chosen_campus">
+                <option value="illegal">----------</option>
+            {% for campus in campuses %}
+                <option value="{{campus.id}}">{{campus.id}}</option>
+            {% endfor %}
+             </select>
+             <h4>Buildings:</h4>
+             <select id="building" name="chosen_building">
+              <option value="0">----------</option>
+             </select>
+             <h4>Floors:</h4>
+            <select id="floor" name="chosen_floor">
+              <option value="0">----------</option>
+            </select>
+    </div>
     <br>
     <br>
     {% csrf_token %}
-    <h4>Spaces with room</h4>
+    <h4 style="display: none" id="spaces-with-room">Spaces with room</h4>
     <br>
-    {% render_table table %}
-    <h6 id="error" style="visibility:hidden">You must choose a business group in order to submit</h6>
-    <button input="submit" disabled id="submit-btn" class="btn btn-primary">Submit</button>
+    <div id="avail_spaces_in_campus"></div>
+    <h6 id="error" style="display: none">You must choose a business group in order to submit</h6>
+    <button input="submit" disabled id="submit-btn" class="btn btn-primary" style="display: none">Submit</button>
     {{ error }}
 </form>
 
@@ -47,33 +68,8 @@
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
   <script>
-      $("#business_group").change(function () {
-      var url = $("#ChooseBusinessGroupForm").attr("data-requests-url");
-      var businessGroup = $(this).val();
-      if (businessGroup.localeCompare("illegal") !== 0){
-          $.ajax({
-              url: url,
-              data: {
-                'business_group': businessGroup
-              },
-              success: function (data) {
-                $("#requests_title").css('visibility', 'visible');
-                $("#error").css('visibility', 'hidden');
-                $("#business_group_requests").html(data);
-                $("#submit-btn").prop('disabled', false);
-              }
-            });
-      } else {
-            $("#requests_title").css('visibility', 'hidden');
-            $("#error").css('visibility', 'visible');
-            $("#business_group_requests").html("");
-            $("#submit-btn").prop('disabled', true);
-      }
-    });
 
-    $(function () {
-
-    function update_sum() {
+        function update_sum() {
         var sum_private = 0;
         var sum_shared = 0;
         var low_density = "✘";
@@ -109,13 +105,114 @@
         $('tfoot .high_density').html(high_density);
         $('tfoot .business_groups').html(uniqueNames.join(" , "));
     }
+      $("#business_group").change(function () {
+      var url = $("#ChooseBusinessGroupForm").attr("data-requests-url");
+      var businessGroup = $(this).val();
+      if (businessGroup.localeCompare("illegal") !== 0){
+          $.ajax({
+              url: url,
+              data: {
+                'business_group': businessGroup
+              },
+              success: function (data) {
+                $("#requests_title").css('visibility', 'visible');
+                $("#error").css('visibility', 'hidden');
+                $("#business_group_requests").html(data);
+                $("#submit-btn").prop('disabled', false);
+              }
+            });
+      } else {
+            $("#requests_title").css('visibility', 'hidden');
+            $("#error").css('visibility', 'visible');
+            $("#business_group_requests").html("");
+            $("#submit-btn").prop('disabled', true);
+      }
+    });
 
-    // update the sum after each change
-    $('tbody input[type=checkbox]').on('change', update_sum);
+    $("#campus").change(function () {
+      var url = $("#ChooseBusinessGroupForm").attr("data-campuses-url");
+        $("#floor").html("<option value='0'>---------</option>");
+         $("#spaces-with-room").css('display', 'none');
+       $("#submit-btn").css('display','none');
+      var campus = $(this).val();
+      if (campus == 0) { //Not selected
+        $("#building").html("<option value='0'>---------</option>");
+      } else {
+        $("#avail_spaces_in_campus").html("");
+        // disable the city select while the ajax request
+        $.ajax({
+          url: url,
+          data: {
+            'campus': campus
+          },
+          success: function (data) {
+            $("#building").html(data);
+               $("#spaces-with-room").css('display', 'none');
+                $("#submit-btn").css('display','none');
+          }
+        });
+      }
+    });
 
-    // update the sum initially.
-    update_sum();
-});
+    $("#building").change(function () {
+      var url = $("#ChooseBusinessGroupForm").attr("data-floors-url");
+      var building = $(this).val();
+       $("#spaces-with-room").css('display', 'none');
+       $("#submit-btn").css('display','none');
+      if (building == 0) { //Not selected
+        $("#floor").html("<option value='0'>---------</option>");
+      } else {
+        $("#avail_spaces_in_campus").html("");
+        // disable the city select while the ajax request
+        $.ajax({
+          url: url,
+          data: {
+            'building': building
+          },
+          success: function (data) {
+            $("#floor").html(data);
+                $("#spaces-with-room").css('display', 'none');
+                $("#submit-btn").css('display','none');
+          }
+        });
+      }
+    });
+
+    $("#floor").change(function () {
+      var url = $("#ChooseBusinessGroupForm").attr("data-spaces-url");
+      var floor = $(this).val();
+       $("#spaces-with-room").css('display', 'none');
+       $("#submit-btn").css('display','none');
+      if (floor != 0) { //Not selected
+       $("#avail_spaces_in_campus").html("");
+        $("#campus").prop('disabled',true);
+        $("#building").prop('disabled',true);
+        $.ajax({
+          url: url,
+          data: {
+            'floor': floor
+          },
+          success: function (data) {
+           $("#campus").removeAttr("disabled");
+            $("#building").removeAttr("disabled");
+            $("#avail_spaces_in_campus").html(data);
+            // update the sum initially.
+            update_sum();
+             $('tbody input[type=checkbox]').on('change', update_sum);
+              $("#spaces-with-room").css('display', 'block');
+               $("#submit-btn").css('display','block');
+          }
+        });
+      }
+    });
+
+    function toggle(source) {
+     $('thead input[type=checkbox]').on('change', update_sum);
+    checkboxes = document.getElementsByName('selection');
+    for(var i in checkboxes)
+        checkboxes[i].checked = source.checked;
+    }
+
   </script>
 
 {%endblock%}

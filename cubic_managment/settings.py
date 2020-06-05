@@ -31,6 +31,9 @@ ALLOWED_HOSTS = ['pc6m9n5jrh.execute-api.us-east-2.amazonaws.com','localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',
+    'dal_select2',
+    # 'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -22,7 +22,9 @@
     <div class="row justify-content-center mt-5">
         <br>
           <div class="col-md-5">
-               <form method="POST">
+               <h6>This form displays the user's current cubics and other available cubics.</h6>
+              <br>
+               <form method="POST" id="updateForm">
                 {% csrf_token %}
                      {{form.as_table}}
                  <button type="submit" class="btn btn-primary" id="updateButton">Update</button>
@@ -32,7 +34,7 @@
           </div>
     </div>
 
-    <form  style='display: none;' method="POST" action="{% url 'focal_point:delete_all_user_assignments' curr_user.id %}">
+    <form  style='display: none;' method="POST" action="{% url 'focal_point:delete_all_user_assignments' curr_user.employee_number %}">
     {% csrf_token %}
         <button id="delete" type="submit">Delete All Assignments for user</button>
     </form>
@@ -40,7 +42,7 @@
         $( document ).ready(function() {
             $('#updateButton').prop('disabled', false);
             $('#updateButton').click(function() {
-             $('div > form').submit();
+             $('#updateForm').submit();
             $(this).prop('disabled', true);
             });
         });

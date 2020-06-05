@@ -11,8 +11,11 @@ from CustomRequests.models import RequestToChangeCubic, FocalPointRequest
 from facilities.models import Cubic
 from cubic_managment.decorators import user_is_request_author
 import datetime
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
 from recruit.models import NewPosition
+
+from dal import autocomplete
+from django.utils.html import format_html
 
 def homepage(request):
     if request.user.is_authenticated:
@@ -62,7 +65,8 @@ def signupuser(request):
                                                           start_date=datetime.datetime.strptime(request.POST['start_date'], "%d/%m/%Y").strftime("%Y-%m-%d") if request.POST['start_date'] != '' else None,
                                                           end_date=datetime.datetime.strptime(request.POST['end_date'], "%d/%m/%Y").strftime("%Y-%m-%d")if request.POST['end_date'] != '' else None,
                                                           business_group=BusinessGroup(request.POST['business_group']),
-                                                          password=request.POST['password'],)
+                                                          password=request.POST['password'],
+                                                          full_name=request.POST['full_name'])
                     #TODO - add start date and end date handling
                     user.save()
                     login(request, user)
@@ -113,7 +117,7 @@ def send_notification(request, request_content):
                   "The wanted cubic is : {wanted_cubic} \n " \
                   "The reason is: {reason}".format(username=request.user.email, wanted_cubic=request_content.cubic,
                                                    reason=request_content.reason)
-        send_mail(subject, content, sender_mail, [receiver_mail])
+        # send_mail(subject, content, sender_mail, [receiver_mail])
     except:
         pass
 
@@ -155,23 +159,27 @@ def ask_to_change_cubic(request):
 def search_user_cubic(request):
     relevant_users = CustomUser.objects.exclude(employee_number=request.user.employee_number).filter(admin=False)
     if request.method == 'GET':
-        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(users_query_set=relevant_users)})
+        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm()})
     else:
         try:
-            form = SearchUserCubicForm(users_query_set=relevant_users, data=request.POST or None)
+            print(relevant_users)
+            print(request.POST)
+            form = SearchUserCubicForm(data=request.POST or None)
             if request.POST:
                 if form.is_valid():
                     wanted_user = form.cleaned_data.get("user")
                     assignments = AssignUserCubic.objects.filter(assigned_user=wanted_user)
                     if len(assignments) != 0:
-                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(users_query_set=relevant_users),
+                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(),
                                                                              'assignments': assignments})
                     else:
-                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(users_query_set=relevant_users),
+                        return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm(),
                                                'error': str(wanted_user) + ' doesn\'t have a cubic assigned.'})
+                else:
+                    print('form is not valid')
         except ValueError:
             return render(request, 'custom_user/otherscubics.html',
-                          {'form': SearchUserCubicForm(users_query_set=relevant_users), 'error': 'Bad info'})
+                          {'form': SearchUserCubicForm(), 'error': 'Bad info'})
 
 @login_required()
 def display_requests(request):
@@ -214,6 +222,19 @@ def delete_request(request, request_id):
         return redirect('custom_user:requests')
 
 
+class CustomUserAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        # Don't forget to filter out results depending on the visitor !
+        if not self.request.user.is_authenticated:
+            return CustomUser.objects.none()
 
+        qs = CustomUser.objects.filter(admin=False)
+        if self.q:
+            qs = qs.filter(full_name__icontains=self.q, admin=False)
+        return qs
+
+
+    def get_result_label(self, item):
+        return format_html('<p>{} {}</p>', item.full_name, item.email)
 
 
