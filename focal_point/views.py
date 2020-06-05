@@ -287,7 +287,7 @@ def create_request(request):
                     and (request.POST.get('business_group_near_by') == '')):
                 return render(request, 'focal_point/createrequests.html',
                               {'form': FocalPointRequestForm(business_group_qs=qs),
-                               'error': 'Cant submit empty form'})
+                               'error': 'Cant submit an empty form.\nYou must choose at least one of the following:\n full_time_employees_amount,\n part_time_employees_amount \nor business_group_near_by.  '})
             request_copy = request.POST.copy()
             request_copy['near_low_density_lab'] = True if request.POST.get('near_low_density_lab', False) == 'on' else False
             request_copy['near_high_density_lab'] = True if request.POST.get('near_high_density_lab', False) == 'on' else False

@@ -22,6 +22,9 @@ label {
         #error{
          text-align: center;
         }
+        #errorWrapper{
+         text-align: center;
+        }
 </style>
 <h1 class="Header">Create A Request</h1>
  <div class="row justify-content-center mt-5">
@@ -36,7 +39,9 @@ label {
             </form>
           </div>
  </div>
-<p id="error"> {{ error }}</p>
+<div id="errorWrapper">
+    <p id="error"> {{ error|linebreaks }}</p>
+</div>
 <script>
     var now = Date.now();
     $(function () {
