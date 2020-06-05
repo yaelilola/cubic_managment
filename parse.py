@@ -3,6 +3,7 @@ import sqlite3
 from sqlite3 import IntegrityError
 from django.contrib.auth.hashers import make_password
 from sqlalchemy import create_engine
+import psycopg2
 
 POSTGRES_ADDRESS = 'cubicmangmentv2.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com'
 POSTGRES_PORT = '5432'
@@ -202,9 +203,9 @@ def parse_new_positions(israel_positions, conn):
     write_to_sqlite('recruit_newposition', df, conn)
 
 def parse2():
-    loc = (r"C:\Users\owner\Desktop\uni\Sem8\industrial\parse_xlsx\ISR Planning V2.2.xlsx")
-    loc2 = (r"C:\Users\owner\Desktop\uni\Sem8\industrial\parse_xlsx\Open_Positions.xlsx")
-    db_file = r"C:\Users\owner\Desktop\uni\Sem8\industrial\parse_xlsx\db.sqlite3"
+    loc = (r"C:\Users\Lenovo\Documents\spring2020\234313\ISR Planning V2.2.xlsx")
+    loc2 = (r"C:\Users\Lenovo\Documents\spring2020\234313\Open_Positions.xlsx")
+    # db_file = r"C:\Users\owner\Desktop\uni\Sem8\industrial\parse_xlsx\db.sqlite3"
     xl = pd.ExcelFile(loc)
     xl2 = pd.ExcelFile(loc2)
     space_details_sheet = xl.parse('Space Details (Raw)')
