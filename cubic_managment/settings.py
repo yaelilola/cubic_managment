@@ -92,10 +92,10 @@ WSGI_APPLICATION = 'cubic_managment.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'cubicmanagmentv1',
+        'NAME': 'cubicmangmentv2',
         'USER': 'postgres',
         'PASSWORD': 'yaelamit234313',
-        'HOST': 'cubicmanagmentv1.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com',
+        'HOST': 'cubicmangmentv2.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com',
         'PORT': '5432',
     }
 }
