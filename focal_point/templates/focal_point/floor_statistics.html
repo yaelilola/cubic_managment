@@ -9,11 +9,16 @@
             }
          tfoot{
             background-color: #bdbdbd;
-       }
+         }
+         #message{
+            text-align: center;
+         }
     </style>
     <body>
 
     <h1 class="Header">Floors Statistics</h1>
+    <br>
+    <h6 id="message"> This table displays floors with cubics that are assigned to your business group, and it's utilization. </h6>
     <br>
     {% render_table table %}
 </body>

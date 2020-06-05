@@ -88,7 +88,7 @@ def get_business_group_requests(request):
     requests_filter = RequestsFilter(request.GET, queryset=requests_list)
     # return render(request, 'space_planner/new_positions.html', {'filter': positions_filter})
     table = FocalPointRequestsTable(requests_filter.qs, template_name="django_tables2/bootstrap.html")
-    RequestConfig(request, paginate={"per_page": 5, "page": 1}).configure(table)
+    RequestConfig(request, paginate={"per_page": 10, "page": 1}).configure(table)
     return table, requests_filter
 
 def find_groups_in_floor(floor):
@@ -153,7 +153,6 @@ def assign_space(request):
                 business_group_id = request.POST.get("chosen_business_group")
                 business_group = BusinessGroup.objects.get(id=business_group_id)
                 spaces_ids = request.POST.getlist("selection")
-                print(spaces_ids)
                 if not spaces_ids:
                     return render(request, 'space_planner/assignspace.html',
                                   {'error': 'must choose a space','campuses': campuses, 'table': spaces_table,
