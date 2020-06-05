@@ -132,6 +132,8 @@
     $("#campus").change(function () {
       var url = $("#ChooseBusinessGroupForm").attr("data-campuses-url");
         $("#floor").html("<option value='0'>---------</option>");
+         $("#spaces-with-room").css('display', 'none');
+       $("#submit-btn").css('display','none');
       var campus = $(this).val();
       if (campus == 0) { //Not selected
         $("#building").html("<option value='0'>---------</option>");
@@ -145,6 +147,8 @@
           },
           success: function (data) {
             $("#building").html(data);
+               $("#spaces-with-room").css('display', 'none');
+                $("#submit-btn").css('display','none');
           }
         });
       }
@@ -153,6 +157,8 @@
     $("#building").change(function () {
       var url = $("#ChooseBusinessGroupForm").attr("data-floors-url");
       var building = $(this).val();
+       $("#spaces-with-room").css('display', 'none');
+       $("#submit-btn").css('display','none');
       if (building == 0) { //Not selected
         $("#floor").html("<option value='0'>---------</option>");
       } else {
@@ -165,6 +171,8 @@
           },
           success: function (data) {
             $("#floor").html(data);
+                $("#spaces-with-room").css('display', 'none');
+                $("#submit-btn").css('display','none');
           }
         });
       }
@@ -173,6 +181,8 @@
     $("#floor").change(function () {
       var url = $("#ChooseBusinessGroupForm").attr("data-spaces-url");
       var floor = $(this).val();
+       $("#spaces-with-room").css('display', 'none');
+       $("#submit-btn").css('display','none');
       if (floor != 0) { //Not selected
        $("#avail_spaces_in_campus").html("");
         $("#campus").prop('disabled',true);

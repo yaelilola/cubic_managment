@@ -132,7 +132,7 @@ def get_spaces_with_room(request, floor):
                           'Groups_Nearby': groups_in_floor}
             data.append(space_info)
     table = SpacesTable(data, template_name="django_tables2/bootstrap.html")
-    RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
+    # RequestConfig(request, paginate={"per_page": 25, "page": 1}).configure(table)
     return table
 
 
