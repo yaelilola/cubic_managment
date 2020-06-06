@@ -4,6 +4,7 @@ from sqlite3 import IntegrityError
 from django.contrib.auth.hashers import make_password
 from sqlalchemy import create_engine
 import psycopg2
+import sys
 
 POSTGRES_ADDRESS = 'cubicmangmentv2.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com'
 POSTGRES_PORT = '5432'
@@ -103,6 +104,11 @@ def write_to_sqlite(table_name, df, conn):
         print("exception")
         print(e)
         pass
+    # except:
+    #     print("exception")
+    #     e = sys.exc_info()[0]
+    #     print(e)
+    #     pass
 
 
 def parse_campuses(space_details_sheet, conn):
@@ -168,7 +174,7 @@ def parse_users(personnel_directory_sheet,conn):
     # df = pds[['WWID', 'full_name', 'Employee Type', 'Active Start Date', 'Group', 'Email Address']].fillna(value={'Employee Type': 'R'})
     # The line above is the real full name. The line below is the encrypted data for RDS.
     df = df[['employee_number', 'full_name', 'percentage', 'start_date', 'business_group_id', 'email']].fillna(value={'Employee Type': 'R'})
-    df = df.head(100)
+    # df = df.head(100)
     passwords = []
     for emp_num in df['employee_number'].tolist():
         hashed = make_password(str(emp_num))
@@ -198,12 +204,19 @@ def parse_business_groups(personnel_directory_sheet, conn):
     write_to_sqlite('custom_user_businessgroup', df, conn)
     print('after parse bg')
 
-def parse_assign_user_cubic(personnel_directory_sheet, conn):
+def parse_assign_user_cubic(personnel_directory_sheet, space_details_sheet, conn):
     print('in assign user cubic')
-    df = personnel_directory_sheet.rename(columns={'Full Cubic': 'cubic_id'})
+    spdf = space_details_sheet[space_details_sheet['Current Use Space Class'].isin(['Cube', '120', 'AWS', 'Bench'])]
+    spdf['floor_id'] = spdf['Building ID'] + "-" + spdf['Floor Name']
+    spdf['cubic_id'] = spdf['floor_id'] + "-" + spdf['Space Label']
+    df = personnel_directory_sheet.rename(columns={'Full Cubic': 'cubic_id', 'Badge Type': 'BadgeType'})
+    df = df.query('BadgeType == "EMP"')
     df = df[df.cubic_id != '--']
-    df['assigned_user_id'] = df['WWID']
+    df['assigned_user_id'] = df['employee_number']
     df = df[['cubic_id', 'assigned_user_id']].dropna()
+    df = spdf.join(df.set_index('cubic_id'), on='cubic_id')[['assigned_user_id', 'cubic_id']].\
+        dropna(subset=['assigned_user_id'])
+    df = df.drop_duplicates()
     write_to_sqlite('assign_assignusercubic', df, conn)
     print('finish assign user cubic')
 
@@ -237,18 +250,19 @@ def parse2():
     space_details_sheet = xl.parse('Space Details (Raw)')
     personnel_directory_sheet = xl.parse('Personnel Directory (Raw)')
     # We didn't want to upload the real employee number to the db. So, we "encrypted" it.
-    personnel_directory_sheet['employee_number'] = (personnel_directory_sheet['WWID'] * 7).mod(15485863)
+    personnel_directory_sheet['employee_number'] = (personnel_directory_sheet['WWID'] * 7).mod(15485863).astype(str)
     personnel_directory_sheet['email'] = personnel_directory_sheet['employee_number'].astype(str) + "@intel.com"
     israel_positions = xl2.parse('GER and GAM Open Positions').query('Country == "Israel"')
     postgres_str = ('postgresql://{username}:{password}@{ipaddress}:{port}/{dbname}').format(username=POSTGRES_USERNAME, password=POSTGRES_PASSWORD,ipaddress=POSTGRES_ADDRESS, port=POSTGRES_PORT, dbname=POSTGRES_DBNAME)
     conn = create_engine(postgres_str)
-    # conn = sqlite3.connect(db_file)
+    parse_business_groups(personnel_directory_sheet, conn)
+    #conn = sqlite3.connect(db_file)
     parse_facilities(space_details_sheet, personnel_directory_sheet, conn)
     parse_users(personnel_directory_sheet, conn)
-    parse_business_groups(personnel_directory_sheet, conn)
-    parse_assign_user_cubic(personnel_directory_sheet, conn)
-    parse_new_positions(israel_positions, conn)
-    conn.close()
+    parse_assign_user_cubic(personnel_directory_sheet,space_details_sheet, conn)
+    #parse_new_positions(israel_positions, conn)
+    # conn.close()
+    conn.dispose()
 
 
 
