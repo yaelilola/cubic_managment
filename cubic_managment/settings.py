@@ -97,6 +97,7 @@ DATABASES = {
         'PASSWORD': 'yaelamit234313',
         'HOST': 'cubicmangmentv2.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com',
         'PORT': '5432',
+        'DISABLE_SERVER_SIDE_CURSORS': True,
     }
 }
 
