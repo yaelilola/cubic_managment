@@ -361,7 +361,7 @@ def display_request(request, request_id):
     user_request = get_object_or_404(RequestToChangeCubic, pk=request_id)
     if request.method == 'GET':
         form = RequestToChangeCubicFocalPointForm(instance=user_request)
-        return render(request, 'focal_point/viewmyrequest.html', {'request': user_request, 'form': form})
+        return render(request, 'focal_point/viewrequest.html', {'request': user_request, 'form': form})
     else:
         try:
             request_copy = request.POST.copy()
@@ -374,7 +374,7 @@ def display_request(request, request_id):
                 send_change_status_notification(request, request_copy)
             return redirect('focal_point:requests')
         except ValueError:
-            return render(request, 'focal_point/viewmyrequest.html',
+            return render(request, 'focal_point/viewrequest.html',
                           {'request': user_request, 'error': 'Bad info', 'form': form})
 
 @request_user_in_focal_point_group
@@ -400,7 +400,7 @@ def display_my_request(request, request_id):
     user_request = get_object_or_404(FocalPointRequest, pk=request_id)
     if request.method == 'GET':
         form = FocalPointRequestForm(instance=user_request, business_group_qs=qs)
-        return render(request, 'focal_point/viewrequest.html', {'request': user_request, 'form': form})
+        return render(request, 'focal_point/viewmyrequest.html', {'request': user_request, 'form': form})
     else:
         try:
             request_copy = request.POST.copy()
@@ -414,7 +414,7 @@ def display_my_request(request, request_id):
             curr_request.save()
             return redirect('focal_point:myrequests')
         except ValueError:
-            return render(request, 'focal_point/viewrequest.html',
+            return render(request, 'focal_point/viewmyrequest.html',
                           {'request': user_request, 'error': 'bad info', 'form': form})
 
 @user_is_focal_point
