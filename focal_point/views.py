@@ -15,6 +15,7 @@ from django_tables2 import RequestConfig
 from space_planner.tables import NewPositionTable, FloorTable_no_mean, FloorTable
 from space_planner.filters import PositionFilter
 from space_planner.views import get_floor_utilization
+import os
 
 # Create your views here.
 #foacl point actions
@@ -94,7 +95,7 @@ def assign_full_time(request):
 
 
 def send_assign_notification(focal_point_email, assigned_users, cubics):
-    sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
+    sender_mail = os.environ['EMAIL_HOST_USER'] #TODO - change to real mail
     if len(cubics) > 1:
         subject = "You were assigned new cubics"
         content = "{focal_point} assigned you new cubics:\n".format(focal_point=focal_point_email)
@@ -158,7 +159,7 @@ def assign(request, form_type, cubic_type, percentage):
                             try:
                                 assignment = AssignUserCubic(assigned_user=user, cubic=cubic)
                                 assignment.save()
-                                send_assign_notification(request.user.email, assigned_users, cubics)
+                                send_assign_notification(request.user.email, [user.email for user in assigned_users], cubics)
                             except Exception as e:
                                 if str(e).startswith('UNIQUE constraint failed'):
                                     pass
@@ -214,7 +215,7 @@ def edit_assignments_for_user(request, user_id, focal_point, wanted_user, curren
                         for cubic in cubics:
                             assignment = AssignUserCubic(assigned_user=assigned_user, cubic=cubic)
                             assignment.save()
-                            send_assign_notification(request.user.email, [assigned_user], cubics)
+                            send_assign_notification(request.user.email, [assigned_user.email], cubics)
                         return redirect('focal_point:assignments')
                     else:
                         return render(request, 'focal_point/viewuserassignments.html',
@@ -252,7 +253,7 @@ def delete_all_user_assignments(request, user_id):
 
 
 def send_notification(request, request_content):
-    sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
+    sender_mail = os.environ['EMAIL_HOST_USER'] #TODO - change to real mail
     space_planners = CustomUser.objects.filter(space_planner=True)
     receiver_mail = [space_planner.email for space_planner in space_planners]
     subject = "Request for more space from {focal_point} representing group {business_group}"\
@@ -346,7 +347,7 @@ def display_requests(request):
 
 
 def send_change_status_notification(request, request_content):
-    sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
+    sender_mail = os.environ['EMAIL_HOST_USER'] #TODO - change to real mail
     focal_point = request.user.email
     receiver_mail = (request_content['user']).email
     subject = "Request to change cubic status update"
@@ -398,6 +399,8 @@ def display_my_request(request, request_id):
     my_business_group_id = request.user.business_group.id
     qs = BusinessGroup.objects.exclude(id=my_business_group_id, admin_group=True)
     user_request = get_object_or_404(FocalPointRequest, pk=request_id)
+    print(user_request.building)
+    print(user_request.floor)
     if request.method == 'GET':
         form = FocalPointRequestForm(instance=user_request, business_group_qs=qs)
         return render(request, 'focal_point/viewrequest.html', {'request': user_request, 'form': form})

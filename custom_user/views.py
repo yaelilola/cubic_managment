@@ -13,6 +13,7 @@ from cubic_managment.decorators import user_is_request_author
 import datetime
 from django.core.mail import send_mail
 from recruit.models import NewPosition
+import os
 
 from dal import autocomplete
 from django.utils.html import format_html
@@ -108,7 +109,7 @@ def get_my_cubic(request):
 
 
 def send_notification(request, request_content):
-    sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
+    sender_mail = os.environ['EMAIL_HOST_USER'] #TODO - change to real mail
     try:
         focal_point = get_object_or_404(CustomUser, focal_point=True, business_group=request.user.business_group)
         receiver_mail = focal_point.email

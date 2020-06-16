@@ -16,6 +16,7 @@ from django.core.mail import send_mail
 from datetime import date
 from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta
+import os
 
 #space planner actions
 @user_is_space_planner
@@ -401,7 +402,7 @@ def display_requests(request):
 
 
 def send_change_status_notification(request, request_content):
-    sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
+    sender_mail = os.environ['EMAIL_HOST_USER'] #TODO - change to real mail
     space_planner = request.user.email
     request_business_group = (request_content['business_group'])
     request_focal_point = get_object_or_404(CustomUser, focal_point=True, business_group=request_business_group)
@@ -441,7 +442,7 @@ def display_request(request, request_id):
 
 
 def send_no_longer_focal_point_notification(space_planner_email, previous_focal_point_email):
-    sender_mail = "yaelAmitIndustrial@gmail.com"  # TODO - change to real mail
+    sender_mail = os.environ['EMAIL_HOST_USER']  # TODO - change to real mail
     receiver_mail = previous_focal_point_email
     subject = "You are no longer a focal point."
     content = "{space_planner} assigned a new focal point for your group.".format(space_planner=space_planner_email)
@@ -451,7 +452,7 @@ def send_no_longer_focal_point_notification(space_planner_email, previous_focal_
 
 
 def send_new_focal_point_notification(space_planner_email, new_focal_point_email):
-    sender_mail = "yaelAmitIndustrial@gmail.com"  # TODO - change to real mail
+    sender_mail = os.environ['EMAIL_HOST_USER']  # TODO - change to real mail
     receiver_mail = new_focal_point_email
     subject = "You are the new focal point for your group."
     content = "{space_planner} assigned you as the new group focal point.".format(space_planner=space_planner_email)
