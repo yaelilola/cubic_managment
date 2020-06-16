@@ -366,13 +366,28 @@ def display_request(request, request_id):
         try:
             request_copy = request.POST.copy()
             request_copy['user'] = user_request.user
+            # print(user_request.user)
             request_copy['cubic'] = user_request.cubic
-            form = RequestToChangeCubicFocalPointForm(request_copy, instance=user_request)
+            # print(user_request.cubic)
+            # print('request copy is: ')
+            # print(request_copy)
+            # print('user request is: ')
+            # print(user_request)
+            form = RequestToChangeCubicFocalPointForm(instance=user_request)
             orig_request_status = user_request.status
-            form.save()
+            user_request.status = request_copy['status']
+            user_request.notes = request_copy['notes']
+            user_request.save()
+            # if form.is_valid():
+            # print('form is valid')
+            # form.save()
             if request_copy['status'] != orig_request_status:
                 send_change_status_notification(request, request_copy)
             return redirect('focal_point:requests')
+            # else:
+            #     print('form errors are: ')
+            #     print(form.errors)
+            #     return render(request, 'focal_point/viewrequest.html', {'request': user_request, 'form': form})
         except ValueError:
             return render(request, 'focal_point/viewrequest.html',
                           {'request': user_request, 'error': 'Bad info', 'form': form})
