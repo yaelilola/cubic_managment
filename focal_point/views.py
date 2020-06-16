@@ -403,7 +403,7 @@ def display_my_request(request, request_id):
     print(user_request.floor)
     if request.method == 'GET':
         form = FocalPointRequestForm(instance=user_request, business_group_qs=qs)
-        return render(request, 'focal_point/viewrequest.html', {'request': user_request, 'form': form})
+        return render(request, 'focal_point/viewmyrequest.html', {'request': user_request, 'form': form})
     else:
         try:
             request_copy = request.POST.copy()
@@ -417,7 +417,7 @@ def display_my_request(request, request_id):
             curr_request.save()
             return redirect('focal_point:myrequests')
         except ValueError:
-            return render(request, 'focal_point/viewrequest.html',
+            return render(request, 'focal_point/viewmyrequest.html',
                           {'request': user_request, 'error': 'bad info', 'form': form})
 
 @user_is_focal_point
