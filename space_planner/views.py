@@ -12,7 +12,7 @@ from .tables import CampusTable, CampusTable_no_mean, BuildingTable, BuildingTab
 from django_tables2 import RequestConfig
 from recruit.models import NewPosition
 from .filters import PositionFilter, RequestsFilter
-# from django.core.mail import send_mail
+from django.core.mail import send_mail
 from datetime import date
 from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta
@@ -408,9 +408,9 @@ def send_change_status_notification(request, request_content):
     receiver_mail=request_focal_point.email
     subject = "Request from space planner status update"
     content = "{space_planner} changed your request status to '{status}'".format(space_planner=space_planner, status=request_content['status'])
-    # send_mail(subject, content,
-    #           sender_mail,
-    #           [receiver_mail])
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
 
 @user_is_space_planner
 def display_request(request, request_id):
@@ -445,9 +445,9 @@ def send_no_longer_focal_point_notification(space_planner_email, previous_focal_
     receiver_mail = previous_focal_point_email
     subject = "You are no longer a focal point."
     content = "{space_planner} assigned a new focal point for your group.".format(space_planner=space_planner_email)
-    # send_mail(subject, content,
-    #           sender_mail,
-    #           [receiver_mail])
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
 
 
 def send_new_focal_point_notification(space_planner_email, new_focal_point_email):
@@ -455,9 +455,9 @@ def send_new_focal_point_notification(space_planner_email, new_focal_point_email
     receiver_mail = new_focal_point_email
     subject = "You are the new focal point for your group."
     content = "{space_planner} assigned you as the new group focal point.".format(space_planner=space_planner_email)
-    # send_mail(subject, content,
-    #           sender_mail,
-    #           [receiver_mail])
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
 
 
 @user_is_space_planner

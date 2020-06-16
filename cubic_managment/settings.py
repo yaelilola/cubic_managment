@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '9pvh3#=)3iwr&m4ac!2ayx5rb8fwd0-oxw3uq_&3(h2i96%#=t'
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -92,11 +92,11 @@ WSGI_APPLICATION = 'cubic_managment.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'cubicmangmentv2',
-        'USER': 'postgres',
-        'PASSWORD': 'yaelamit234313',
-        'HOST': 'cubicmangmentv2.c0fo1jjfbwd8.us-east-2.rds.amazonaws.com',
-        'PORT': '5432',
+        'NAME': os.environ['DB_NAME'],
+        'USER': os.environ['DB_USER'],
+        'PASSWORD':  os.environ['DB_PASSWORD'],
+        'HOST': os.environ['DB_HOST'],
+        'PORT':  os.environ['DB_PORT'],
         'DISABLE_SERVER_SIDE_CURSORS': True,
     }
 }
@@ -147,11 +147,11 @@ LOGIN_URL='/login'
 EMAIL_BACKEND ="django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "yaelamitindustrial@gmail.com"
-EMAIL_HOST_PASSWORD = "234313YA"
+EMAIL_PORT = os.environ['EMAIL_PORT']
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 
-YOUR_S3_BUCKET = "cubic-management-static-v1"
+YOUR_S3_BUCKET = os.environ['S3_BUCKET']
 
 STATICFILES_STORAGE = "django_s3_storage.storage.StaticS3Storage"
 AWS_S3_BUCKET_NAME_STATIC = YOUR_S3_BUCKET
