@@ -9,7 +9,7 @@ from facilities.models import Cubic, Campus, Building, Floor
 from cubic_managment.decorators import user_is_focal_point, user_is_focal_point_request_author, \
     user_in_focal_point_group, request_user_in_focal_point_group
 import datetime
-# from django.core.mail import send_mail
+from django.core.mail import send_mail
 from .tables import UserRequestsTable, AssignmentsTable, AssignmentsFilter
 from django_tables2 import RequestConfig
 from space_planner.tables import NewPositionTable, FloorTable_no_mean, FloorTable
@@ -118,7 +118,7 @@ def send_assign_notification(focal_point_email, assigned_users, cubics):
         + str(floor) + "\\" \
         + str(space) + "\\" \
         + str(cubics[0]) + "\n"
-    # send_mail(subject, content, sender_mail, assigned_users)
+    send_mail(subject, content, sender_mail, assigned_users)
 
 
 def assign(request, form_type, cubic_type, percentage):
@@ -271,7 +271,7 @@ def send_notification(request, request_content):
     if request_content.destination_date:
         content += "The due date for the request is {due_date}. \n".format(due_date=request_content.destination_date)
     content += "Thank you."
-    # send_mail(subject, content, sender_mail, receiver_mail)
+    send_mail(subject, content, sender_mail, receiver_mail)
 
 
 @user_is_focal_point
@@ -281,7 +281,7 @@ def create_request(request):
     if request.method == 'GET':
         return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs)})
     else:
-        # try:
+        try:
             if ((request.POST.get('full_time_employees_amount') == '' or request.POST.get('full_time_employees_amount') == '0')
                     and (request.POST.get('part_time_employees_amount') == '' or request.POST.get('part_time_employees_amount') == '0')
                     and (request.POST.get('business_group_near_by') == '')):
@@ -332,9 +332,9 @@ def create_request(request):
             # new_request.save()
             send_notification(request, new_request)
             return redirect('focal_point:myrequests')
-        # except ValueError:
-        #     return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs),
-        #                                                             'error': 'Bad data passed in'})
+        except ValueError:
+            return render(request, 'focal_point/createrequests.html', {'form': FocalPointRequestForm(business_group_qs=qs),
+                                                                    'error': 'Bad data passed in'})
 
 @user_is_focal_point
 def display_requests(request):
@@ -351,9 +351,9 @@ def send_change_status_notification(request, request_content):
     receiver_mail = (request_content['user']).email
     subject = "Request to change cubic status update"
     content = "{focal_point} changed your request status to '{status}'".format(focal_point=focal_point, status=request_content['status'])
-    # send_mail(subject, content,
-    #           sender_mail,
-    #           [receiver_mail])
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
 
 @request_user_in_focal_point_group
 @user_is_focal_point

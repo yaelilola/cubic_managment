@@ -12,7 +12,7 @@ from .tables import CampusTable, CampusTable_no_mean, BuildingTable, BuildingTab
 from django_tables2 import RequestConfig
 from recruit.models import NewPosition
 from .filters import PositionFilter, RequestsFilter
-# from django.core.mail import send_mail
+from django.core.mail import send_mail
 from datetime import date
 from django.utils.timezone import now
 from dateutil.relativedelta import relativedelta
@@ -408,9 +408,9 @@ def send_change_status_notification(request, request_content):
     receiver_mail=request_focal_point.email
     subject = "Request from space planner status update"
     content = "{space_planner} changed your request status to '{status}'".format(space_planner=space_planner, status=request_content['status'])
-    # send_mail(subject, content,
-    #           sender_mail,
-    #           [receiver_mail])
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
 
 @user_is_space_planner
 def display_request(request, request_id):
@@ -432,8 +432,8 @@ def display_request(request, request_id):
             request_post_copy['destination_date'] = focal_point_request.destination_date
             form = FocalPointRequestSpacePlannerForm(request_post_copy, instance=focal_point_request)
             form.save()
-            # if request_post_copy['status'] != orig_request_status:
-                # send_change_status_notification(request, request_post_copy)
+            if request_post_copy['status'] != orig_request_status:
+                send_change_status_notification(request, request_post_copy)
             return redirect('space_planner:requests')
         except ValueError:
             return render(request, 'space_planner/viewrequest.html',
@@ -445,9 +445,9 @@ def send_no_longer_focal_point_notification(space_planner_email, previous_focal_
     receiver_mail = previous_focal_point_email
     subject = "You are no longer a focal point."
     content = "{space_planner} assigned a new focal point for your group.".format(space_planner=space_planner_email)
-    # send_mail(subject, content,
-    #           sender_mail,
-    #           [receiver_mail])
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
 
 
 def send_new_focal_point_notification(space_planner_email, new_focal_point_email):
@@ -455,9 +455,9 @@ def send_new_focal_point_notification(space_planner_email, new_focal_point_email
     receiver_mail = new_focal_point_email
     subject = "You are the new focal point for your group."
     content = "{space_planner} assigned you as the new group focal point.".format(space_planner=space_planner_email)
-    # send_mail(subject, content,
-    #           sender_mail,
-    #           [receiver_mail])
+    send_mail(subject, content,
+              sender_mail,
+              [receiver_mail])
 
 
 @user_is_space_planner
@@ -465,13 +465,11 @@ def assign_focal_point(request):
     if request.method == 'GET':
         return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm()})
     else:
-        # try:
+        try:
             if request.POST:
                 chosen_business_group_query_set = BusinessGroup.objects.filter(id=request.POST.get('business_group'),
                                                                                admin_group=False)
                 chosen_employee_query_set = CustomUser.objects.filter(employee_number=request.POST.get('employee'))
-                print(chosen_employee_query_set)
-                print(chosen_business_group_query_set)
                 if len(chosen_business_group_query_set) == 0 or len(chosen_employee_query_set) == 0: #cant submit form with at least one empty field
                     return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm(),
                                                                                      'error': 'please fill all forms'})
@@ -485,14 +483,14 @@ def assign_focal_point(request):
                                                                     focal_point=True)[0]
                         old_focal_point.focal_point = False
                         old_focal_point.save()
-                        # send_no_longer_focal_point_notification(request.user.email, old_focal_point.email)
+                        send_no_longer_focal_point_notification(request.user.email, old_focal_point.email)
                     chosen_employee.focal_point = True
                     chosen_employee.save()
-                    # send_new_focal_point_notification(request.user.email, chosen_employee.email)
+                    send_new_focal_point_notification(request.user.email, chosen_employee.email)
                     return redirect('homepage')
-        # except ValueError or IndexError:
-        #     return render(request, 'space_planner/assign_focal_point.html',
-        #                   {'form': ChooseFocalPointForm(), 'error': 'Bad info'})
+        except ValueError or IndexError:
+            return render(request, 'space_planner/assign_focal_point.html',
+                          {'form': ChooseFocalPointForm(), 'error': 'Bad info'})
 
 
 @user_is_space_planner
