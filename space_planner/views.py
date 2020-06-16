@@ -193,25 +193,24 @@ def load_requests(request):
         return render(request, 'space_planner/focal_point_request_info.html', {'table': table,
                                                                                'business_group': chosen_business_group})
 
-@user_is_space_planner
+
 def load_spaces(request):
     chosen_floor = request.GET.get('floor')
     avail_spaces = get_spaces_with_room(request, chosen_floor)
     return render(request, 'space_planner/focal_point_request_info.html', {'table': avail_spaces})
 
 
-
-@user_is_space_planner
 def load_campus_buildings(request):
     chosen_campus = request.GET.get('campus')
     buildings = Building.objects.filter(campus=chosen_campus)
     return render(request, 'space_planner/buildings_dropdown_list_options.html', {'buildings': buildings})
 
-@user_is_space_planner
+
 def load_campus_buildings_floors(request):
     chosen_building = request.GET.get('building')
     floors = Floor.objects.filter(building=chosen_building)
     return render(request, 'space_planner/floors_dropdown_list_options.html', {'floors': floors})
+
 
 def get_amount_available_cubics_in_space(space):
     total_space = 0
@@ -408,9 +407,9 @@ def send_change_status_notification(request, request_content):
     receiver_mail=request_focal_point.email
     subject = "Request from space planner status update"
     content = "{space_planner} changed your request status to '{status}'".format(space_planner=space_planner, status=request_content['status'])
-    send_mail(subject, content,
-              sender_mail,
-              [receiver_mail])
+    # send_mail(subject, content,
+    #           sender_mail,
+    #           [receiver_mail])
 
 @user_is_space_planner
 def display_request(request, request_id):
@@ -445,9 +444,9 @@ def send_no_longer_focal_point_notification(space_planner_email, previous_focal_
     receiver_mail = previous_focal_point_email
     subject = "You are no longer a focal point."
     content = "{space_planner} assigned a new focal point for your group.".format(space_planner=space_planner_email)
-    send_mail(subject, content,
-              sender_mail,
-              [receiver_mail])
+    # send_mail(subject, content,
+    #           sender_mail,
+    #           [receiver_mail])
 
 
 def send_new_focal_point_notification(space_planner_email, new_focal_point_email):
@@ -455,9 +454,9 @@ def send_new_focal_point_notification(space_planner_email, new_focal_point_email
     receiver_mail = new_focal_point_email
     subject = "You are the new focal point for your group."
     content = "{space_planner} assigned you as the new group focal point.".format(space_planner=space_planner_email)
-    send_mail(subject, content,
-              sender_mail,
-              [receiver_mail])
+    # send_mail(subject, content,
+    #           sender_mail,
+    #           [receiver_mail])
 
 
 @user_is_space_planner

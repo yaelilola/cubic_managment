@@ -29,7 +29,7 @@ class AssignmentsFilter(django_filters.FilterSet):
 class AssignmentsTable(tables.Table):
     class Meta:
         model = AssignUserCubic
-        exclude = ['id']
+        exclude = ['id','time']
         filterset_class = AssignmentsFilter
         row_attrs = {
             "user_id": lambda record: record.assigned_user.pk

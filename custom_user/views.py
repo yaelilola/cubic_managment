@@ -117,7 +117,7 @@ def send_notification(request, request_content):
                   "The wanted cubic is : {wanted_cubic} \n " \
                   "The reason is: {reason}".format(username=request.user.email, wanted_cubic=request_content.cubic,
                                                    reason=request_content.reason)
-        send_mail(subject, content, sender_mail, [receiver_mail])
+        #send_mail(subject, content, sender_mail, [receiver_mail])
     except:
         pass
 
