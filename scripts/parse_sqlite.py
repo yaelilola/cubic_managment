@@ -7,12 +7,6 @@ import psycopg2
 import sys
 import os
 
-POSTGRES_ADDRESS = os.environ['DB_HOST']
-POSTGRES_PORT = os.environ['DB_PORT']
-POSTGRES_USERNAME = os.environ['DB_USER']
-POSTGRES_PASSWORD = os.environ['DB_PASSWORD']
-POSTGRES_DBNAME = os.environ['DB_NAME']
-
 
 # find the n'th delimeter (the needle, which is '-') in the cubic barcode
 def findnth(haystack, needle, n):
