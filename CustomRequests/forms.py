@@ -31,8 +31,6 @@ class FocalPointRequestForm(ModelForm):
         super(FocalPointRequestForm, self).__init__(*args, **kwargs)
         # self.fields['near_lab'].queryset = Space.objects.filter(type='Lab')
         self.fields['business_group_near_by'].queryset = business_group_qs
-        self.fields['building'].queryset = Building.objects.none()
-        self.fields['floor'].queryset = Floor.objects.none()
 
     class Meta:
         model = FocalPointRequest

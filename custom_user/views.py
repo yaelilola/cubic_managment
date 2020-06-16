@@ -16,6 +16,7 @@ from recruit.models import NewPosition
 
 from dal import autocomplete
 from django.utils.html import format_html
+import os
 
 def homepage(request):
     if request.user.is_authenticated:
@@ -108,7 +109,7 @@ def get_my_cubic(request):
 
 
 def send_notification(request, request_content):
-    sender_mail = "yaelAmitIndustrial@gmail.com" #TODO - change to real mail
+    sender_mail = os.environ['EMAIL_HOST_USER']
     try:
         focal_point = get_object_or_404(CustomUser, focal_point=True, business_group=request.user.business_group)
         receiver_mail = focal_point.email
