@@ -193,7 +193,7 @@ def load_requests(request):
         return render(request, 'space_planner/focal_point_request_info.html', {'table': table,
                                                                                'business_group': chosen_business_group})
 
-@user_is_space_planner
+
 def load_spaces(request):
     chosen_floor = request.GET.get('floor')
     avail_spaces = get_spaces_with_room(request, chosen_floor)
@@ -201,13 +201,13 @@ def load_spaces(request):
 
 
 
-@user_is_space_planner
+
 def load_campus_buildings(request):
     chosen_campus = request.GET.get('campus')
     buildings = Building.objects.filter(campus=chosen_campus)
     return render(request, 'space_planner/buildings_dropdown_list_options.html', {'buildings': buildings})
 
-@user_is_space_planner
+
 def load_campus_buildings_floors(request):
     chosen_building = request.GET.get('building')
     floors = Floor.objects.filter(building=chosen_building)
