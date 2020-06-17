@@ -307,12 +307,10 @@ def create_request(request):
                 request_copy['campus'] = None
             if request.POST.get('building') != '0' and request.POST.get('building') != '':
                 request_copy['building'] = Building.objects.filter(id=request.POST.get('building'))[0]
-                print(request_copy['building'])
             else:
                 request_copy['building'] = None
             if request.POST.get('floor') != '0' and request.POST.get('floor') != '':
                 request_copy['floor'] = Floor.objects.filter(id=request.POST.get('floor'))[0]
-                print(request_copy['floor'])
             else:
                 request_copy['floor'] = None
             # form = FocalPointRequestForm(request_copy, business_group_qs=qs) // form was not working- maybe because of the added ajax.

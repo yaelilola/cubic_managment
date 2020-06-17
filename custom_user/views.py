@@ -163,8 +163,6 @@ def search_user_cubic(request):
         return render(request, 'custom_user/otherscubics.html', {'form': SearchUserCubicForm()})
     else:
         try:
-            print(relevant_users)
-            print(request.POST)
             form = SearchUserCubicForm(data=request.POST or None)
             if request.POST:
                 if form.is_valid():

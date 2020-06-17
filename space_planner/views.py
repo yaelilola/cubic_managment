@@ -470,8 +470,6 @@ def assign_focal_point(request):
                 chosen_business_group_query_set = BusinessGroup.objects.filter(id=request.POST.get('business_group'),
                                                                                admin_group=False)
                 chosen_employee_query_set = CustomUser.objects.filter(employee_number=request.POST.get('employee'))
-                print(chosen_employee_query_set)
-                print(chosen_business_group_query_set)
                 if len(chosen_business_group_query_set) == 0 or len(chosen_employee_query_set) == 0: #cant submit form with at least one empty field
                     return render(request, 'space_planner/assign_focal_point.html', {'form': ChooseFocalPointForm(),
                                                                                      'error': 'please fill all forms'})
